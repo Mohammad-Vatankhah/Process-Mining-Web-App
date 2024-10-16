@@ -1,0 +1,98 @@
+# --------------- Backend ---------------
+
+# Python files
+Backend/*.pyc
+Backend/*.pyo
+Backend/*.pyd
+Backend/__pycache__/
+Backend/*.env
+Backend/.env
+
+# Virtual environment
+Backend/venv/
+Backend/env/
+Backend/ENV/
+Backend/.venv/
+
+# Flask specific
+Backend/instance/
+Backend/*.db
+Backend/*.sqlite3
+
+# Logs and cache
+Backend/*.log
+Backend/*.pot
+Backend/*.mo
+Backend/*.pid
+Backend/*.coverage
+Backend/.cache/
+Backend/.coverage
+Backend/nosetests.xml
+Backend/coverage.xml
+Backend/*.cover
+Backend/*.py,cover
+Backend/*.egg
+Backend/*.egg-info/
+Backend/dist/
+Backend/build/
+Backend/docs/_build/
+Backend/*.mo
+
+# Environment variables
+Backend/.env
+Backend/*.env
+
+# Swagger files (if you're generating Swagger docs)
+Backend/swagger/
+
+# Flask migrations
+Backend/migrations/
+
+# IDE related (VS Code, PyCharm, etc.)
+Backend/.vscode/
+Backend/.idea/
+Backend/*.iml
+
+# OS generated files
+Backend/.DS_Store
+Backend/Thumbs.db
+Backend/desktop.ini
+
+Backend/PM-API/Lib
+
+# --------------- Frontend ---------------
+
+# dependencies
+Frontend/node_modules
+Frontend/.pnp
+Frontend/.pnp.js
+Frontend/.yarn/install-state.gz
+
+# testing
+Frontend/coverage
+
+# next.js
+Frontend/.next/
+Frontend/out/
+
+# production
+Frontend/build
+
+# misc
+Frontend/.DS_Store
+Frontend/*.pem
+
+# debug
+Frontend/npm-debug.log*
+Frontend/yarn-debug.log*
+Frontend/yarn-error.log*
+
+# local env files
+Frontend/.env*.local
+
+# vercel
+Frontend/.vercel
+
+# typescript
+Frontend/*.tsbuildinfo
+Frontend/next-env.d.ts
