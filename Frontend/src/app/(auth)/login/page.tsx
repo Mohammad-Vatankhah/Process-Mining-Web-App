@@ -14,6 +14,7 @@ import { ChangeEvent, FormEvent, useState } from "react";
 import toast from "react-hot-toast";
 import api from "@/API/API";
 import Cookies from "js-cookie";
+import { IoIosArrowRoundBack } from "react-icons/io";
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -51,19 +52,23 @@ export default function Login() {
     }
   };
   return (
-    <div
-      className="min-h-screen flex items-center justify-center"
-    >
-      <Card className="w-full max-w-md p-6 bg-white rounded-lg shadow-md">
+    <div className="min-h-screen flex items-center justify-center">
+      <Card className="w-full max-w-md p-6 shadow-md">
         <CardHeader>
-          <h1 className="text-2xl font-bold text-center text-gray-800">
-            Login
-          </h1>
+          <div className="flex items-center justify-center relative">
+            <div
+              className="absolute left-0 text-3xl cursor-pointer"
+              onClick={() => router.push("/")}
+            >
+              <IoIosArrowRoundBack />
+            </div>
+            <h1 className="text-2xl font-bold text-center">Login</h1>
+          </div>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin}>
             <div className="mb-4">
-              <label className="block text-gray-700">Email</label>
+              <label className="block">Email</label>
               <Input
                 type="email"
                 placeholder="Enter your email"
@@ -75,7 +80,7 @@ export default function Login() {
               />
             </div>
             <div className="mb-4">
-              <label className="block text-gray-700">Password</label>
+              <label className="block">Password</label>
               <Input
                 type="password"
                 placeholder="Enter your password"
@@ -104,7 +109,7 @@ export default function Login() {
           </form>
         </CardContent>
         <CardFooter className="text-center">
-          <p className="text-gray-600">
+          <p>
             {"Don't have an account? "}
             <Link href="/signup" className="text-blue-500 hover:underline">
               Sign Up

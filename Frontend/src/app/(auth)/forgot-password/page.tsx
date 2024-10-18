@@ -11,12 +11,15 @@ import {
 import { Input } from "@/components/ui/input";
 import { AxiosError } from "axios";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import toast from "react-hot-toast";
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const router = useRouter();
 
   const handleSendLink = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -24,6 +27,7 @@ export default function ForgotPassword() {
       setLoading(true);
       const res = await api.requesResetPasswordLink(email);
       toast.success(res.data.msg);
+      router.replace("/login");
     } catch (err) {
       if (err instanceof AxiosError) {
         const errorMessage =
@@ -37,24 +41,20 @@ export default function ForgotPassword() {
     }
   };
   return (
-    <div
-      className="min-h-screen flex items-center justify-center"
-    >
-      <Card className="w-full max-w-md p-6 bg-white rounded-lg shadow-md">
+    <div className="min-h-screen flex items-center justify-center">
+      <Card className="w-full max-w-md p-6 rounded-lg shadow-md">
         <CardHeader>
-          <h1 className="text-2xl font-bold text-center text-gray-800">
-            Forgot Password
-          </h1>
+          <h1 className="text-2xl font-bold text-center">Forgot Password</h1>
         </CardHeader>
         <CardContent>
-          <p className="text-gray-600 text-center mb-4">
+          <p className="text-center mb-4">
             {
               "Enter your email, and we'll send you a link to reset your password."
             }
           </p>
           <form onSubmit={handleSendLink}>
             <div className="mb-4">
-              <label className="block text-gray-700">Email</label>
+              <label className="block">Email</label>
               <Input
                 type="email"
                 placeholder="Enter your email"

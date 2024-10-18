@@ -26,7 +26,7 @@ const ResetPassword = () => {
         setResetting(true);
         await api.resetPassword(newPassword, token);
         toast.success("Password reset successfully!");
-        router.push("/login");
+        router.replace("/login");
       } catch (err) {
         const errorMessage =
           err instanceof AxiosError
@@ -62,11 +62,9 @@ const ResetPassword = () => {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Card className="w-full max-w-md p-6 bg-white rounded-lg shadow-md">
+        <Card className="w-full max-w-md p-6 rounded-lg shadow-md">
           <CardHeader>
-            <h1 className="text-2xl font-bold text-center text-gray-800">
-              Loading...
-            </h1>
+            <h1 className="text-2xl font-bold text-center">Loading...</h1>
           </CardHeader>
         </Card>
       </div>
@@ -78,9 +76,7 @@ const ResetPassword = () => {
       <div className="min-h-screen flex items-center justify-center">
         <Card className="w-full max-w-md p-6 bg-white rounded-lg shadow-md">
           <CardHeader>
-            <h1 className="text-2xl font-bold text-center text-gray-800">
-              Invalid Token
-            </h1>
+            <h1 className="text-2xl font-bold text-center">Invalid Token</h1>
           </CardHeader>
         </Card>
       </div>
@@ -89,11 +85,9 @@ const ResetPassword = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <Card className="w-full max-w-md p-6 bg-white rounded-lg shadow-md">
+      <Card className="w-full max-w-md p-6 rounded-lg shadow-md">
         <CardHeader>
-          <h1 className="text-2xl font-bold text-center text-gray-800">
-            Reset Password
-          </h1>
+          <h1 className="text-2xl font-bold text-center">Reset Password</h1>
         </CardHeader>
         <form onSubmit={handleResetPassword}>
           <label htmlFor="newPassword" className="block mb-2">
@@ -103,10 +97,11 @@ const ResetPassword = () => {
             type="password"
             id="newPassword"
             name="newPassword"
+            placeholder="New Password"
             required
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
-            className="border border-gray-300 p-2 rounded mb-4 w-full"
+            className="border p-2 rounded mb-4 w-full"
           />
           <Button type="submit" disabled={resetting} className="w-full p-2">
             {resetting ? "Resetting..." : "Reset Password"}
