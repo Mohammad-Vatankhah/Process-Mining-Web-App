@@ -14,7 +14,7 @@ const ResetPassword = () => {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
   const [newPassword, setNewPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [resetting, setResetting] = useState(false);
   const [isValidToken, setIsValidToken] = useState(true);
 
