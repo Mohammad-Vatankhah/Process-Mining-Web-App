@@ -10,49 +10,49 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "#FEFAE0", // Light Cornsilk for background
-        foreground: "#283618", // Pakistan Green for main text
+        background: "#EEEEEE", // Light gray background for a clean look
+        foreground: "#222831", // Dark gray for main text, providing strong contrast
 
         card: {
-          DEFAULT: "#F9FEEF", // Soft light Cornsilk for card background
-          foreground: "#4A5734", // Darker Moss Green for card text
+          DEFAULT: "#f7f0f5", // Medium gray for card background
+          foreground: "#393E46", // Light gray for card text
         },
         popover: {
-          DEFAULT: "#DDA15E", // Earth Yellow for popover background
-          foreground: "#283618", // Pakistan Green for popover text
+          DEFAULT: "#393E46", // Medium gray for popover background
+          foreground: "#EEEEEE", // Light gray for popover text
         },
 
         primary: {
-          DEFAULT: "#606C38", // Dark Moss Green for primary actions
-          foreground: "#FEFAE0", // Cornsilk text on primary
+          DEFAULT: "#00ADB5", // Vibrant teal for primary actions
+          foreground: "#EEEEEE", // Light gray text on primary
         },
         secondary: {
-          DEFAULT: "#283618", // Pakistan Green for secondary actions
-          foreground: "#FEFAE0", // Cornsilk text for secondary
+          DEFAULT: "#393E46", // Lighter gray for secondary actions
+          foreground: "#EEEEEE", // Light gray for secondary text
         },
         muted: {
-          DEFAULT: "#DDA15E", // Earth Yellow for muted backgrounds
-          foreground: "#606C38", // Dark Moss Green for muted text
+          DEFAULT: "#EEEEEE", // Light gray background for muted areas
+          foreground: "#393E46", // Medium gray text for muted content
         },
         accent: {
-          DEFAULT: "#BC6C25", // Tiger's Eye for accents
-          foreground: "#FEFAE0", // Cornsilk text on accent
+          DEFAULT: "#00ADB5", // Teal accent color
+          foreground: "#222831", // Dark gray for accent text
         },
         destructive: {
-          DEFAULT: "#BC6C25", // Tiger's Eye for destructive actions
-          foreground: "#FEFAE0", // Cornsilk text for destructive
+          DEFAULT: "#B33030", // Muted red for destructive actions
+          foreground: "#EEEEEE", // Light gray for destructive text
         },
 
-        border: "#606C38", // Dark Moss Green for borders
-        input: "#606C38", // Cornsilk for input fields
-        ring: "#606C38", // Dark Moss Green for focus ring
+        border: "#393E46", // Medium gray for borders
+        input: "#00ADB5", // Light gray for input fields
+        ring: "#00ADB5", // Teal focus ring for inputs and buttons
 
         chart: {
-          "1": "#606C38", // Dark Moss Green for charts
-          "2": "#283618", // Pakistan Green for charts
-          "3": "#DDA15E", // Earth Yellow for charts
-          "4": "#BC6C25", // Tiger's Eye for charts (destructive)
-          "5": "#FEFAE0", // Cornsilk for lighter chart elements
+          "1": "#00ADB5", // Teal for charts
+          "2": "#393E46", // Medium gray for charts
+          "3": "#222831", // Dark gray for charts
+          "4": "#B33030", // Red for destructive areas in charts
+          "5": "#EEEEEE", // Light gray for chart highlights
         },
       },
 

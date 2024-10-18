@@ -7,13 +7,12 @@ import { jwtDecode } from "jwt-decode";
 import { FaBars, FaTimes } from "react-icons/fa";
 import { Button } from "./ui/button";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function Navbar() {
   const [user, setUser] = useState<User | undefined>();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 769);
   const [showModal, setShowModal] = useState(false);
-
-  const router = useRouter();
 
   const navLinks = [
     { title: "Home", url: "/" },
@@ -61,18 +60,16 @@ export default function Navbar() {
         // Laptop Navbar Code Here
         <nav className="bg-primary text-primary-foreground">
           <div className="flex justify-between mx-auto items-center py-4 px-24">
-            <div className="text-primary-foreground font-bold text-xl">
-              PM
-            </div>
+            <div className="text-primary-foreground font-bold text-xl">PM</div>
             <ul className="flex gap-8 md:gap-16 items-center justify-center text-center cursor-pointer">
               {navLinks.map((link, index) => (
                 <li key={index} className="text-primary-foreground text-sm">
-                  {link.title}
+                  <Link href={link.url}>{link.title}</Link>
                 </li>
               ))}
             </ul>
             <ul className="flex text-primary-foreground gap-3 items-center cursor-pointer">
-              <UserButtons user={user} />
+              <UserButtons user={user} setUser={setUser} />
             </ul>
           </div>
         </nav>
@@ -84,7 +81,7 @@ export default function Navbar() {
               Logo
             </div>
             <div className="flex justify-end items-center gap-3 text-primary-foreground cursor-pointer">
-              <UserButtons user={user} />
+              <UserButtons user={user} setUser={setUser} />
               <FaBars
                 onClick={handleBarsIconClick}
                 className="text-primary-foreground cursor-pointer"
@@ -119,13 +116,29 @@ export default function Navbar() {
   );
 }
 
-const UserButtons = ({ user }: { user: User | undefined }) => {
+const UserButtons = ({
+  user,
+  setUser,
+}: {
+  user: User | undefined;
+  setUser: React.Dispatch<React.SetStateAction<User | undefined>>;
+}) => {
   const router = useRouter();
+
+  const handleLogout = () => {
+    setUser(undefined);
+    Cookies.remove("access_token");
+  };
+
   return (
     <>
       {!user ? (
         <>
-          <Button variant="link" className="text-white" onClick={() => router.push("/login")}>
+          <Button
+            variant="link"
+            className="text-white"
+            onClick={() => router.push("/login")}
+          >
             Login
           </Button>
           <Button variant="secondary" onClick={() => router.push("/signup")}>
@@ -134,8 +147,12 @@ const UserButtons = ({ user }: { user: User | undefined }) => {
         </>
       ) : (
         <>
-          <Button onClick={() => router.push("/profile")}>Profile</Button>
-          <Button variant="destructive">Logout</Button>
+          <Button variant="secondary" onClick={() => router.push("/profile")}>
+            Profile
+          </Button>
+          <Button variant="destructive" onClick={handleLogout}>
+            Logout
+          </Button>
         </>
       )}
     </>

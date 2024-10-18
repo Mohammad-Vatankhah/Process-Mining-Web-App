@@ -48,7 +48,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="py-16 bg-muted">
+      <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl lg:text-4xl font-bold text-center">
             How It Works
