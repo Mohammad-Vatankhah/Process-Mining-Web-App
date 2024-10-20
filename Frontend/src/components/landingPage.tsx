@@ -1,3 +1,6 @@
+"use client";
+import Link from "next/link";
+import ParticlesBackground from "./particles";
 import { Button } from "./ui/button";
 import {
   Card,
@@ -9,8 +12,11 @@ import {
 
 export default function LandingPage() {
   return (
-    <div className="bg-background text-foreground min-h-screen">
-      <section className="flex flex-col items-center justify-center py-20">
+    <div className="bg-primary text-primary-foreground min-h-screen select-none">
+      <section className="flex flex-col items-center justify-center py-20 relative">
+        <div className="absolute w-full h-full">
+          <ParticlesBackground />
+        </div>
         <h1 className="text-4xl lg:text-6xl font-bold text-center">
           Optimize Your Business with Process Mining
         </h1>
@@ -18,9 +24,14 @@ export default function LandingPage() {
           Uncover inefficiencies, enhance workflows, and improve decision-making
           with our powerful process mining tools.
         </p>
-        <Button className="mt-8 px-8 py-6 text-lg font-semibold">
-          Get Started
-        </Button>
+        <Link href="/process" className="z-10">
+          <Button
+            variant="secondary"
+            className="mt-8 px-8 py-6 text-lg font-semibold"
+          >
+            Get Started
+          </Button>
+        </Link>
       </section>
 
       <section className="py-16 bg-card">
@@ -50,7 +61,7 @@ export default function LandingPage() {
 
       <section className="py-16 bg-background">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl lg:text-4xl font-bold text-center">
+          <h2 className="text-foreground text-3xl lg:text-4xl font-bold text-center">
             How It Works
           </h2>
           <div className="text-muted-foreground grid grid-cols-1 md:grid-cols-3 gap-8 mt-10">
@@ -125,7 +136,7 @@ function FeatureCard({
   icon: string;
 }) {
   return (
-    <Card className="text-center shadow-md rounded-lg">
+    <Card className="text-center shadow-md">
       <CardHeader className="flex justify-center">
         <p className="text-5xl bg-transparent">{icon}</p>
       </CardHeader>
@@ -149,7 +160,7 @@ function StepCard({
   description: string;
 }) {
   return (
-    <Card className="text-center shadow-md rounded-lg">
+    <Card className="text-center shadow-md">
       <CardHeader className="flex justify-center text-3xl font-bold">
         {`${step}) ${title}`}
       </CardHeader>
@@ -164,7 +175,7 @@ function StepCard({
 
 function Testimonial({ name, review }: { name: string; review: string }) {
   return (
-    <Card className="text-center">
+    <Card className="text-center shadow-md">
       <CardContent>
         <CardDescription className="mt-4 italic text-base font-normal">
           {review}
