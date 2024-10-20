@@ -12,7 +12,6 @@ from jwt import ExpiredSignatureError, InvalidTokenError
 # Create a Blueprint for user management
 user_bp = Blueprint('user', __name__)
 
-TOKEN_EXPIRATION_MINUTES = 24 * 60
 RESET_PASSWORD_EXPIRATION_MINUTES = 15
 
 
@@ -71,8 +70,7 @@ def signup():
     new_user = User(email=email, password=generate_password_hash(password))
     db.session.add(new_user)
     db.session.commit()
-    access_token = create_access_token(
-        identity=new_user.id, expires_delta=timedelta(minutes=TOKEN_EXPIRATION_MINUTES))
+    access_token = create_access_token(identity=new_user.id, expires_delta=None)
     return jsonify({'msg': 'User created successfully', 'user_data': {'id': new_user.id, 'email': new_user.email, 'access_token': access_token}}), 201
 
 
@@ -122,7 +120,7 @@ def login():
     user = User.query.filter_by(email=email).first()
 
     if user and check_password_hash(user.password, password):
-        access_token = create_access_token(identity=user.id)
+        access_token = create_access_token(identity=user.id, expires_delta=None)
         return jsonify({'id': user.id, 'email': user.email, 'access_token': access_token}), 200
 
     return jsonify({'msg': 'Invalid email or password'}), 401
@@ -230,8 +228,7 @@ def delete_user(user_id):
 def generate_reset_token(user_id):
     """Generate JWT token for password reset using Flask-JWT-Extended."""
     # Create a short-lived token
-    token = create_access_token(
-        identity=user_id, expires_delta=timedelta(minutes=TOKEN_EXPIRATION_MINUTES))
+    token = create_access_token(identity=user_id, expires_delta=timedelta(minutes=15))
     return token
 
 
@@ -468,3 +465,86 @@ def check_reset_token():
         return jsonify({'msg': 'Token has expired'}), 401
     except InvalidTokenError:
         return jsonify({'msg': 'Invalid token'}), 401
+
+@user_bp.route('/<int:user_id>/files', methods=['GET'])
+@jwt_required()
+@swag_from({
+    'tags': ['User Files'],
+    'summary': 'Get User\'s Uploaded Files with JWT Authentication',
+    'description': 'Retrieve a list of files uploaded by the authenticated user using JWT token and user ID.',
+    'parameters': [
+        {
+            'name': 'Authorization',
+            'in': 'header',
+            'type': 'string',
+            'required': True,
+            'description': 'JWT Token to authorize the request (Bearer <token>)'
+        },
+        {
+            'name': 'user_id',
+            'in': 'path',
+            'type': 'integer',
+            'required': True,
+            'description': 'ID of the user whose files are being retrieved'
+        }
+    ],
+    'responses': {
+        200: {
+            'description': 'List of files uploaded by the user',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'files': {
+                        'type': 'array',
+                        'items': {
+                            'type': 'object',
+                            'properties': {
+                                'original_filename': {
+                                    'type': 'string',
+                                    'description': 'The original name of the uploaded file'
+                                },
+                                'saved_filename': {
+                                    'type': 'string',
+                                    'description': 'The unique name the file was saved as on the server'
+                                },
+                                'path': {
+                                    'type': 'string',
+                                    'description': 'The file path where the file is stored'
+                                },
+                                'uploaded_at': {
+                                    'type': 'string',
+                                    'format': 'date-time',
+                                    'description': 'The timestamp of when the file was uploaded'
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        401: {
+            'description': 'Unauthorized access, JWT required',
+            'examples': {
+                'application/json': {
+                    'msg': 'Missing Authorization Header'
+                }
+            }
+        },
+        404: {
+            'description': 'User not found',
+            'examples': {
+                'application/json': {
+                    'error': 'User not found'
+                }
+            }
+        }
+    }
+})
+def get_user_files(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    files = [{'original_filename': file.original_filename, 'saved_filename': file.saved_filename, 'uploaded_at': file.uploaded_at} for file in user.files]
+
+    return jsonify({'files': files}), 200
