@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast"; // Assuming you're using react-hot-toast
-import api from "@/API/API";
+import api from "@/API/userAPI";
 import { AxiosError } from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";

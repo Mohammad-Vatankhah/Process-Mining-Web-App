@@ -12,7 +12,7 @@ import { AxiosError } from "axios";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, FormEvent, useState } from "react";
 import toast from "react-hot-toast";
-import api from "@/API/API";
+import api from "@/API/userAPI";
 import Cookies from "js-cookie";
 import { IoIosArrowRoundBack } from "react-icons/io";
 
