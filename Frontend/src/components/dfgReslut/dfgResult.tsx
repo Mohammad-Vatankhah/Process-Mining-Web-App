@@ -2,15 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader } from "../ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableFooter,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../ui/table";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
 
