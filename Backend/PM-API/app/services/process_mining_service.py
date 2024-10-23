@@ -1,5 +1,6 @@
-import os
+import base64
 import tempfile
+import os
 from pm4py.objects.log.importer.xes import importer as xes_importer
 from pm4py.algo.discovery.alpha import algorithm as alpha_miner
 from pm4py.algo.discovery.heuristics import algorithm as heuristics_miner
@@ -9,77 +10,72 @@ from pm4py.visualization.petri_net import visualizer as pn_visualizer
 from pm4py.objects.conversion.process_tree import converter as pt_converter
 import networkx as nx
 import pandas as pd
-from flask import send_file, jsonify
+from flask import jsonify
 
-def alpha_miner_discovery_service(file):
-    # Save the uploaded file to a temporary file
-    with tempfile.NamedTemporaryFile(delete=False) as temp_file:
-        file.save(temp_file.name)
-        log = xes_importer.apply(temp_file.name)
+def encode_image_to_base64(gviz):
+    """Encode the generated visualization to base64"""
+    with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as temp_img:
+        pn_visualizer.save(gviz, temp_img.name)  # Save to a temp file
+        temp_img.seek(0)  # Go to the start of the file
+    
+        # Read the temp file and convert to base64
+        with open(temp_img.name, "rb") as img_file:
+            img_base64 = base64.b64encode(img_file.read()).decode('utf-8')
+    
+    os.remove(temp_img.name)  # Remove the temp file after reading it
+    return img_base64
+
+def alpha_miner_discovery_service(filepath):
+    log = xes_importer.apply(filepath)
 
     try:
-        # Apply Alpha Miner algorithm to discover the process model
+        # Apply Alpha Miner algorithm
         net, initial_marking, final_marking = alpha_miner.apply(log)
 
-        # Visualize the Petri net and save the result as an image
+        # Visualize the Petri net
         gviz = pn_visualizer.apply(net, initial_marking, final_marking)
-        temp_img = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
-        pn_visualizer.save(gviz, temp_img.name)
+        
+        # Return the image as base64 string
+        img_base64 = encode_image_to_base64(gviz)
+        return jsonify({'image_base64': f'data:image/png;base64,{img_base64}'})
+    except Exception as e:
+        return jsonify({"error": str(e)})
 
-        # Return the image as a response and clean up after sending
-        response = send_file(temp_img.name, mimetype='image/png')
-        response.call_on_close(lambda: os.remove(temp_img.name))
-        return response
-    finally:
-        os.remove(temp_file.name)  # Clean up the log file
-
-def hurestic_miner_discovery_service(file):
-    # Save and load log file
-    with tempfile.NamedTemporaryFile(delete=False) as temp_file:
-        file.save(temp_file.name)
-        log = xes_importer.apply(temp_file.name)
+def heuristic_miner_discovery_service(filepath):
+    log = xes_importer.apply(filepath)
 
     try:
         # Apply Heuristic Miner
         net, initial_marking, final_marking = heuristics_miner.apply(log)
 
-        # Visualize and save the model
+        # Visualize the Petri net
         gviz = pn_visualizer.apply(net, initial_marking, final_marking)
-        temp_img = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
-        pn_visualizer.save(gviz, temp_img.name)
 
-        response = send_file(temp_img.name, mimetype='image/png')
-        response.call_on_close(lambda: os.remove(temp_img.name))  # Deleting image after response is sent
+        # Return the image as base64 string
+        img_base64 = encode_image_to_base64(gviz)
+        return jsonify({'image_base64': f'data:image/png;base64,{img_base64}'})
+    except Exception as e:
+        return jsonify({"error": str(e)})
 
-        return response
-    finally:
-        os.remove(temp_file.name)  # Ensure the log file is removed
-
-def inductive_miner_discovery_service(file):
-    with tempfile.NamedTemporaryFile(delete=False) as temp_file:
-        file.save(temp_file.name)
-        log = xes_importer.apply(temp_file.name)
+def inductive_miner_discovery_service(filepath):
+    log = xes_importer.apply(filepath)
 
     try:
         # Apply Inductive Miner
         process_tree = inductive_miner.apply(log)
         net, initial_marking, final_marking = pt_converter.apply(process_tree)
 
-        # Visualize and save the model
+        # Visualize the Petri net
         gviz = pn_visualizer.apply(net, initial_marking, final_marking)
-        temp_img = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
-        pn_visualizer.save(gviz, temp_img.name)
 
-        response = send_file(temp_img.name, mimetype='image/png')
-        response.call_on_close(lambda: os.remove(temp_img.name))  # Deleting image after response is sent
-        return response
-    finally:
-        os.remove(temp_file.name)
+        # Return the image as base64 string
+        img_base64 = encode_image_to_base64(gviz)
+        return jsonify({'image_base64': f'data:image/png;base64,{img_base64}'})
+    except Exception as e:
+        return jsonify({"error": str(e)})
 
-def dfg_discovery_service(file):
-    with tempfile.NamedTemporaryFile(delete=False) as temp_file:
-        file.save(temp_file.name)
-        log = xes_importer.apply(temp_file.name)
+def dfg_discovery_service(filepath):
+    log = xes_importer.apply(filepath)  # Load the log file from the given filepath
 
     try:
         # Discover Directly-Follows Graph (DFG)
@@ -89,14 +85,12 @@ def dfg_discovery_service(file):
         dfg_serializable = {str(k): v for k, v in dfg.items()}
 
         return jsonify({'dfg': dfg_serializable})
+    except Exception as e:
+        return jsonify({"error": str(e)})
 
-    finally:
-        os.remove(temp_file.name)
 
-def performance_analysis_service(file):
-    with tempfile.NamedTemporaryFile(delete=False) as temp_file:
-        file.save(temp_file.name)
-        log = xes_importer.apply(temp_file.name)
+def performance_analysis_service(filepath):
+    log = xes_importer.apply(filepath)  # Load the log file from the given filepath
 
     try:
         data = []
@@ -109,20 +103,16 @@ def performance_analysis_service(file):
                 })
         
         df = pd.DataFrame(data)
-        
         df['timestamp'] = pd.to_datetime(df['timestamp'])
         df['duration'] = df['timestamp'].diff().dt.total_seconds()
         avg_duration = df['duration'].mean()
 
         return jsonify({'average_duration': avg_duration})
+    except Exception as e:
+        return jsonify({"error": str(e)})
 
-    finally:
-        os.remove(temp_file.name)
-
-def social_network_service(file):
-    with tempfile.NamedTemporaryFile(delete=False) as temp_file:
-        file.save(temp_file.name)
-        log = xes_importer.apply(temp_file.name)
+def social_network_service(filepath):
+    log = xes_importer.apply(filepath)  # Load the log file from the given filepath
 
     try:
         # Create a DataFrame from the event log
@@ -135,7 +125,7 @@ def social_network_service(file):
                 })
         
         df = pd.DataFrame(data)
-        
+
         # Create a graph of activities
         G = nx.Graph()
         
@@ -150,6 +140,5 @@ def social_network_service(file):
         social_network_data = nx.to_dict_of_lists(G)
         
         return jsonify({'social_network': social_network_data})
-
-    finally:
-        os.remove(temp_file.name)
+    except Exception as e:
+        return jsonify({"error": str(e)})
