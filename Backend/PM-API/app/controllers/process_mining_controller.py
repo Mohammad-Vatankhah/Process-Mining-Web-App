@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from flasgger import swag_from
 from app.services.process_mining_service import (alpha_miner_discovery_service,
                                                  dfg_discovery_service, 
-                                                 hurestic_miner_discovery_service, 
+                                                 heuristic_miner_discovery_service, 
                                                  inductive_miner_discovery_service, 
                                                  performance_analysis_service, 
                                                  social_network_service)
@@ -166,7 +166,7 @@ def heuristic_miner_discovery(filename):
     if file_path is None:
         return jsonify({'msg': 'File not found'}), 404
 
-    response = hurestic_miner_discovery_service(file_path)
+    response = heuristic_miner_discovery_service(file_path)
     return response
 
 @process_mining_bp.route('/discover/dfg/<filename>', methods=['GET'])
