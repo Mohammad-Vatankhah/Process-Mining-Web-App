@@ -8,10 +8,12 @@ export default function UploadCard({
   handleFileChange,
   selectedFile,
   handleFileUpload,
+  uploading,
 }: {
   handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   selectedFile: File | null;
   handleFileUpload: () => void;
+  uploading: boolean;
 }) {
   return (
     <div className="container mx-auto py-16 px-4">
@@ -43,9 +45,9 @@ export default function UploadCard({
         <Button
           onClick={handleFileUpload}
           className="mt-6 w-full"
-          disabled={!selectedFile}
+          disabled={!selectedFile || uploading}
         >
-          Upload File
+          {uploading ? "Uploading..." : "Upload File"}
         </Button>
       </Card>
     </div>

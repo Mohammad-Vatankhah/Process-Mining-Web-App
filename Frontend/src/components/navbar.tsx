@@ -2,7 +2,7 @@
 import { User } from "@/types/types";
 import { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-import api from "@/API/API";
+import api from "@/API/userAPI";
 import { jwtDecode } from "jwt-decode";
 import { FaBars, FaTimes } from "react-icons/fa";
 import { Button } from "./ui/button";
