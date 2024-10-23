@@ -9,6 +9,7 @@ import { AxiosError } from "axios";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import MinerResult from "@/components/minerResult";
+import DfgResult from "@/components/dfgReslut/dfgResult";
 
 const EventLogUploadPage = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -91,11 +92,11 @@ const EventLogUploadPage = () => {
 
         case "dfg":
           const dfgRes = await PMapi.dfg(fileName);
-          setResult((prev) => ({ ...prev, dfg: dfgRes.data }));
+          setResult((prev) => ({ ...prev, dfg: dfgRes.data.dfg }));
           setAppliedAlgorithms((prev) => ({ ...prev, dfg: true }));
+          break;
         default:
           toast.error("Unknown algorithm selected.");
-          setLoading(false);
           break;
       }
     } catch (error) {
@@ -131,7 +132,7 @@ const EventLogUploadPage = () => {
         </div>
       )}
 
-      <div className="flex flex-col justify-center items-center gap-2 px-5 my-4">
+      <div className="flex flex-col justify-center items-center gap-6 px-5 my-4">
         {result.alphaMiner && (
           <MinerResult result={result.alphaMiner} algorithm="Alpha Miner" />
         )}
@@ -147,6 +148,7 @@ const EventLogUploadPage = () => {
             algorithm="Inductive Miner"
           />
         )}
+        {result.dfg && <DfgResult result={result.dfg} />}
       </div>
     </>
   );
