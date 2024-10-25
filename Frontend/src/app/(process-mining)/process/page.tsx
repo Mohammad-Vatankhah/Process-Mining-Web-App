@@ -10,6 +10,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import MinerResult from "@/components/minerResult";
 import DfgResult from "@/components/dfgReslut/dfgResult";
+import SocialNetworkGraph from "@/components/socialNetworkGraph";
 
 const EventLogUploadPage = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -23,6 +24,7 @@ const EventLogUploadPage = () => {
     heuristicMiner: null,
     inductiveMiner: null,
     dfg: null,
+    socialNetwork: null,
   });
 
   const [appliedAlgorithms, setAppliedAlgorithms] = useState({
@@ -30,6 +32,7 @@ const EventLogUploadPage = () => {
     heuristicMiner: false,
     inductiveMiner: false,
     dfg: false,
+    socialNetwork: false,
   });
 
   const [loading, setLoading] = useState(false);
@@ -95,10 +98,21 @@ const EventLogUploadPage = () => {
           setResult((prev) => ({ ...prev, dfg: dfgRes.data.dfg }));
           setAppliedAlgorithms((prev) => ({ ...prev, dfg: true }));
           break;
+
+        case "socialNetwork":
+          const socialRes = await PMapi.socialNetwork(fileName);
+          setResult((prev) => ({
+            ...prev,
+            socialNetwork: socialRes.data.social_network,
+          }));
+          setAppliedAlgorithms((prev) => ({ ...prev, socialNetwork: true }));
+          break;
+
         default:
           toast.error("Unknown algorithm selected.");
           break;
       }
+      toast.success("Applied successfully!")
     } catch (error) {
       toast.error("Failed to apply algorithm.");
     } finally {
@@ -149,6 +163,9 @@ const EventLogUploadPage = () => {
           />
         )}
         {result.dfg && <DfgResult result={result.dfg} />}
+        {result.socialNetwork && (
+          <SocialNetworkGraph result={result.socialNetwork} />
+        )}
       </div>
     </>
   );

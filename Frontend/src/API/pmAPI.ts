@@ -43,5 +43,9 @@ const PMapi = {
   dfg: async (filename: string) => {
     return await axiosInstance.get(`/discover/dfg/${filename}`);
   },
+
+  socialNetwork: async (filename: string) => {
+    return await axiosInstance.get(`/social_network/${filename}`);
+  },
 };
 export default PMapi;

@@ -25,6 +25,7 @@ export default function ApplyAlgorithmCard({
     heuristicMiner: boolean;
     inductiveMiner: boolean;
     dfg: boolean;
+    socialNetwork: boolean;
   };
 }) {
   const algorithms = [
@@ -43,6 +44,11 @@ export default function ApplyAlgorithmCard({
       id: "dfg",
       name: "Directly Follows Graph (DFG)",
       applied: appliedAlgorithms.dfg,
+    },
+    {
+      id: "socialNetwork",
+      name: "Social Network",
+      applied: appliedAlgorithms.socialNetwork,
     },
   ];
 
