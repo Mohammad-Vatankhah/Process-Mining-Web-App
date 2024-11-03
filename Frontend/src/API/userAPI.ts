@@ -1,5 +1,6 @@
 import axios from "axios";
 import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
 const API_BASE_URL = "http://localhost:8000/user";
 
 const axiosInstance = axios.create({
@@ -37,6 +38,14 @@ const api = {
     return await axiosInstance.post("/reset-password", {
       new_password,
       token,
+    });
+  },
+
+  getHistory: async () => {
+    const accessToken = Cookies.get("access_token");
+    const userId = jwtDecode(accessToken).sub;
+    return await axiosInstance.get(`/${userId}/files`, {
+      headers: { Authorization: `Bearer ${accessToken}` },
     });
   },
 };

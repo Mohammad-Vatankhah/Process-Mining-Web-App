@@ -20,11 +20,6 @@ export default function ProfileProcessSceleton() {
           <span className="w-1/2 h-4 rounded-full bg-gray-300 inline-block" />
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-2">
-        <div className="w-full h-4 rounded-full bg-gray-300" />
-        <div className="w-full h-4 rounded-full bg-gray-300" />
-        <div className="w-3/4 h-4 rounded-full bg-gray-300" />
-      </CardContent>
       <CardFooter>
         <Button size="lg" className="w-full" disabled></Button>
       </CardFooter>
