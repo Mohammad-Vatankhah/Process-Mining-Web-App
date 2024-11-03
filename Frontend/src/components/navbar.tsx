@@ -64,7 +64,7 @@ export default function Navbar() {
       {/* mobile nav */}
       <nav className="bg-primary text-primary-foreground py-4 px-4 sticky top-0 z-50 shadow-sm md:hidden">
         <div className="mx-auto flex justify-between items-center">
-          <div className="text-primary-foreground font-bold text-xl">Logo</div>
+          <div className="text-primary-foreground font-bold text-xl">PM</div>
           <div className="flex justify-end items-center gap-3 text-primary-foreground cursor-pointer">
             <UserButtons user={user} setUser={setUser} />
             <FaBars
