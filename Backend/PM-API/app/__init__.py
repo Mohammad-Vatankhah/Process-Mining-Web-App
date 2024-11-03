@@ -17,6 +17,7 @@ def create_app():
     # Configurations for the database connection
     app.config['SECRET_KEY'] = 'your-secret-key'
     app.config['JWT_SECRET_KEY'] = 'your_jwt_secret_key'
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = False
     app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:vatankhah4224@localhost/PMDB'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['MAIL_SERVER'] = 'smtp.gmail.com'
