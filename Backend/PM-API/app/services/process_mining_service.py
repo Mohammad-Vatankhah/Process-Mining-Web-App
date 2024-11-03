@@ -11,6 +11,7 @@ from pm4py.objects.conversion.process_tree import converter as pt_converter
 import networkx as nx
 import pandas as pd
 from flask import jsonify
+import pm4py
 
 def encode_image_to_base64(gviz):
     """Encode the generated visualization to base64"""
@@ -25,62 +26,95 @@ def encode_image_to_base64(gviz):
     os.remove(temp_img.name)  # Remove the temp file after reading it
     return img_base64
 
+def serialize_petrinet(net):
+    # Create a structure for the Petri net
+    petrinet_data = {
+        'places': [],
+        'arcs': [],
+        'transitions': []
+    }
+
+    # Serialize places
+    for place in net.places:
+        petrinet_data['places'].append({
+            'id': str(place),  # Use the place's unique identifier
+            'label': place.name if place.name else 'Place'
+        })
+
+    # Serialize transitions
+    for transition in net.transitions:
+        petrinet_data['transitions'].append({
+            'id': str(transition),  # Use the transition's unique identifier
+            'label': transition.name if transition.name else 'Transition'
+        })
+
+    # Serialize edges
+    for arc in net.arcs:
+        petrinet_data['arcs'].append({
+            'id': f"{arc.source}-{arc.target}",  # Unique edge ID
+            'source': str(arc.source),  # Source place/transition
+            'target': str(arc.target),  # Target place/transition
+        })
+
+    return petrinet_data
+
 def alpha_miner_discovery_service(filepath):
     log = xes_importer.apply(filepath)
 
     try:
         # Apply Alpha Miner algorithm
-        net, initial_marking, final_marking = alpha_miner.apply(log)
+        net, initial_marking, final_marking = pm4py.discover_petri_net_alpha(log)
 
-        # Visualize the Petri net
-        gviz = pn_visualizer.apply(net, initial_marking, final_marking)
-        
-        # Return the image as base64 string
-        img_base64 = encode_image_to_base64(gviz)
-        return jsonify({'image_base64': f'data:image/png;base64,{img_base64}'})
+        return jsonify({'net': serialize_petrinet(net), 'im': str(initial_marking), 'fm': str(final_marking)})
     except Exception as e:
-        return jsonify({"error": str(e)})
+        return jsonify({"error": str(e)}), 500
 
 def heuristic_miner_discovery_service(filepath):
     log = xes_importer.apply(filepath)
 
     try:
         # Apply Heuristic Miner
-        net, initial_marking, final_marking = heuristics_miner.apply(log)
+        net, initial_marking, final_marking = pm4py.discover_petri_net_heuristics(log)
 
         # Visualize the Petri net
-        gviz = pn_visualizer.apply(net, initial_marking, final_marking)
+        # gviz = pn_visualizer.apply(net, initial_marking, final_marking)
 
         # Return the image as base64 string
-        img_base64 = encode_image_to_base64(gviz)
-        return jsonify({'image_base64': f'data:image/png;base64,{img_base64}'})
+        # img_base64 = encode_image_to_base64(gviz)
+        # return jsonify({'image_base64': f'data:image/png;base64,{img_base64}'})
+        return jsonify({'net': serialize_petrinet(net), 'im': str(initial_marking), 'fm': str(final_marking)})
+
     except Exception as e:
-        return jsonify({"error": str(e)})
+        return jsonify({"error": str(e)}), 500
 
 def inductive_miner_discovery_service(filepath):
     log = xes_importer.apply(filepath)
 
     try:
         # Apply Inductive Miner
-        process_tree = inductive_miner.apply(log)
+        process_tree = pm4py.discover_petri_net_inductive(log)
         net, initial_marking, final_marking = pt_converter.apply(process_tree)
 
         # Visualize the Petri net
-        gviz = pn_visualizer.apply(net, initial_marking, final_marking)
+        # gviz = pn_visualizer.apply(net, initial_marking, final_marking)
 
         # Return the image as base64 string
-        img_base64 = encode_image_to_base64(gviz)
-        return jsonify({'image_base64': f'data:image/png;base64,{img_base64}'})
+        # img_base64 = encode_image_to_base64(gviz)
+        # return jsonify({'image_base64': f'data:image/png;base64,{img_base64}'})
+        return jsonify({'net': serialize_petrinet(net), 'im': str(initial_marking), 'fm': str(final_marking)})
+
     except Exception as e:
-        return jsonify({"error": str(e)})
+        return jsonify({"error": str(e)}), 500
 
 def dfg_discovery_service(filepath):
     log = xes_importer.apply(filepath)  # Load the log file from the given filepath
 
     try:
         # Discover Directly-Follows Graph (DFG)
-        dfg = dfg_factory.apply(log)
-        
+        # dfg = dfg_factory.apply(log)
+        dfg, start_activities, end_activities = pm4py.discover_dfg(log)
+        pm4py.view_dfg(dfg, start_activities, end_activities)
+
         # Convert DFG to a serializable format
         dfg_serializable = {str(k): v for k, v in dfg.items()}
 
