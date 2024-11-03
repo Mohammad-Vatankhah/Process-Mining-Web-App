@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
+import QueryWrapper from "@/components/queryWrapper";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -25,7 +26,7 @@ export default function RootLayout({
         )}
       >
         <Toaster position="bottom-left" reverseOrder={false} />
-        {children}
+        <QueryWrapper>{children}</QueryWrapper>
       </body>
     </html>
   );
