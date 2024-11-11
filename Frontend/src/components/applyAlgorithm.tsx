@@ -119,6 +119,8 @@ export default function ApplyAlgorithm({
     resetResult();
   }, [fileName]);
 
+  console.log(result);
+
   return (
     <>
       {fileName && (
@@ -141,17 +143,20 @@ export default function ApplyAlgorithm({
       <div className="flex flex-col justify-center items-center gap-6 px-5 my-4">
         {result.alphaMiner && (
           // <MinerResult result={result.alphaMiner} algorithm="Alpha Miner" />
-          <PetriNetGraph petrinet={result.alphaMiner} />
+          <PetriNetGraph petrinet={result.alphaMiner} algorithm="Alpha Miner" />
         )}
         {result.heuristicMiner && (
-          <MinerResult
-            result={result.heuristicMiner}
+          // <MinerResult
+          //   result={result.heuristicMiner}
+          // />
+          <PetriNetGraph
+            petrinet={result.heuristicMiner}
             algorithm="Heuristic Miner"
           />
         )}
         {result.inductiveMiner && (
-          <MinerResult
-            result={result.inductiveMiner}
+          <PetriNetGraph
+            petrinet={result.inductiveMiner}
             algorithm="Inductive Miner"
           />
         )}
