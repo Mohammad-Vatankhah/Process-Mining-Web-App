@@ -7,6 +7,7 @@ import ProfileProcessCard from "./profileProcessCard";
 import { useState } from "react";
 import ApplyAlgorithm from "./applyAlgorithm";
 import FilesScrollbar from "./filesScrollbar";
+import { Input } from "./ui/input";
 
 export type FileData = {
   original_filename: string;
@@ -16,11 +17,18 @@ export type FileData = {
 
 export default function ProfilePage() {
   const [selectedFile, setSelectedFile] = useState("");
+  const [search, setSearch] = useState("");
 
   const { data, isLoading } = useQuery({
     queryKey: ["history"],
     queryFn: () => api.getHistory(),
   });
+
+  const filteredFiles = search
+    ? data?.data.files.filter((file: FileData) =>
+        file.original_filename.toLowerCase().startsWith(search.toLowerCase())
+      )
+    : data?.data.files;
 
   if (isLoading) {
     return (
@@ -37,10 +45,17 @@ export default function ProfilePage() {
 
   return (
     <>
+      <div className="px-2 md:px-32 mb-3 max-w-fit">
+        <Input
+          placeholder="Search"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+      </div>
       <div className="px-2 md:px-32 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {data &&
           !selectedFile &&
-          data.data.files.map((file: FileData, idx: number) => (
+          filteredFiles.map((file: FileData, idx: number) => (
             <ProfileProcessCard
               fileData={file}
               selectedFile={selectedFile}

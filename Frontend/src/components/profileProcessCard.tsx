@@ -19,9 +19,13 @@ export default function ProfileProcessCard({
   setSelectedFile: Dispatch<React.SetStateAction<string>>;
 }) {
   return (
-    <Card className="flex overflow-hidden flex-col border-none">
+    <Card
+      className={`flex overflow-hidden flex-col border-none ${
+        selectedFile && "max-w-[235px]"
+      }`}
+    >
       <CardHeader>
-        <CardTitle>{fileData.original_filename}</CardTitle>
+        <CardTitle className="truncate">{fileData.original_filename}</CardTitle>
         <CardDescription>
           {new Date(fileData.uploaded_at).toLocaleString()}
         </CardDescription>

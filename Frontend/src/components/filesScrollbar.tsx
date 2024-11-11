@@ -4,6 +4,8 @@ import { ChevronsLeft } from "lucide-react";
 import React, { Dispatch, useState } from "react";
 import { FileData } from "./profilePage";
 import ProfileProcessCard from "./profileProcessCard";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
 
 export default function FilesScrollbar({
   files,
@@ -15,6 +17,13 @@ export default function FilesScrollbar({
   setSelectedFile: Dispatch<React.SetStateAction<string>>;
 }) {
   const [isOpen, setIsOpen] = useState(true);
+  const [search, setSearch] = useState("");
+
+  const filteredFiles = search
+    ? files.filter((file) =>
+        file.original_filename.toLowerCase().startsWith(search.toLowerCase())
+      )
+    : files;
 
   return (
     <div
@@ -22,8 +31,19 @@ export default function FilesScrollbar({
         !isOpen && "ml-[-250px]"
       }`}
     >
-      <h1 className="font-bold text-lg">Your Files</h1>
-      {files.map((file, idx) => (
+      <div className="flex justify-between">
+        <h1 className="font-bold text-lg">Your Files</h1>
+        <Button variant="destructive" onClick={() => setSelectedFile("")}>
+          Deselect
+        </Button>
+      </div>
+      <Input
+        placeholder="Search"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+
+      {filteredFiles.map((file, idx) => (
         <ProfileProcessCard
           fileData={file}
           selectedFile={selectedFile}
@@ -31,9 +51,9 @@ export default function FilesScrollbar({
           key={idx}
         />
       ))}
-      <div className="absolute bg-background rounded cursor-pointer right-[-12px] top-[50%] shadow">
+      <div className="absolute bg-background rounded cursor-pointer right-[-12px] top-8 shadow">
         <ChevronsLeft
-          className={` transition-transform duration-300 ${
+          className={`transition-transform duration-300 ${
             isOpen ? "rotate-0" : "rotate-180"
           }`}
           onClick={() => setIsOpen((prev) => !prev)}
