@@ -36,30 +36,6 @@ export default function DfgResult({
       </CardHeader>
       <CardContent>
         <DataTable columns={columns} data={rows} totalCount={totalCount} />
-        {/* <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>From</TableHead>
-              <TableHead>To</TableHead>
-              <TableHead>Count</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody className="max-h-44 overflow-y-auto">
-            {rows.map((row, index) => (
-              <TableRow key={index}>
-                <TableCell>{row.from}</TableCell>
-                <TableCell>{row.to}</TableCell>
-                <TableCell>{row.count}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-          <TableFooter>
-            <TableRow>
-              <TableCell colSpan={2}>Total</TableCell>
-              <TableCell className="text-right">{totalCount}</TableCell>
-            </TableRow>
-          </TableFooter>
-        </Table> */}
       </CardContent>
     </Card>
   );
