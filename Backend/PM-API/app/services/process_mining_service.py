@@ -64,7 +64,6 @@ def alpha_miner_discovery_service(filepath):
     try:
         # Apply Alpha Miner algorithm
         net, initial_marking, final_marking = pm4py.discover_petri_net_alpha(log)
-
         return jsonify({'net': serialize_petrinet(net), 'im': str(initial_marking), 'fm': str(final_marking)})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -76,12 +75,6 @@ def heuristic_miner_discovery_service(filepath):
         # Apply Heuristic Miner
         net, initial_marking, final_marking = pm4py.discover_petri_net_heuristics(log)
 
-        # Visualize the Petri net
-        # gviz = pn_visualizer.apply(net, initial_marking, final_marking)
-
-        # Return the image as base64 string
-        # img_base64 = encode_image_to_base64(gviz)
-        # return jsonify({'image_base64': f'data:image/png;base64,{img_base64}'})
         return jsonify({'net': serialize_petrinet(net), 'im': str(initial_marking), 'fm': str(final_marking)})
 
     except Exception as e:
@@ -92,16 +85,10 @@ def inductive_miner_discovery_service(filepath):
 
     try:
         # Apply Inductive Miner
-        process_tree = pm4py.discover_petri_net_inductive(log)
-        net, initial_marking, final_marking = pt_converter.apply(process_tree)
-
-        # Visualize the Petri net
-        # gviz = pn_visualizer.apply(net, initial_marking, final_marking)
-
-        # Return the image as base64 string
-        # img_base64 = encode_image_to_base64(gviz)
-        # return jsonify({'image_base64': f'data:image/png;base64,{img_base64}'})
-        return jsonify({'net': serialize_petrinet(net), 'im': str(initial_marking), 'fm': str(final_marking)})
+        net, initial_marking, final_marking = alpha_miner.apply(log)
+        print(net)
+        # return jsonify({'net': serialize_petrinet(net), 'im': str(initial_marking), 'fm': str(final_marking)})
+        return 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
