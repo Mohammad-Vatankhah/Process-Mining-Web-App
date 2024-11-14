@@ -6,15 +6,24 @@ import { FileData } from "./profilePage";
 import ProfileProcessCard from "./profileProcessCard";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import Pagination from "./pagination";
 
 export default function FilesScrollbar({
   files,
   selectedFile,
   setSelectedFile,
+  currentPage,
+  setCurrentPage,
+  totalPages,
+  filesPerPage,
 }: {
   files: FileData[];
   selectedFile: string;
   setSelectedFile: Dispatch<React.SetStateAction<string>>;
+  currentPage: number;
+  setCurrentPage: Dispatch<React.SetStateAction<number>>;
+  totalPages: number;
+  filesPerPage: number;
 }) {
   const [isOpen, setIsOpen] = useState(true);
   const [search, setSearch] = useState("");
@@ -24,6 +33,11 @@ export default function FilesScrollbar({
         file.original_filename.toLowerCase().startsWith(search.toLowerCase())
       )
     : files;
+
+  const currentFiles = filteredFiles?.slice(
+    (currentPage - 1) * filesPerPage,
+    currentPage * filesPerPage
+  );
 
   return (
     <div
@@ -43,7 +57,7 @@ export default function FilesScrollbar({
         onChange={(e) => setSearch(e.target.value)}
       />
 
-      {filteredFiles.map((file, idx) => (
+      {currentFiles.map((file, idx) => (
         <ProfileProcessCard
           fileData={file}
           selectedFile={selectedFile}
@@ -51,6 +65,15 @@ export default function FilesScrollbar({
           key={idx}
         />
       ))}
+
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          totalPages={totalPages}
+        />
+      )}
+
       <div className="absolute bg-background rounded cursor-pointer right-[-12px] top-8 shadow">
         <ChevronsLeft
           className={`transition-transform duration-300 ${

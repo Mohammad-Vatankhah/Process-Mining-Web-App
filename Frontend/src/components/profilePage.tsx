@@ -8,6 +8,7 @@ import { useState } from "react";
 import ApplyAlgorithm from "./applyAlgorithm";
 import FilesScrollbar from "./filesScrollbar";
 import { Input } from "./ui/input";
+import Pagination from "./pagination";
 
 export type FileData = {
   original_filename: string;
@@ -18,6 +19,8 @@ export type FileData = {
 export default function ProfilePage() {
   const [selectedFile, setSelectedFile] = useState("");
   const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const filesPerPage = 9;
 
   const { data, isLoading } = useQuery({
     queryKey: ["history"],
@@ -29,6 +32,15 @@ export default function ProfilePage() {
         file.original_filename.toLowerCase().startsWith(search.toLowerCase())
       )
     : data?.data.files;
+
+  const totalPages = filteredFiles
+    ? Math.ceil(filteredFiles.length / filesPerPage)
+    : 1;
+
+  const currentFiles = filteredFiles?.slice(
+    (currentPage - 1) * filesPerPage,
+    currentPage * filesPerPage
+  );
 
   if (isLoading) {
     return (
@@ -45,17 +57,19 @@ export default function ProfilePage() {
 
   return (
     <>
-      <div className="px-2 md:px-32 mb-3 max-w-fit">
-        <Input
-          placeholder="Search"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </div>
+      {!selectedFile && (
+        <div className="px-2 md:px-32 mb-3 max-w-fit">
+          <Input
+            placeholder="Search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+      )}
       <div className="px-2 md:px-32 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {data &&
           !selectedFile &&
-          filteredFiles.map((file: FileData, idx: number) => (
+          currentFiles?.map((file: FileData, idx: number) => (
             <ProfileProcessCard
               fileData={file}
               selectedFile={selectedFile}
@@ -65,12 +79,24 @@ export default function ProfilePage() {
           ))}
       </div>
 
+      {totalPages > 1 && !selectedFile && (
+        <Pagination
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          totalPages={totalPages}
+        />
+      )}
+
       {data && selectedFile && (
         <div className="flex">
           <FilesScrollbar
             files={data.data.files}
             selectedFile={selectedFile}
             setSelectedFile={setSelectedFile}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            totalPages={totalPages}
+            filesPerPage={filesPerPage}
           />
           <div className="flex flex-col w-full">
             <ApplyAlgorithm
