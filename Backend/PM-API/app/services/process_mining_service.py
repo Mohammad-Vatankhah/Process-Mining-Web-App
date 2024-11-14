@@ -155,7 +155,7 @@ def social_network_service(filepath):
 
 
 def footprint_discover(filepath):
-    log = xes_importer.apply(filepath)
+    log = pm4py.read_xes(filepath)
     try:
         footprints = footprints_miner.apply(log)
         response = fp_visualizer.apply(footprints)
