@@ -6,7 +6,7 @@ from app.models.user import User
 from flasgger import swag_from
 from flask_mail import Message
 from datetime import timedelta
-from flask_jwt_extended import decode_token
+from flask_jwt_extended import decode_token, get_jwt_identity
 from jwt import ExpiredSignatureError, InvalidTokenError
 
 # Create a Blueprint for user management
@@ -548,3 +548,50 @@ def get_user_files(user_id):
     files = [{'original_filename': file.original_filename, 'saved_filename': file.saved_filename, 'uploaded_at': file.uploaded_at} for file in user.files]
 
     return jsonify({'files': files}), 200
+
+@user_bp.route('/change-password', methods=['POST'])
+@jwt_required()
+@swag_from({
+    'tags': ['Auth'],
+    'summary': 'Change user password',
+    'description': 'Allows a user to change their password by providing the current and new passwords.',
+    'parameters': [
+        {
+            'name': 'body',
+            'in': 'body',
+            'required': True,
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'current_password': {'type': 'string', 'example': 'oldpassword'},
+                    'new_password': {'type': 'string', 'example': 'newstrongpassword'}
+                },
+                'required': ['current_password', 'new_password']
+            }
+        }
+    ],
+    'responses': {
+        200: {'description': 'Password updated successfully'},
+        400: {'description': 'Current and new passwords are required'},
+        401: {'description': 'Current password is incorrect'},
+    }
+})
+def change_password():
+    data = request.json
+    current_password = data.get('current_password')
+    new_password = data.get('new_password')
+
+    if not current_password or not new_password:
+        return jsonify({'msg': 'Current and new passwords are required'}), 400
+
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+
+    if not user or not check_password_hash(user.password, current_password):
+        return jsonify({'msg': 'Current password is incorrect'}), 401
+
+    # Update password
+    user.password = generate_password_hash(new_password)
+    db.session.commit()
+
+    return jsonify({'msg': 'Password updated successfully'}), 200

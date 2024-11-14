@@ -1,14 +1,20 @@
 "use client";
 
 import api from "@/API/userAPI";
+import { User } from "@/types/types";
 import { useQuery } from "@tanstack/react-query";
-import ProfileProcessSceleton from "./profileProcessSceleton";
-import ProfileProcessCard from "./profileProcessCard";
-import { useState } from "react";
+import { AxiosError } from "axios";
+import Cookies from "js-cookie";
+import { jwtDecode } from "jwt-decode";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import ApplyAlgorithm from "./applyAlgorithm";
 import FilesScrollbar from "./filesScrollbar";
-import { Input } from "./ui/input";
 import Pagination from "./pagination";
+import ProfileProcessCard from "./profileProcessCard";
+import ProfileProcessSceleton from "./profileProcessSceleton";
+import { Input } from "./ui/input";
+import AccountSettingDialog from "./accountSettingDialog";
 
 export type FileData = {
   original_filename: string;
@@ -17,6 +23,7 @@ export type FileData = {
 };
 
 export default function ProfilePage() {
+  const [user, setUser] = useState<User | undefined>();
   const [selectedFile, setSelectedFile] = useState("");
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -42,12 +49,24 @@ export default function ProfilePage() {
     currentPage * filesPerPage
   );
 
+  useEffect(() => {
+    const fetchUser = async (accessToken: string) => {
+      try {
+        const res = await api.getUser(jwtDecode(accessToken).sub);
+        setUser(res.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    const accessToken = Cookies.get("access_token");
+    if (accessToken) {
+      fetchUser(accessToken);
+    }
+  }, []);
+
   if (isLoading) {
     return (
       <div className="px-2 md:px-32 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <ProfileProcessSceleton />
-        <ProfileProcessSceleton />
-        <ProfileProcessSceleton />
         <ProfileProcessSceleton />
         <ProfileProcessSceleton />
         <ProfileProcessSceleton />
@@ -58,14 +77,17 @@ export default function ProfilePage() {
   return (
     <>
       {!selectedFile && (
-        <div className="px-2 md:px-32 mb-3 max-w-fit">
+        <div className="px-2 md:px-32 mb-3 max-w-full flex items-center justify-between gap-2">
           <Input
             placeholder="Search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            className="max-w-[420px]"
           />
+          {user && <AccountSettingDialog user={user} />}
         </div>
       )}
+
       <div className="px-2 md:px-32 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {data &&
           !selectedFile &&

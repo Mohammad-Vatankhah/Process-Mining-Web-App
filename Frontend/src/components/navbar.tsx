@@ -34,7 +34,7 @@ export default function Navbar() {
         const res = await api.getUser(jwtDecode(accessToken).sub);
         setUser(res.data);
       } catch (error) {
-        console.log("");
+        console.log(error);
       }
     };
     const accessToken = Cookies.get("access_token");

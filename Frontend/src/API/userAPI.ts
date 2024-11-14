@@ -48,6 +48,18 @@ const api = {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
   },
+
+  changePassword: async (current_password: string, new_password: string) => {
+    const accessToken = Cookies.get("access_token");
+    return await axiosInstance.post(
+      "/change-password",
+      {
+        current_password,
+        new_password,
+      },
+      { headers: { Authorization: `Bearer ${accessToken}` } }
+    );
+  },
 };
 
 export default api;
