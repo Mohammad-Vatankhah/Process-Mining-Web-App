@@ -71,7 +71,8 @@ def signup():
     db.session.add(new_user)
     db.session.commit()
     access_token = create_access_token(identity=new_user.id, expires_delta=None)
-    return jsonify({'msg': 'User created successfully', 'user_data': {'id': new_user.id, 'email': new_user.email, 'access_token': access_token}}), 201
+    return jsonify({'msg': 'User created successfully',
+                    'user_data': {'id': new_user.id, 'email': new_user.email, 'access_token': access_token}}), 201
 
 
 @user_bp.route('/login', methods=['POST'])
@@ -291,7 +292,7 @@ def request_password_reset():
         recipients=[user.email]
     )
     msg.body = f"To reset your password, click the following link: {
-        reset_url} \n This link is valid for 15 minutes."
+    reset_url} \n This link is valid for 15 minutes."
     mail.send(msg)
 
     return jsonify({'msg': 'Password reset email sent'}), 200
@@ -466,6 +467,7 @@ def check_reset_token():
     except InvalidTokenError:
         return jsonify({'msg': 'Invalid token'}), 401
 
+
 @user_bp.route('/<int:user_id>/files', methods=['GET'])
 @jwt_required()
 @swag_from({
@@ -545,6 +547,7 @@ def get_user_files(user_id):
     if not user:
         return jsonify({'error': 'User not found'}), 404
 
-    files = [{'original_filename': file.original_filename, 'saved_filename': file.saved_filename, 'uploaded_at': file.uploaded_at} for file in user.files]
+    files = [{'original_filename': file.original_filename, 'saved_filename': file.saved_filename,
+              'uploaded_at': file.uploaded_at} for file in user.files]
 
     return jsonify({'files': files}), 200

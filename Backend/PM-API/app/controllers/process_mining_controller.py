@@ -1,11 +1,11 @@
 from flask import Blueprint, request, jsonify
 from flasgger import swag_from
 from app.services.process_mining_service import (alpha_miner_discovery_service,
-                                                 dfg_discovery_service, 
-                                                 heuristic_miner_discovery_service, 
-                                                 inductive_miner_discovery_service, 
-                                                 performance_analysis_service, 
-                                                 social_network_service)
+                                                 dfg_discovery_service,
+                                                 heuristic_miner_discovery_service,
+                                                 inductive_miner_discovery_service,
+                                                 performance_analysis_service,
+                                                 social_network_service,footprint_discover)
 import os
 import uuid
 from werkzeug.utils import secure_filename
@@ -17,11 +17,13 @@ process_mining_bp = Blueprint('process_mining', __name__)
 
 UPLOAD_FOLDER = 'uploads/'
 
+
 def get_file_path(filename):
     file_path = os.path.join(UPLOAD_FOLDER, secure_filename(filename))
     if not os.path.exists(file_path):
         return None
     return file_path
+
 
 @process_mining_bp.route('/upload', methods=['POST'])
 @jwt_required(optional=True)
@@ -109,6 +111,7 @@ def upload_file():
         'filename': unique_saved_filename,  # Return the unique filename used for storage
     }), 201
 
+
 @process_mining_bp.route('/discover/alpha_miner/<filename>', methods=['GET'])
 @swag_from({
     'tags': ['PM'],
@@ -138,6 +141,7 @@ def alpha_miner_discovery(filename):
 
     response = alpha_miner_discovery_service(file_path)
     return response
+
 
 @process_mining_bp.route('/discover/heuristic_miner/<filename>', methods=['GET'])
 @swag_from({
@@ -169,6 +173,7 @@ def heuristic_miner_discovery(filename):
     response = heuristic_miner_discovery_service(file_path)
     return response
 
+
 @process_mining_bp.route('/discover/dfg/<filename>', methods=['GET'])
 @swag_from({
     'tags': ['PM'],
@@ -198,6 +203,7 @@ def discover_dfg_service(filename):
 
     response = dfg_discovery_service(file_path)
     return response
+
 
 @process_mining_bp.route('/discover/inductive_miner/<filename>', methods=['GET'])
 @swag_from({
@@ -229,6 +235,7 @@ def discover_inductive_miner(filename):
     response = inductive_miner_discovery_service(file_path)
     return response
 
+
 @process_mining_bp.route('/performance_analysis/<filename>', methods=['GET'])
 @swag_from({
     'tags': ['PM'],
@@ -259,6 +266,7 @@ def performance_analysis(filename):
     response = performance_analysis_service(file_path)
     return response
 
+
 @process_mining_bp.route('/social_network/<filename>', methods=['GET'])
 @swag_from({
     'tags': ['PM'],
@@ -287,4 +295,15 @@ def social_network(filename):
         return jsonify({'msg': 'File not found'}), 404
 
     response = social_network_service(file_path)
+    return response
+
+
+@process_mining_bp.route('/discover/Footprint')
+def footprint():
+    # file_path = get_file_path(filename)
+    # if file_path is None:
+    #     return jsonify({'msg': 'File not found'}), 404
+    print("log")
+    response = footprint_discover()
+    print("reach")
     return response
