@@ -2,12 +2,12 @@
 
 import React, { useEffect, useRef } from "react";
 import CytoscapeComponent from "react-cytoscapejs";
-import klay from "cytoscape-klay";
 import cytoscape from "cytoscape";
 import { Card, CardContent, CardHeader, CardFooter } from "./ui/card";
 import { Button } from "./ui/button";
+import dagre from "cytoscape-dagre";
 
-cytoscape.use(klay);
+cytoscape.use(dagre);
 
 type Arc = {
   id: string;
@@ -78,12 +78,13 @@ const hidNodeStyle = {
 
 const defaultNodeStyle = {
   label: "data(label)",
-  width: 200,
+  width: "label",
   height: 40,
   "background-color": "#ccc",
   "text-valign": "center",
   "text-halign": "center",
-  shape: "rectangle",
+  shape: "round-rectangle",
+  padding: "10px",
 };
 
 const PetriNetGraph: React.FC<{ petrinet: PetriNet; algorithm: string }> = ({
@@ -148,17 +149,13 @@ const PetriNetGraph: React.FC<{ petrinet: PetriNet; algorithm: string }> = ({
     if (cyRef.current) {
       cyRef.current
         .layout({
-          name: "klay",
-          klay: {
-            direction: "RIGHT",
-            spacing: 100,
-          },
+          name: "dagre",
+          rankDir: "LR",
         })
         .run();
     }
   }, [elements]);
 
-  // Function to handle export to PNG
   const handleExport = () => {
     if (cyRef.current) {
       const pngData = cyRef.current.png({ full: true, bg: "white" });
