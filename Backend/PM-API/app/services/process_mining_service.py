@@ -3,11 +3,7 @@ import tempfile
 import os
 from pm4py.objects.log.importer.xes import importer as xes_importer
 from pm4py.algo.discovery.alpha import algorithm as alpha_miner
-from pm4py.algo.discovery.heuristics import algorithm as heuristics_miner
-from pm4py.algo.discovery.inductive import algorithm as inductive_miner
-from pm4py.algo.discovery.dfg import algorithm as dfg_factory
 from pm4py.visualization.petri_net import visualizer as pn_visualizer
-from pm4py.objects.conversion.process_tree import converter as pt_converter
 import networkx as nx
 import pandas as pd
 from flask import jsonify
@@ -69,7 +65,7 @@ def alpha_miner_discovery_service(filepath):
         return jsonify({"error": str(e)}), 500
 
 def heuristic_miner_discovery_service(filepath):
-    log = xes_importer.apply(filepath)
+    log = pm4py.read_xes(filepath)
 
     try:
         # Apply Heuristic Miner
@@ -100,7 +96,6 @@ def dfg_discovery_service(filepath):
         # Discover Directly-Follows Graph (DFG)
         # dfg = dfg_factory.apply(log)
         dfg, start_activities, end_activities = pm4py.discover_dfg(log)
-        pm4py.view_dfg(dfg, start_activities, end_activities)
 
         # Convert DFG to a serializable format
         dfg_serializable = {str(k): v for k, v in dfg.items()}
