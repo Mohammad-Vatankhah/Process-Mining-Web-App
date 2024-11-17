@@ -298,12 +298,31 @@ def social_network(filename):
     return response
 
 
-@process_mining_bp.route('/discover/Footprint')
-def footprint():
-    # file_path = get_file_path(filename)
-    # if file_path is None:
-    #     return jsonify({'msg': 'File not found'}), 404
-    print("log")
-    response = footprint_discover()
-    print("reach")
+@process_mining_bp.route('/discover/footprint/<filename>')
+@swag_from({
+    'tags': ['PM'],
+    'summary': 'Discover footprint',
+    'parameters': [
+        {
+            'name': 'filename',
+            'in': 'path',
+            'type': 'string',
+            'required': True,
+            'description': 'The file name of the uploaded file'
+        }
+    ],
+    'responses': {
+        200: {
+            'description': 'footprint result',
+        },
+        404: {
+            'description': 'File not found'
+        }
+    }
+})
+def footprint(filename):
+    file_path = get_file_path(filename)
+    if file_path is None:
+        return jsonify({'msg': 'File not found'}), 404
+    response = footprint_discover(file_path)
     return response
