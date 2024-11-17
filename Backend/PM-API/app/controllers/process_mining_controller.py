@@ -5,7 +5,11 @@ from app.services.process_mining_service import (alpha_miner_discovery_service,
                                                  heuristic_miner_discovery_service,
                                                  inductive_miner_discovery_service,
                                                  performance_analysis_service,
-                                                 social_network_service,footprint_discover)
+                                                 social_network_service,footprint_discover,
+                                                 get_start_activity_attribute,
+                                                 get_end_activity_attribute,
+                                                 activity_start_filtering,
+                                                 activity_end_filtering)
 import os
 import uuid
 from werkzeug.utils import secure_filename
@@ -298,12 +302,39 @@ def social_network(filename):
     return response
 
 
-@process_mining_bp.route('/discover/Footprint')
-def footprint():
-    # file_path = get_file_path(filename)
-    # if file_path is None:
-    #     return jsonify({'msg': 'File not found'}), 404
-    print("log")
-    response = footprint_discover()
-    print("reach")
+@process_mining_bp.route('/discover/footprint/<filename>')
+@swag_from({
+    'tags': ['PM'],
+    'summary': 'Discover footprint',
+    'parameters': [
+        {
+            'name': 'filename',
+            'in': 'path',
+            'type': 'string',
+            'required': True,
+            'description': 'The file name of the uploaded file'
+        }
+    ],
+    'responses': {
+        200: {
+            'description': 'footprint result',
+        },
+        404: {
+            'description': 'File not found'
+        }
+    }
+})
+def footprint(filename):
+    file_path = get_file_path(filename)
+    if file_path is None:
+        return jsonify({'msg': 'File not found'}), 404
+    response = footprint_discover(file_path)
     return response
+
+@process_mining_bp.route('/discover/filter')
+def filter_events():
+   my_set = ['']
+   
+   response = activity_start_filtering(my_set)
+   
+   return response

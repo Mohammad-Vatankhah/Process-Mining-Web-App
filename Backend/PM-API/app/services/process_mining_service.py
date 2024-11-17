@@ -15,7 +15,7 @@ from pm4py.objects.conversion.process_tree import converter as pt_converter
 import networkx as nx
 import pandas as pd
 from flask import jsonify
-
+import pm4py
 
 def encode_image_to_base64(gviz):
     """Encode the generated visualization to base64"""
@@ -30,65 +30,80 @@ def encode_image_to_base64(gviz):
     os.remove(temp_img.name)  # Remove the temp file after reading it
     return img_base64
 
+def serialize_petrinet(net):
+    # Create a structure for the Petri net
+    petrinet_data = {
+        'places': [],
+        'arcs': [],
+        'transitions': []
+    }
+
+    # Serialize places
+    for place in net.places:
+        petrinet_data['places'].append({
+            'id': str(place),  # Use the place's unique identifier
+            'label': place.name if place.name else 'Place'
+        })
+
+    # Serialize transitions
+    for transition in net.transitions:
+        petrinet_data['transitions'].append({
+            'id': str(transition),  # Use the transition's unique identifier
+            'label': transition.name if transition.name else 'Transition'
+        })
+
+    # Serialize edges
+    for arc in net.arcs:
+        petrinet_data['arcs'].append({
+            'id': f"{arc.source}-{arc.target}",  # Unique edge ID
+            'source': str(arc.source),  # Source place/transition
+            'target': str(arc.target),  # Target place/transition
+        })
+
+    return petrinet_data
 
 def alpha_miner_discovery_service(filepath):
     log = xes_importer.apply(filepath)
 
     try:
         # Apply Alpha Miner algorithm
-        net, initial_marking, final_marking = alpha_miner.apply(log)
-
-        # Visualize the Petri net
-        gviz = pn_visualizer.apply(net, initial_marking, final_marking)
-
-        # Return the image as base64 string
-        img_base64 = encode_image_to_base64(gviz)
-        return jsonify({'image_base64': f'data:image/png;base64,{img_base64}'})
+        net, initial_marking, final_marking = pm4py.discover_petri_net_alpha(log)
+        return jsonify({'net': serialize_petrinet(net), 'im': str(initial_marking), 'fm': str(final_marking)})
     except Exception as e:
         return jsonify({"error": str(e)})
 
-
 def heuristic_miner_discovery_service(filepath):
-    log = xes_importer.apply(filepath)
+    log = pm4py.read_xes(filepath)
 
     try:
         # Apply Heuristic Miner
-        net, initial_marking, final_marking = heuristics_miner.apply(log)
+        net, initial_marking, final_marking = pm4py.discover_petri_net_heuristics(log)
 
-        # Visualize the Petri net
-        gviz = pn_visualizer.apply(net, initial_marking, final_marking)
+        return jsonify({'net': serialize_petrinet(net), 'im': str(initial_marking), 'fm': str(final_marking)})
 
-        # Return the image as base64 string
-        img_base64 = encode_image_to_base64(gviz)
-        return jsonify({'image_base64': f'data:image/png;base64,{img_base64}'})
     except Exception as e:
         return jsonify({"error": str(e)})
-
 
 def inductive_miner_discovery_service(filepath):
     log = xes_importer.apply(filepath)
 
     try:
         # Apply Inductive Miner
-        process_tree = inductive_miner.apply(log)
-        net, initial_marking, final_marking = pt_converter.apply(process_tree)
+        net, initial_marking, final_marking = alpha_miner.apply(log)
+        print(net)
+        # return jsonify({'net': serialize_petrinet(net), 'im': str(initial_marking), 'fm': str(final_marking)})
+        return 200
 
-        # Visualize the Petri net
-        gviz = pn_visualizer.apply(net, initial_marking, final_marking)
-
-        # Return the image as base64 string
-        img_base64 = encode_image_to_base64(gviz)
-        return jsonify({'image_base64': f'data:image/png;base64,{img_base64}'})
     except Exception as e:
         return jsonify({"error": str(e)})
-
 
 def dfg_discovery_service(filepath):
     log = xes_importer.apply(filepath)  # Load the log file from the given filepath
 
     try:
         # Discover Directly-Follows Graph (DFG)
-        dfg = dfg_factory.apply(log)
+        # dfg = dfg_factory.apply(log)
+        dfg, start_activities, end_activities = pm4py.discover_dfg(log)
 
         # Convert DFG to a serializable format
         dfg_serializable = {str(k): v for k, v in dfg.items()}
@@ -161,5 +176,54 @@ def footprint_discover(filepath):
         response = fp_visualizer.apply(footprints)
         # pm4py.view_footprints(footprints, format='svg')
         return jsonify({'footprint': str(response)})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+    
+def get_start_activity_attribute(file_path):
+    log = pm4py.read_xes(file_path)
+    try:
+        response = pm4py.get_start_activities(log, case_id_key='case:concept:name',
+                                      activity_key='concept:name',
+                                      timestamp_key='time:timestamp')
+        return jsonify({'Start Activity': response})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+    
+def activity_start_filtering(file_path,filter_set: set):
+    log = pm4py.read_xes(file_path)
+    try:
+        filtered_log = pm4py.filter_start_activities(log, filter_set,
+                                                       activity_key='concept:name',
+                                                       case_id_key='case:concept:name', timestamp_key='time:timestamp')
+        dfg, start_activities, end_activities = pm4py.discover_dfg(filtered_log)
+
+        # Convert DFG to a serializable format
+        dfg_serializable = {str(k): v for k, v in dfg.items()}
+        return jsonify({'dfg': dfg_serializable})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+def get_end_activity_attribute(file_path):
+    log = pm4py.read_xes(file_path)
+    try:
+        response = pm4py.get_end_activities(log, case_id_key='case:concept:name',
+                                      activity_key='concept:name',
+                                      timestamp_key='time:timestamp')
+        return jsonify({'End Activity': response})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+def activity_end_filtering(file_path,filter_set: set):
+    
+    log = pm4py.read_xes(file_path)
+    try:
+        filtered_log = pm4py.filter_end_activities(log, filter_set,
+                                                       activity_key='concept:name',
+                                                       case_id_key='case:concept:name', timestamp_key='time:timestamp')
+        dfg, start_activities, end_activities = pm4py.discover_dfg(filtered_log)
+
+        # Convert DFG to a serializable format
+        dfg_serializable = {str(k): v for k, v in dfg.items()}
+        return jsonify({'dfg': dfg_serializable})
     except Exception as e:
         return jsonify({"error": str(e)})
