@@ -131,9 +131,11 @@ const UserButtons = ({
         </>
       ) : (
         <>
-          <Button variant="secondary" onClick={() => router.push("/profile")}>
-            Profile
-          </Button>
+          {!window.location.pathname.includes("profile") && (
+            <Button variant="secondary" onClick={() => router.push("/profile")}>
+              Profile
+            </Button>
+          )}
           <Button variant="destructive" onClick={handleLogout}>
             Logout
           </Button>

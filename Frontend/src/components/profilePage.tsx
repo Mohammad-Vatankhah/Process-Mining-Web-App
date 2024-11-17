@@ -70,6 +70,12 @@ export default function ProfilePage() {
         <ProfileProcessSceleton />
         <ProfileProcessSceleton />
         <ProfileProcessSceleton />
+        <ProfileProcessSceleton />
+        <ProfileProcessSceleton />
+        <ProfileProcessSceleton />
+        <ProfileProcessSceleton />
+        <ProfileProcessSceleton />
+        <ProfileProcessSceleton />
       </div>
     );
   }
@@ -120,7 +126,7 @@ export default function ProfilePage() {
             totalPages={totalPages}
             filesPerPage={filesPerPage}
           />
-          <div className="flex flex-col w-full">
+          <div className="flex flex-col w-full md:px-20">
             <ApplyAlgorithm
               fileName={selectedFile}
               fromHistory

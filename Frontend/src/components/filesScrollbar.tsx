@@ -41,8 +41,8 @@ export default function FilesScrollbar({
 
   return (
     <div
-      className={`absolute md:relative z-20 flex flex-col px-5 mt-3 py-6 bg-white rounded-tr-lg rounded-br-lg shadow gap-3 h-fit transition-all duration-300 ${
-        !isOpen && "ml-[-250px]"
+      className={`absolute top-20 z-20 flex flex-col px-5 mt-3 py-6 bg-white rounded-tr-lg rounded-br-lg shadow-2xl gap-3 h-fit transition-all duration-300 ${
+        !isOpen && "ml-[-260px]"
       }`}
     >
       <div className="flex justify-between">

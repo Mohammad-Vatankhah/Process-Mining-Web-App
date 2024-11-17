@@ -52,6 +52,7 @@ export default function AccountSettingDialog({ user }: { user: User }) {
         <div className="mb-4">
           <p>Email: {user?.email}</p>
         </div>
+        <h1 className="font-semibold">Change Password</h1>
         <Input
           placeholder="Current Password"
           value={currentPassword}
