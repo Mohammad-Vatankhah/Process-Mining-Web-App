@@ -12,6 +12,7 @@ Backend/.env
 Backend/venv/
 Backend/env/
 Backend/ENV/
+Backend/uploads
 Backend/.venv/
 
 # Flask specific
