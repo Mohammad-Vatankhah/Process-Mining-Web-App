@@ -26,6 +26,7 @@ export default function ApplyAlgorithmCard({
     inductiveMiner: boolean;
     dfg: boolean;
     socialNetwork: boolean;
+    footprint: boolean;
   };
 }) {
   const algorithms = [
@@ -44,6 +45,11 @@ export default function ApplyAlgorithmCard({
       id: "dfg",
       name: "Directly Follows Graph (DFG)",
       applied: appliedAlgorithms.dfg,
+    },
+    {
+      id: "footprint",
+      name: "Footprint",
+      applied: appliedAlgorithms.footprint,
     },
     {
       id: "socialNetwork",

@@ -3,12 +3,12 @@
 import React, { useEffect, useState } from "react";
 import SuccessUploadCard from "./successUploadCard";
 import ApplyAlgorithmCard from "./applyAlgorithmCard";
-import MinerResult from "./minerResult";
 import DfgResult from "./dfgReslut/dfgResult";
 import SocialNetworkGraph from "./socialNetworkGraph";
 import toast from "react-hot-toast";
 import PMapi from "@/API/pmAPI";
 import PetriNetGraph from "./petrinetGraph";
+import FootprintTable from "./footprintResult";
 
 export default function ApplyAlgorithm({
   selectedFileName,
@@ -25,6 +25,7 @@ export default function ApplyAlgorithm({
     inductiveMiner: null,
     dfg: null,
     socialNetwork: null,
+    footprint: null,
   });
 
   const [appliedAlgorithms, setAppliedAlgorithms] = useState({
@@ -33,6 +34,7 @@ export default function ApplyAlgorithm({
     inductiveMiner: false,
     dfg: false,
     socialNetwork: false,
+    footprint: false,
   });
 
   const [selectedAlgorithm, setSelectedAlgorithm] = useState<string | null>(
@@ -84,6 +86,12 @@ export default function ApplyAlgorithm({
           setAppliedAlgorithms((prev) => ({ ...prev, socialNetwork: true }));
           break;
 
+        case "footprint":
+          const footprintRes = await PMapi.footprint(fileName);
+          setResult((prev) => ({ ...prev, footprint: footprintRes.data }));
+          setAppliedAlgorithms((prev) => ({ ...prev, footprint: true }));
+          break;
+
         default:
           toast.error("Unknown algorithm selected.");
           break;
@@ -104,6 +112,7 @@ export default function ApplyAlgorithm({
       inductiveMiner: null,
       dfg: null,
       socialNetwork: null,
+      footprint: null,
     });
 
     setAppliedAlgorithms({
@@ -112,14 +121,13 @@ export default function ApplyAlgorithm({
       inductiveMiner: false,
       dfg: false,
       socialNetwork: false,
+      footprint: false,
     });
   };
 
   useEffect(() => {
     resetResult();
   }, [fileName]);
-
-  console.log(result);
 
   return (
     <>
@@ -142,13 +150,9 @@ export default function ApplyAlgorithm({
 
       <div className="flex flex-col justify-center items-center gap-6 px-5 my-4">
         {result.alphaMiner && (
-          // <MinerResult result={result.alphaMiner} algorithm="Alpha Miner" />
           <PetriNetGraph petrinet={result.alphaMiner} algorithm="Alpha Miner" />
         )}
         {result.heuristicMiner && (
-          // <MinerResult
-          //   result={result.heuristicMiner}
-          // />
           <PetriNetGraph
             petrinet={result.heuristicMiner}
             algorithm="Heuristic Miner"
@@ -161,6 +165,7 @@ export default function ApplyAlgorithm({
           />
         )}
         {result.dfg && <DfgResult result={result.dfg} />}
+        {result.footprint && <FootprintTable result={result.footprint} />}
         {result.socialNetwork && (
           <SocialNetworkGraph result={result.socialNetwork} />
         )}

@@ -47,5 +47,9 @@ const PMapi = {
   socialNetwork: async (filename: string) => {
     return await axiosInstance.get(`/social_network/${filename}`);
   },
+
+  footprint: async (filename: string) => {
+    return await axiosInstance.get(`/discover/footprint/${filename}`);
+  },
 };
 export default PMapi;
