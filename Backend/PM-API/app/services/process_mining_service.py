@@ -1,9 +1,17 @@
 import base64
 import tempfile
 import os
+
+import pm4py
 from pm4py.objects.log.importer.xes import importer as xes_importer
 from pm4py.algo.discovery.alpha import algorithm as alpha_miner
+from pm4py.algo.discovery.heuristics import algorithm as heuristics_miner
+from pm4py.algo.discovery.inductive import algorithm as inductive_miner
+from pm4py.algo.discovery.dfg import algorithm as dfg_factory
+from pm4py.algo.discovery.footprints import algorithm as footprints_miner
 from pm4py.visualization.petri_net import visualizer as pn_visualizer
+from pm4py.visualization.footprints import visualizer as fp_visualizer
+from pm4py.objects.conversion.process_tree import converter as pt_converter
 import networkx as nx
 import pandas as pd
 from flask import jsonify
@@ -14,11 +22,11 @@ def encode_image_to_base64(gviz):
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as temp_img:
         pn_visualizer.save(gviz, temp_img.name)  # Save to a temp file
         temp_img.seek(0)  # Go to the start of the file
-    
+
         # Read the temp file and convert to base64
         with open(temp_img.name, "rb") as img_file:
             img_base64 = base64.b64encode(img_file.read()).decode('utf-8')
-    
+
     os.remove(temp_img.name)  # Remove the temp file after reading it
     return img_base64
 
@@ -62,7 +70,7 @@ def alpha_miner_discovery_service(filepath):
         net, initial_marking, final_marking = pm4py.discover_petri_net_alpha(log)
         return jsonify({'net': serialize_petrinet(net), 'im': str(initial_marking), 'fm': str(final_marking)})
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": str(e)})
 
 def heuristic_miner_discovery_service(filepath):
     log = pm4py.read_xes(filepath)
@@ -74,7 +82,7 @@ def heuristic_miner_discovery_service(filepath):
         return jsonify({'net': serialize_petrinet(net), 'im': str(initial_marking), 'fm': str(final_marking)})
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": str(e)})
 
 def inductive_miner_discovery_service(filepath):
     log = xes_importer.apply(filepath)
@@ -87,7 +95,7 @@ def inductive_miner_discovery_service(filepath):
         return 200
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": str(e)})
 
 def dfg_discovery_service(filepath):
     log = xes_importer.apply(filepath)  # Load the log file from the given filepath
@@ -117,7 +125,7 @@ def performance_analysis_service(filepath):
                     'event_name': event['concept:name'],
                     'timestamp': event['time:timestamp']
                 })
-        
+
         df = pd.DataFrame(data)
         df['timestamp'] = pd.to_datetime(df['timestamp'])
         df['duration'] = df['timestamp'].diff().dt.total_seconds()
@@ -126,6 +134,7 @@ def performance_analysis_service(filepath):
         return jsonify({'average_duration': avg_duration})
     except Exception as e:
         return jsonify({"error": str(e)})
+
 
 def social_network_service(filepath):
     log = xes_importer.apply(filepath)  # Load the log file from the given filepath
@@ -139,12 +148,12 @@ def social_network_service(filepath):
                     'case_id': trace.attributes['concept:name'],
                     'event_name': event['concept:name'],
                 })
-        
+
         df = pd.DataFrame(data)
 
         # Create a graph of activities
         G = nx.Graph()
-        
+
         # Add edges based on co-occurrence
         for _, group in df.groupby('case_id'):
             activities = group['event_name'].tolist()
@@ -154,7 +163,18 @@ def social_network_service(filepath):
 
         # Serialize the graph to return it
         social_network_data = nx.to_dict_of_lists(G)
-        
+
         return jsonify({'social_network': social_network_data})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+
+def footprint_discover(filepath):
+    log = pm4py.read_xes(filepath)
+    try:
+        footprints = footprints_miner.apply(log)
+        response = fp_visualizer.apply(footprints)
+        # pm4py.view_footprints(footprints, format='svg')
+        return jsonify({'footprint': str(response)})
     except Exception as e:
         return jsonify({"error": str(e)})
