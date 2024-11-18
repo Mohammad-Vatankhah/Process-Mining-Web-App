@@ -11,7 +11,8 @@ from app.services.process_mining_service import (alpha_miner_discovery_service,
                                                  activity_start_filtering,
                                                  activity_end_filtering,
                                                  get_all_activity_attribute,
-                                                 attributes_filtering)
+                                                 attributes_filtering,
+                                                 get_top_stats)
 import os
 import uuid
 from werkzeug.utils import secure_filename
@@ -338,5 +339,12 @@ def filter_events():
    my_set = ['']
    
    response = get_all_activity_attribute()
+   
+   return response
+
+@process_mining_bp.route('/discover/stats')
+def show_top_stats():
+   
+   response = get_top_stats()
    
    return response
