@@ -227,3 +227,28 @@ def activity_end_filtering(file_path,filter_set: set):
         return jsonify({'dfg': dfg_serializable})
     except Exception as e:
         return jsonify({"error": str(e)})
+    
+def get_all_activity_attribute():
+    file_path = r"Backend\PM-API\Dataset\running-example-exported.xes"
+    log = pm4py.read_xes(file_path)
+    try:
+        responses = pm4py.get_event_attribute_values(log, case_id_key='case:concept:name', attribute='concept:name',
+                                            count_once_per_case=False)
+
+        
+        return jsonify({'All attribute': str(responses)})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+    
+def attributes_filtering(file_path,filter_set: set):
+    log = pm4py.read_xes(file_path)
+    try:
+        filtered_log = pm4py.filter_event_attribute_values(log, 'concept:name',filter_set,
+                                                       case_id_key='case:concept:name')
+        dfg, start_activities, end_activities = pm4py.discover_dfg(filtered_log)
+
+        # Convert DFG to a serializable format
+        dfg_serializable = {str(k): v for k, v in dfg.items()}
+        return jsonify({'dfg': dfg_serializable})
+    except Exception as e:
+        return jsonify({"error": str(e)})

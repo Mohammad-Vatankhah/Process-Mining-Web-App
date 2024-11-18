@@ -9,7 +9,9 @@ from app.services.process_mining_service import (alpha_miner_discovery_service,
                                                  get_start_activity_attribute,
                                                  get_end_activity_attribute,
                                                  activity_start_filtering,
-                                                 activity_end_filtering)
+                                                 activity_end_filtering,
+                                                 get_all_activity_attribute,
+                                                 attributes_filtering)
 import os
 import uuid
 from werkzeug.utils import secure_filename
@@ -335,6 +337,6 @@ def footprint(filename):
 def filter_events():
    my_set = ['']
    
-   response = activity_start_filtering(my_set)
+   response = get_all_activity_attribute()
    
    return response
