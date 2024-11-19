@@ -4,6 +4,7 @@ from flask_jwt_extended import JWTManager
 from flasgger import Swagger
 from flask_cors import CORS
 from flask_mail import Mail
+import os
 
 db = SQLAlchemy()
 jwt = JWTManager()
@@ -15,15 +16,15 @@ def create_app():
     CORS(app)
 
     # Configurations for the database connection
-    app.config['SECRET_KEY'] = 'your-secret-key'
-    app.config['JWT_SECRET_KEY'] = 'your_jwt_secret_key'
+    app.config['SECRET_KEY'] = os.getenv("FLASL_SECRET_KEY")
+    app.config['JWT_SECRET_KEY'] = os.getenv("FLASK_JWT_SECRET_KEY")
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = False
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:vatankhah4224@localhost/PMDB'
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("FLASK_SQLALCHEMY_DATABASE_URI")
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['MAIL_SERVER'] = 'smtp.gmail.com'
     app.config['MAIL_PORT'] = 587
-    app.config['MAIL_USERNAME'] = 'mamadvatan80@gmail.com'
-    app.config['MAIL_PASSWORD'] = 'wkup ghph bgtk rxmd'
+    app.config['MAIL_USERNAME'] = os.getenv("FLASK_MAIL_USERNAME")
+    app.config['MAIL_PASSWORD'] = os.getenv("FLASK_MAIL_PASSWORD")
     app.config['MAIL_USE_TLS'] = True
     app.config['MAIL_USE_SSL'] = False
 

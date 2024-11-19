@@ -17,7 +17,7 @@ class File(db.Model):
         return f'<File {self.original_filename}>'
 
 class User(db.Model):
-    __tablename__ = 'users'  # The table name is 'users'
+    __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.String(120), unique=True, nullable=False)

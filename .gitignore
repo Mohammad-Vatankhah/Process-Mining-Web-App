@@ -12,13 +12,13 @@ Backend/.env
 Backend/venv/
 Backend/env/
 Backend/ENV/
-Backend/uploads
 Backend/.venv/
 
 # Flask specific
 Backend/instance/
 Backend/*.db
 Backend/*.sqlite3
+Backend/uploads
 
 # Logs and cache
 Backend/*.log
