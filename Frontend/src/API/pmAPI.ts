@@ -51,5 +51,35 @@ const PMapi = {
   footprint: async (filename: string) => {
     return await axiosInstance.get(`/discover/footprint/${filename}`);
   },
+
+  getAllActivities: async (filename: string) => {
+    return await axiosInstance.get(`/activities/all/${filename}`);
+  },
+
+  getStartActivity: async (filename: string) => {
+    return await axiosInstance.get(`/activities/start/${filename}`);
+  },
+
+  getEndActivity: async (filename: string) => {
+    return await axiosInstance.get(`/activities/end/${filename}`);
+  },
+
+  filterStartActivities: async (filename: string, filter_set: string[]) => {
+    return await axiosInstance.post(`/filter/activities/start/${filename}`, {
+      filter_set,
+    });
+  },
+
+  filterEndActivities: async (filename: string, filter_set: string[]) => {
+    return await axiosInstance.post(`/filter/activities/end/${filename}`, {
+      filter_set,
+    });
+  },
+
+  filterActivities: async (filename: string, filter_set: string[]) => {
+    return await axiosInstance.post(`/filter/attributes/${filename}`, {
+      filter_set,
+    });
+  },
 };
 export default PMapi;
