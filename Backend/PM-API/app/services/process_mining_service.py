@@ -224,8 +224,7 @@ def activity_end_filtering(file_path,filter_set: set):
     except Exception as e:
         return jsonify({"error": str(e)})
     
-def get_all_activity_attribute():
-    file_path = r"Backend\PM-API\Dataset\running-example-exported.xes"
+def get_all_activity_attribute(file_path):
     log = pm4py.read_xes(file_path)
     try:
         responses = pm4py.get_event_attribute_values(log, case_id_key='case:concept:name', attribute='concept:name',

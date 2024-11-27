@@ -334,20 +334,97 @@ def footprint(filename):
     response = footprint_discover(file_path)
     return response
 
-@process_mining_bp.route('/discover/filter')
-def filter_events():
-   my_set = ['']
-   
-   response = get_all_activity_attribute()
-   
-   return response
+@process_mining_bp.route('/discover/stats/<filename>', methods=['GET'])
+@swag_from({
+    'tags': ['PM'],
+    'summary': 'Show top process variants statistics',
+    'parameters': [
+        {
+            'name': 'filename',
+            'in': 'path',
+            'type': 'string',
+            'required': True,
+            'description': 'The file name of the uploaded file'
+        },
+        {
+            'name': 'n',
+            'in': 'query',
+            'type': 'integer',
+            'required': False,
+            'default': 5,
+            'description': 'Number of top variants to return'
+        }
+    ],
+    'responses': {
+        200: {
+            'description': 'Top process variants statistics',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'dfg': {
+                        'type': 'array',
+                        'items': {'type': 'string'},
+                        'example': ["Variant 1", "Variant 2", "Variant 3"]
+                    }
+                }
+            }
+        },
+        404: {
+            'description': 'File not found'
+        },
+        500: {
+            'description': 'Error occurred during processing'
+        }
+    }
+})
+def show_top_stats(filename):
+    file_path = get_file_path(filename)
+    if file_path is None:
+        return jsonify({'msg': 'File not found'}), 404
 
-@process_mining_bp.route('/discover/stats')
-def show_top_stats():
-   
-   response = get_top_stats()
-   
-   return response
+    n = request.args.get('n', default=5, type=int)
+    response = get_top_stats(file_path, n)
+    return response
+
+
+@process_mining_bp.route('/activities/all/<filename>', methods=['GET'])
+@swag_from({
+    'tags': ['PM'],
+    'summary': 'Get all activity attributes',
+    'parameters': [
+        {
+            'name': 'filename',
+            'in': 'path',
+            'type': 'string',
+            'required': True,
+            'description': 'The file name of the uploaded file'
+        }
+    ],
+    'responses': {
+        200: {
+            'description': 'All activity attributes',
+            'schema': {
+                'type': 'object',
+                'properties': {
+                    'All attribute': {
+                        'type': 'string',
+                        'example': "{'AttributeName': 'value'}"
+                    }
+                }
+            }
+        },
+        404: {
+            'description': 'File not found'
+        }
+    }
+})
+def get_all_activity(filename):
+    file_path = get_file_path(filename)
+    if file_path is None:
+        return jsonify({'msg': 'File not found'}), 404
+
+    response = get_all_activity_attribute(file_path)
+    return response
 
 @process_mining_bp.route('/activities/start/<filename>', methods=['GET'])
 @swag_from({
