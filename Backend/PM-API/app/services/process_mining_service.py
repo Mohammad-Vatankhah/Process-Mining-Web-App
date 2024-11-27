@@ -178,3 +178,96 @@ def footprint_discover(filepath):
         return jsonify({'footprint': str(response)})
     except Exception as e:
         return jsonify({"error": str(e)})
+    
+def get_start_activity_attribute(file_path):
+    log = pm4py.read_xes(file_path)
+    try:
+        response = pm4py.get_start_activities(log, case_id_key='case:concept:name',
+                                      activity_key='concept:name',
+                                      timestamp_key='time:timestamp')
+        return jsonify({'Start Activity': response})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+    
+def activity_start_filtering(file_path,filter_set: set):
+    log = pm4py.read_xes(file_path)
+    try:
+        filtered_log = pm4py.filter_start_activities(log, filter_set,
+                                                       activity_key='concept:name',
+                                                       case_id_key='case:concept:name', timestamp_key='time:timestamp')
+        dfg, start_activities, end_activities = pm4py.discover_dfg(filtered_log)
+
+        # Convert DFG to a serializable format
+        dfg_serializable = {str(k): v for k, v in dfg.items()}
+        return jsonify({'dfg': dfg_serializable})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+def get_end_activity_attribute(file_path):
+    log = pm4py.read_xes(file_path)
+    try:
+        response = pm4py.get_end_activities(log, case_id_key='case:concept:name',
+                                      activity_key='concept:name',
+                                      timestamp_key='time:timestamp')
+        return jsonify({'End Activity': response})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+def activity_end_filtering(file_path,filter_set: set):
+    
+    log = pm4py.read_xes(file_path)
+    try:
+        filtered_log = pm4py.filter_end_activities(log, filter_set,
+                                                       activity_key='concept:name',
+                                                       case_id_key='case:concept:name', timestamp_key='time:timestamp')
+        dfg, start_activities, end_activities = pm4py.discover_dfg(filtered_log)
+
+        # Convert DFG to a serializable format
+        dfg_serializable = {str(k): v for k, v in dfg.items()}
+        return jsonify({'dfg': dfg_serializable})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+    
+def get_all_activity_attribute():
+    file_path = r"Backend\PM-API\Dataset\running-example-exported.xes"
+    log = pm4py.read_xes(file_path)
+    try:
+        responses = pm4py.get_event_attribute_values(log, case_id_key='case:concept:name', attribute='concept:name',
+                                            count_once_per_case=False)
+        
+        return jsonify({'All attribute': str(responses)})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+    
+def attributes_filtering(file_path,filter_set: set):
+    log = pm4py.read_xes(file_path)
+    try:
+        filtered_log = pm4py.filter_event_attribute_values(log, 'concept:name',filter_set,
+                                                       case_id_key='case:concept:name')
+        dfg, start_activities, end_activities = pm4py.discover_dfg(filtered_log)
+
+        # Convert DFG to a serializable format
+        dfg_serializable = {str(k): v for k, v in dfg.items()}
+        return jsonify({'dfg': dfg_serializable})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+    
+def get_top_stats(file_path,n=5):
+    log = pm4py.read_xes(file_path)
+    try:
+        all_stats =  pm4py.split_by_process_variant(log)
+        all_stats_list = []
+        all_stats_list.extend(all_stats)
+        dataframe_list = []
+
+        for key, value in all_stats_list:
+            dataframe_list.append(value)
+
+        sorteddflist= sorted(dataframe_list,key=lambda x:len(x.index),reverse=True)
+        response = []
+        for i in range(0,n):
+          response.append(sorteddflist[i].iloc[0]['@@variant_column'])
+
+        return jsonify({'dfg': str(response)})
+    except Exception as e:
+        return jsonify({"error": str(e)})

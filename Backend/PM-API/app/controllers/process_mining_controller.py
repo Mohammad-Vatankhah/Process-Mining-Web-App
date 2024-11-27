@@ -5,7 +5,14 @@ from app.services.process_mining_service import (alpha_miner_discovery_service,
                                                  heuristic_miner_discovery_service,
                                                  inductive_miner_discovery_service,
                                                  performance_analysis_service,
-                                                 social_network_service,footprint_discover)
+                                                 social_network_service,footprint_discover,
+                                                 get_start_activity_attribute,
+                                                 get_end_activity_attribute,
+                                                 activity_start_filtering,
+                                                 activity_end_filtering,
+                                                 get_all_activity_attribute,
+                                                 attributes_filtering,
+                                                 get_top_stats)
 import os
 import uuid
 from werkzeug.utils import secure_filename
@@ -326,3 +333,18 @@ def footprint(filename):
         return jsonify({'msg': 'File not found'}), 404
     response = footprint_discover(file_path)
     return response
+
+@process_mining_bp.route('/discover/filter')
+def filter_events():
+   my_set = ['']
+   
+   response = get_all_activity_attribute()
+   
+   return response
+
+@process_mining_bp.route('/discover/stats')
+def show_top_stats():
+   
+   response = get_top_stats()
+   
+   return response
