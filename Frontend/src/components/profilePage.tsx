@@ -3,18 +3,16 @@
 import api from "@/API/userAPI";
 import { User } from "@/types/types";
 import { useQuery } from "@tanstack/react-query";
-import { AxiosError } from "axios";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
+import AccountSettingDialog from "./accountSettingDialog";
 import ApplyAlgorithm from "./applyAlgorithm";
 import FilesScrollbar from "./filesScrollbar";
 import Pagination from "./pagination";
 import ProfileProcessCard from "./profileProcessCard";
 import ProfileProcessSceleton from "./profileProcessSceleton";
 import { Input } from "./ui/input";
-import AccountSettingDialog from "./accountSettingDialog";
 
 export type FileData = {
   original_filename: string;

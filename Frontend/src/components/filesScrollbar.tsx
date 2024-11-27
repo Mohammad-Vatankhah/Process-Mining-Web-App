@@ -25,7 +25,7 @@ export default function FilesScrollbar({
   totalPages: number;
   filesPerPage: number;
 }) {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false); // Controls sidebar visibility
   const [search, setSearch] = useState("");
 
   const filteredFiles = search
@@ -41,31 +41,45 @@ export default function FilesScrollbar({
 
   return (
     <div
-      className={`absolute top-20 z-20 flex flex-col px-5 mt-3 py-6 bg-white rounded-tr-lg rounded-br-lg shadow-2xl gap-3 h-fit transition-all duration-300 ${
-        !isOpen && "ml-[-260px]"
+      className={`fixed top-20 left-0 z-20 flex flex-col px-5 py-6 bg-white rounded-tr-lg rounded-br-lg shadow-2xl gap-3 transition-transform duration-300 ${
+        isOpen ? "translate-x-0" : "left-3 -translate-x-full"
       }`}
+      style={{
+        height: "calc(100vh - 80px)",
+      }}
     >
-      <div className="flex justify-between">
+      {/* Header */}
+      <div className="flex justify-between items-center">
         <h1 className="font-bold text-lg">Your Files</h1>
         <Button variant="destructive" onClick={() => setSelectedFile("")}>
           Deselect
         </Button>
       </div>
+
+      {/* Search Input */}
       <Input
         placeholder="Search"
         value={search}
         onChange={(e) => setSearch(e.target.value)}
       />
 
-      {currentFiles.map((file, idx) => (
-        <ProfileProcessCard
-          fileData={file}
-          selectedFile={selectedFile}
-          setSelectedFile={setSelectedFile}
-          key={idx}
-        />
-      ))}
+      {/* Files Section */}
+      <div
+        className="overflow-y-auto flex-1"
+        style={{ scrollbarWidth: "none" }}
+      >
+        {currentFiles.map((file, idx) => (
+          <div className="mb-3" key={idx}>
+            <ProfileProcessCard
+              fileData={file}
+              selectedFile={selectedFile}
+              setSelectedFile={setSelectedFile}
+            />
+          </div>
+        ))}
+      </div>
 
+      {/* Pagination */}
       {totalPages > 1 && (
         <Pagination
           currentPage={currentPage}
@@ -74,6 +88,7 @@ export default function FilesScrollbar({
         />
       )}
 
+      {/* Toggle Button */}
       <div className="absolute bg-background rounded cursor-pointer right-[-12px] top-8 shadow">
         <ChevronsLeft
           className={`transition-transform duration-300 ${
