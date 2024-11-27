@@ -1,11 +1,9 @@
-"use client";
-
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import CytoscapeComponent from "react-cytoscapejs";
 import cytoscape from "cytoscape";
+import dagre from "cytoscape-dagre";
 import { Card, CardContent, CardHeader, CardFooter } from "./ui/card";
 import { Button } from "./ui/button";
-import dagre from "cytoscape-dagre";
 
 cytoscape.use(dagre);
 
@@ -37,61 +35,23 @@ type PetriNet = {
   im: string;
 };
 
-const circleNodeStyle = {
-  width: 80,
-  height: 80,
-  "background-color": "#ccc",
-  border: "1px solid rgba(0, 0, 0)",
-  "text-valign": "center",
-  "text-halign": "center",
-};
-
-const startNodeStyle = {
-  width: 80,
-  height: 80,
-  "background-color": "green",
-  border: "1px solid rgba(0, 0, 0)",
-  "text-valign": "center",
-  "text-halign": "center",
-  label: "data(label)",
-  color: "white",
-};
-
-const finalNodeStyle = {
-  width: 80,
-  height: 80,
-  "background-color": "red",
-  border: "1px solid rgba(0, 0, 0)",
-  "text-valign": "center",
-  "text-halign": "center",
-  label: "data(label)",
-  color: "white",
-};
-
-const hidNodeStyle = {
-  width: "100px",
-  height: "50px",
-  "background-color": "black",
-  shape: "rectangle",
-  color: "transparent",
-};
-
-const defaultNodeStyle = {
-  label: "data(label)",
-  width: "label",
-  height: 40,
-  "background-color": "#ccc",
-  "text-valign": "center",
-  "text-halign": "center",
-  shape: "round-rectangle",
-  padding: "10px",
-};
-
 const PetriNetGraph: React.FC<{ petrinet: PetriNet; algorithm: string }> = ({
   petrinet,
   algorithm,
 }) => {
   const cyRef = useRef<cytoscape.Core | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [contextMenu, setContextMenu] = useState<{
+    visible: boolean;
+    x: number;
+    y: number;
+    nodeId: string | null;
+  }>({
+    visible: false,
+    x: 0,
+    y: 0,
+    nodeId: null,
+  });
 
   const elements = React.useMemo(() => {
     const regex =
@@ -147,13 +107,36 @@ const PetriNetGraph: React.FC<{ petrinet: PetriNet; algorithm: string }> = ({
 
   useEffect(() => {
     if (cyRef.current) {
-      cyRef.current
-        .layout({
-          name: "dagre",
-          rankDir: "LR",
-        })
-        .run();
+      cyRef.current.layout({ name: "dagre", rankDir: "LR" }).run();
+
+      // Right-click listener for nodes
+      cyRef.current.on("cxttap", "node", (event) => {
+        const node: cytoscape.NodeSingular = event.target;
+        const containerRect = containerRef.current?.getBoundingClientRect();
+
+        const nodeClasses = node.classes();
+        if (
+          nodeClasses.includes("circleNode") ||
+          nodeClasses.includes("hidNode")
+        ) {
+          return;
+        }
+
+        if (containerRect) {
+          setContextMenu({
+            visible: true,
+            x: event.originalEvent.clientX - containerRect.left,
+            y: event.originalEvent.clientY - containerRect.top,
+            nodeId: node.id(),
+          });
+        }
+      });
     }
+
+    const handleClick = () =>
+      setContextMenu({ visible: false, x: 0, y: 0, nodeId: null });
+    window.addEventListener("click", handleClick);
+    return () => window.removeEventListener("click", handleClick);
   }, [elements]);
 
   const handleExport = () => {
@@ -166,35 +149,90 @@ const PetriNetGraph: React.FC<{ petrinet: PetriNet; algorithm: string }> = ({
     }
   };
 
+  const handleResetPosition = () => {
+    if (cyRef.current) {
+      cyRef.current.fit(); // Zooms and centers the graph
+      cyRef.current.center(); // Ensures the graph is centered in the viewport
+    }
+  };
+
+  const handleMenuAction = (action: string) => {
+    console.log(`Action "${action}" on node "${contextMenu.nodeId}"`);
+    setContextMenu({ visible: false, x: 0, y: 0, nodeId: null });
+  };
+
   return (
     <Card className="w-full">
       <CardHeader className="font-bold text-xl">
         {algorithm} Algorithm Result
       </CardHeader>
       <CardContent>
-        <div style={{ height: "500px", width: "100%" }}>
+        <div
+          ref={containerRef}
+          style={{ height: "500px", width: "100%", position: "relative" }}
+        >
           <CytoscapeComponent
             elements={elements}
             stylesheet={[
               {
                 selector: ".circleNode",
-                style: circleNodeStyle,
+                style: {
+                  width: 80,
+                  height: 80,
+                  "background-color": "#ccc",
+                  border: "1px solid rgba(0, 0, 0)",
+                  "text-valign": "center",
+                  "text-halign": "center",
+                },
               },
               {
                 selector: ".hidNode",
-                style: hidNodeStyle,
+                style: {
+                  width: "100px",
+                  height: "50px",
+                  "background-color": "black",
+                  shape: "rectangle",
+                  color: "transparent",
+                },
               },
               {
                 selector: ".defaultNode",
-                style: defaultNodeStyle,
+                style: {
+                  label: "data(label)",
+                  width: "label",
+                  height: 40,
+                  "background-color": "#ccc",
+                  "text-valign": "center",
+                  "text-halign": "center",
+                  shape: "round-rectangle",
+                  padding: "10px",
+                },
               },
               {
                 selector: ".startNode",
-                style: startNodeStyle,
+                style: {
+                  width: 80,
+                  height: 80,
+                  "background-color": "green",
+                  border: "1px solid rgba(0, 0, 0)",
+                  "text-valign": "center",
+                  "text-halign": "center",
+                  label: "data(label)",
+                  color: "white",
+                },
               },
               {
                 selector: ".finalNode",
-                style: finalNodeStyle,
+                style: {
+                  width: 80,
+                  height: 80,
+                  "background-color": "red",
+                  border: "1px solid rgba(0, 0, 0)",
+                  "text-valign": "center",
+                  "text-halign": "center",
+                  label: "data(label)",
+                  color: "white",
+                },
               },
               {
                 selector: "edge",
@@ -208,10 +246,31 @@ const PetriNetGraph: React.FC<{ petrinet: PetriNet; algorithm: string }> = ({
             style={{ width: "100%", height: "500px", backgroundColor: "white" }}
             cy={(cy) => (cyRef.current = cy)}
           />
+          {contextMenu.visible && (
+            <div
+              style={{
+                position: "absolute",
+                top: contextMenu.y,
+                left: contextMenu.x,
+                background: "white",
+                border: "1px solid #ccc",
+                borderRadius: "5px",
+                boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
+                zIndex: 10,
+              }}
+            >
+              <ul className="list-none p-2 m-0">
+                <li onClick={() => handleMenuAction("Option 1")}>Option 1</li>
+                <li onClick={() => handleMenuAction("Option 2")}>Option 2</li>
+                <li onClick={() => handleMenuAction("Option 3")}>Option 3</li>
+              </ul>
+            </div>
+          )}
         </div>
       </CardContent>
-      <CardFooter>
+      <CardFooter className="flex gap-3">
         <Button onClick={handleExport}>Export as PNG</Button>
+        <Button onClick={handleResetPosition}>Reset Position</Button>
       </CardFooter>
     </Card>
   );
