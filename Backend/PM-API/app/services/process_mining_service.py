@@ -263,6 +263,6 @@ def get_top_stats(file_path,n=5):
         for i in range(0,n):
           response.append(sorteddflist[i].iloc[0]['@@variant_column'])
 
-        return jsonify({'dfg': str(response)})
+        return jsonify({'top_traces': str(response)})
     except Exception as e:
         return jsonify({"error": str(e)})
