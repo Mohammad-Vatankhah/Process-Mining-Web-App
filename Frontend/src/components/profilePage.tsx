@@ -34,7 +34,7 @@ export default function ProfilePage() {
 
   const filteredFiles = search
     ? data?.data.files.filter((file: FileData) =>
-        file.original_filename.toLowerCase().startsWith(search.toLowerCase())
+        file.original_filename.toLowerCase().includes(search.toLowerCase())
       )
     : data?.data.files;
 
