@@ -348,3 +348,190 @@ def show_top_stats():
    response = get_top_stats()
    
    return response
+
+@process_mining_bp.route('/activities/start/<filename>', methods=['GET'])
+@swag_from({
+    'tags': ['PM'],
+    'summary': 'Get start activity attributes',
+    'parameters': [
+        {
+            'name': 'filename',
+            'in': 'path',
+            'type': 'string',
+            'required': True,
+            'description': 'The file name of the uploaded file'
+        }
+    ],
+    'responses': {
+        200: {
+            'description': 'Start activity attributes',
+        },
+        404: {
+            'description': 'File not found'
+        }
+    }
+})
+def get_start_activity(filename):
+    file_path = get_file_path(filename)
+    if file_path is None:
+        return jsonify({'msg': 'File not found'}), 404
+
+    response = get_start_activity_attribute(file_path)
+    return response
+
+
+@process_mining_bp.route('/activities/end/<filename>', methods=['GET'])
+@swag_from({
+    'tags': ['PM'],
+    'summary': 'Get end activity attributes',
+    'parameters': [
+        {
+            'name': 'filename',
+            'in': 'path',
+            'type': 'string',
+            'required': True,
+            'description': 'The file name of the uploaded file'
+        }
+    ],
+    'responses': {
+        200: {
+            'description': 'End activity attributes',
+        },
+        404: {
+            'description': 'File not found'
+        }
+    }
+})
+def get_end_activity(filename):
+    file_path = get_file_path(filename)
+    if file_path is None:
+        return jsonify({'msg': 'File not found'}), 404
+
+    response = get_end_activity_attribute(file_path)
+    return response
+
+
+@process_mining_bp.route('/filter/activities/start/<filename>', methods=['POST'])
+@swag_from({
+    'tags': ['PM'],
+    'summary': 'Filter activities based on start attributes',
+    'parameters': [
+        {
+            'name': 'filename',
+            'in': 'path',
+            'type': 'string',
+            'required': True,
+            'description': 'The file name of the uploaded file'
+        },
+        {
+            'name': 'filter_set',
+            'in': 'body',
+            'required': True,
+            'schema': {
+                'type': 'array',
+                'items': {'type': 'string'},
+                'example': ['StartActivity1', 'StartActivity2']
+            }
+        }
+    ],
+    'responses': {
+        200: {
+            'description': 'Filtered activities by start attributes',
+        },
+        404: {
+            'description': 'File not found'
+        }
+    }
+})
+def filter_start_activities(filename):
+    file_path = get_file_path(filename)
+    if file_path is None:
+        return jsonify({'msg': 'File not found'}), 404
+
+    filter_set = set(request.json.get('filter_set', []))
+    response = activity_start_filtering(file_path, filter_set)
+    return response
+
+
+@process_mining_bp.route('/filter/activities/end/<filename>', methods=['POST'])
+@swag_from({
+    'tags': ['PM'],
+    'summary': 'Filter activities based on end attributes',
+    'parameters': [
+        {
+            'name': 'filename',
+            'in': 'path',
+            'type': 'string',
+            'required': True,
+            'description': 'The file name of the uploaded file'
+        },
+        {
+            'name': 'filter_set',
+            'in': 'body',
+            'required': True,
+            'schema': {
+                'type': 'array',
+                'items': {'type': 'string'},
+                'example': ['EndActivity1', 'EndActivity2']
+            }
+        }
+    ],
+    'responses': {
+        200: {
+            'description': 'Filtered activities by end attributes',
+        },
+        404: {
+            'description': 'File not found'
+        }
+    }
+})
+def filter_end_activities(filename):
+    file_path = get_file_path(filename)
+    if file_path is None:
+        return jsonify({'msg': 'File not found'}), 404
+
+    filter_set = set(request.json.get('filter_set', []))
+    response = activity_end_filtering(file_path, filter_set)
+    return response
+
+
+@process_mining_bp.route('/filter/attributes/<filename>', methods=['POST'])
+@swag_from({
+    'tags': ['PM'],
+    'summary': 'Filter activities by attributes',
+    'parameters': [
+        {
+            'name': 'filename',
+            'in': 'path',
+            'type': 'string',
+            'required': True,
+            'description': 'The file name of the uploaded file'
+        },
+        {
+            'name': 'filter_set',
+            'in': 'body',
+            'required': True,
+            'schema': {
+                'type': 'array',
+                'items': {'type': 'string'},
+                'example': ['Attribute1', 'Attribute2']
+            }
+        }
+    ],
+    'responses': {
+        200: {
+            'description': 'Filtered activities by attributes',
+        },
+        404: {
+            'description': 'File not found'
+        }
+    }
+})
+def filter_attributes(filename):
+    file_path = get_file_path(filename)
+    if file_path is None:
+        return jsonify({'msg': 'File not found'}), 404
+
+    filter_set = set(request.json.get('filter_set', []))
+    response = attributes_filtering(file_path, filter_set)
+    return response
