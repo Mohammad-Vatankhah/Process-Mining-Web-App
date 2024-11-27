@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronsLeft } from "lucide-react";
-import React, { Dispatch, useState } from "react";
+import React, { Dispatch, useEffect, useRef, useState } from "react";
 import { FileData } from "./profilePage";
 import ProfileProcessCard from "./profileProcessCard";
 import { Button } from "./ui/button";
@@ -25,8 +25,10 @@ export default function FilesScrollbar({
   totalPages: number;
   filesPerPage: number;
 }) {
-  const [isOpen, setIsOpen] = useState(false); // Controls sidebar visibility
+  const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
+
+  const scrollbarRef = useRef(null);
 
   const filteredFiles = search
     ? files.filter((file) =>
@@ -39,6 +41,19 @@ export default function FilesScrollbar({
     currentPage * filesPerPage
   );
 
+  const handleClickOutside = (event: MouseEvent) => {
+    if (scrollbarRef.current && !scrollbarRef.current.contains(event.target)) {
+      setIsOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <div
       className={`fixed top-20 left-0 z-20 flex flex-col px-5 py-6 bg-white rounded-tr-lg rounded-br-lg shadow-2xl gap-3 transition-transform duration-300 ${
@@ -47,6 +62,7 @@ export default function FilesScrollbar({
       style={{
         height: "calc(100vh - 80px)",
       }}
+      ref={scrollbarRef}
     >
       {/* Header */}
       <div className="flex justify-between items-center">
