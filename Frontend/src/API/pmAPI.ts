@@ -81,5 +81,11 @@ const PMapi = {
       filter_set,
     });
   },
+
+  topProcesses: async (filename: string, n: number) => {
+    return await axiosInstance.get(`/discover/stats/${filename}`, {
+      params: { n },
+    });
+  },
 };
 export default PMapi;
