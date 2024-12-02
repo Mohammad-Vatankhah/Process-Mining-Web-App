@@ -247,10 +247,11 @@ def attributes_filtering(file_path,filter_set: set):
     except Exception as e:
         return jsonify({"error": str(e)})
     
-def get_top_stats(file_path,n=5):
+def get_top_stats(file_path, n=5):
     log = pm4py.read_xes(file_path)
     try:
-        all_stats =  pm4py.split_by_process_variant(log)
+        # Split log into process variants
+        all_stats = pm4py.split_by_process_variant(log)
         all_stats_list = []
         all_stats_list.extend(all_stats)
         dataframe_list = []
@@ -258,11 +259,28 @@ def get_top_stats(file_path,n=5):
         for key, value in all_stats_list:
             dataframe_list.append(value)
 
-        sorteddflist= sorted(dataframe_list,key=lambda x:len(x.index),reverse=True)
-        response = []
-        for i in range(0,n):
-          response.append(sorteddflist[i].iloc[0]['@@variant_column'])
+        # Sort dataframes by the number of instances in descending order
+        sorted_df_list = sorted(dataframe_list, key=lambda x: len(x.index), reverse=True)
 
-        return jsonify({'top_traces': str(response)})
+        # Calculate top traces and their percentages
+        top_traces = []
+        percentages = []
+        count = []
+        total_instances = sum(len(df.index) for df in dataframe_list)
+
+        for i in range(min(n, len(sorted_df_list))):
+            top_traces.append(sorted_df_list[i].iloc[0]['@@variant_column'])
+            count.append(len(sorted_df_list[i].index))
+            percentages.append(round(len(sorted_df_list[i].index) / total_instances * 100, 2))
+
+        # Calculate the number of unique traces
+        unique_traces_count = len(all_stats_list)
+
+        return jsonify({
+            'top_traces': top_traces,
+            'percentages': percentages,
+            'unique_traces': unique_traces_count,
+            'count': count
+        })
     except Exception as e:
         return jsonify({"error": str(e)})
