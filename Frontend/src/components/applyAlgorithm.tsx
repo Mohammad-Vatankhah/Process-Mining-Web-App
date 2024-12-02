@@ -144,6 +144,7 @@ export default function ApplyAlgorithm({
             setSelectedAlgorithm={setSelectedAlgorithm}
             loading={loading}
             appliedAlgorithms={appliedAlgorithms}
+            selectedFileName={selectedFileName}
           />
         </div>
       )}

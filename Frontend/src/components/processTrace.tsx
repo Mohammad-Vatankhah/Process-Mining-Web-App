@@ -1,57 +1,44 @@
-// components/ProcessVariants.tsx
 import React from "react";
 
-// دریافت رنگ تصادفی برای هر رویداد
-const getRandomColor = (event: string): string => {
-  const hash = [...event].reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  const colors = [
-    "#FF5733",
-    "#33FF57",
-    "#3357FF",
-    "#F1C40F",
-    "#E74C3C",
-    "#2ECC71",
-    "#9B59B6",
-    "#FF33A1",
-    "#A1FF33",
-    "#33A1FF",
-  ];
-  return colors[hash % colors.length];
+const getDynamicColor = (index: number): string => {
+  const hue = (index * 137.508) % 360; // Golden angle approximation
+  return `hsl(${hue}, 70%, 50%)`; // HSL with fixed saturation and lightness
 };
 
 type ProcessVariantProps = {
-  topTracesString: string;
+  topTraces: string[][];
+  percentages: number[];
+  count: number[];
 };
 
-const ProcessTrace: React.FC<ProcessVariantProps> = ({ topTracesString }) => {
-  // پارس کردن رشته به آرایه
-  const parsedTraces = JSON.parse(
-    topTracesString.replace(/\(/g, "[").replace(/\)/g, "]").replace(/'/g, '"')
-  ) as string[][];
-
-  // استخراج رویدادها و اختصاص رنگ
-  const uniqueEvents = Array.from(new Set(parsedTraces.flat()));
-  const eventColors = uniqueEvents.reduce((acc, event) => {
-    acc[event.trim()] = getRandomColor(event);
+const ProcessTrace: React.FC<ProcessVariantProps> = ({
+  topTraces,
+  percentages,
+  count,
+}) => {
+  const uniqueEvents = Array.from(new Set(topTraces.flat()));
+  const eventColors = uniqueEvents.reduce((acc, event, index) => {
+    acc[event.trim()] = getDynamicColor(index);
     return acc;
   }, {} as { [key: string]: string });
 
   return (
-    <div>
-      <h2>Top Process Variants</h2>
-      <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-        {parsedTraces.map((variant, index) => (
-          <div key={index} style={{ display: "flex", alignItems: "center" }}>
+    <div className="flex flex-wrap gap-4 max-w-fit">
+      <div className="flex flex-col gap-5 max-w-fit overflow-x-auto max-h-80">
+        {topTraces.map((variant, index) => (
+          <div key={index} className="flex items-center">
+            <span className="mr-1">{index + 1}</span>
             {variant.map((event, idx) => (
               <div
                 key={idx}
                 style={{
                   backgroundColor: eventColors[event.trim()] || "#ccc",
                   padding:
-                    idx === 0 ? "10px 20px 10px 10px" :
-                    idx < variant.length - 1 ?
-                    "10px 20px 10px 25px":
-                    "10px 10px 10px 25px",
+                    idx === 0
+                      ? "10px 20px 10px 10px"
+                      : idx < variant.length - 1
+                      ? "10px 20px 10px 25px"
+                      : "10px 10px 10px 25px",
                   borderRadius: "5px",
                   color: "#fff",
                   fontWeight: "bold",
@@ -68,13 +55,13 @@ const ProcessTrace: React.FC<ProcessVariantProps> = ({ topTracesString }) => {
                 {event}
               </div>
             ))}
+            <span className="ml-3 whitespace-nowrap">{`${percentages[index]}% (${count[index]})`}</span>
           </div>
         ))}
       </div>
 
       {/* Legend */}
-      <h3>Legend</h3>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+      <div className="flex flex-wrap gap-3 border-t pt-2 max-w-full">
         {uniqueEvents.map((event) => (
           <div
             key={event}
@@ -88,7 +75,7 @@ const ProcessTrace: React.FC<ProcessVariantProps> = ({ topTracesString }) => {
                 borderRadius: "3px",
               }}
             ></div>
-            <span>{event}</span>
+            <span className="whitespace-nowrap">{event}</span>
           </div>
         ))}
       </div>

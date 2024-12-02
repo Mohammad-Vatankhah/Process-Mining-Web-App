@@ -128,7 +128,7 @@ export default function ProfilePage() {
             <ApplyAlgorithm
               fileName={selectedFile}
               fromHistory
-              selectedFileName=""
+              selectedFileName={selectedFile}
             />
           </div>
         </div>

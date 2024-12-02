@@ -8,6 +8,7 @@ import {
   SelectValue,
 } from "./ui/select";
 import { Button } from "./ui/button";
+import { TopTracesModal } from "./topTracesModal";
 
 export default function ApplyAlgorithmCard({
   selectedAlgorithm,
@@ -15,6 +16,7 @@ export default function ApplyAlgorithmCard({
   setSelectedAlgorithm,
   handleAlgorithmApply,
   appliedAlgorithms,
+  selectedFileName,
 }: {
   selectedAlgorithm: string | null;
   loading: boolean;
@@ -28,6 +30,7 @@ export default function ApplyAlgorithmCard({
     socialNetwork: boolean;
     footprint: boolean;
   };
+  selectedFileName: string | undefined;
 }) {
   const algorithms = [
     { id: "alpha", name: "Alpha Miner", applied: appliedAlgorithms.alphaMiner },
@@ -57,34 +60,38 @@ export default function ApplyAlgorithmCard({
       applied: appliedAlgorithms.socialNetwork,
     },
   ];
-
+  console.log(selectedFileName);
+  
   return (
     <Card className="w-full md:col-start-2 md:col-end-4">
       <CardHeader className="text-2xl font-semibold mb-2">
         Select an Algorithm
       </CardHeader>
       <CardContent>
-        <Select
-          value={selectedAlgorithm || ""}
-          onValueChange={setSelectedAlgorithm}
-        >
-          <SelectTrigger value="">
-            <SelectValue placeholder="Select an algorithm" />
-          </SelectTrigger>
-          <SelectContent>
-            {algorithms.map((algorithm) => (
-              <SelectItem
-                key={algorithm.id}
-                value={algorithm.id}
-                disabled={algorithm.applied}
-              >
-                {algorithm.name}
-                {algorithm.applied && " (Applied)"}{" "}
-                {/* Display applied label */}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex gap-2">
+          <Select
+            value={selectedAlgorithm || ""}
+            onValueChange={setSelectedAlgorithm}
+          >
+            <SelectTrigger value="">
+              <SelectValue placeholder="Select an algorithm" />
+            </SelectTrigger>
+            <SelectContent>
+              {algorithms.map((algorithm) => (
+                <SelectItem
+                  key={algorithm.id}
+                  value={algorithm.id}
+                  disabled={algorithm.applied}
+                >
+                  {algorithm.name}
+                  {algorithm.applied && " (Applied)"}
+                  {/* Display applied label */}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {selectedFileName && <TopTracesModal filename={selectedFileName} />}
+        </div>
         <Button
           onClick={handleAlgorithmApply}
           className="mt-6 w-full"
