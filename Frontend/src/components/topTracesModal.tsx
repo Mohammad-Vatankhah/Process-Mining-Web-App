@@ -11,12 +11,16 @@ import {
 import ProcessTrace from "./processTrace";
 import { useQuery } from "@tanstack/react-query";
 import PMapi from "@/API/pmAPI";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "./ui/input";
 import toast from "react-hot-toast";
 
 export function TopTracesModal({ filename }: { filename: string }) {
   const [n, setN] = useState(5);
+
+  useEffect(() => {
+    setN(5);
+  }, [filename]);
 
   const { data, isLoading, refetch, isFetching } = useQuery({
     queryKey: ["topTraces", { filename }],

@@ -1,11 +1,8 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader } from "./ui/card";
+import { Footprint } from "@/types/types";
 
-interface ApiResponse {
-  footprint: string;
-}
-
-export default function FootprintTable({ result }: { result: ApiResponse }) {
+export default function FootprintTable({ result }: { result: Footprint }) {
   const [tableData, setTableData] = useState<string[][]>([]);
 
   useEffect(() => {

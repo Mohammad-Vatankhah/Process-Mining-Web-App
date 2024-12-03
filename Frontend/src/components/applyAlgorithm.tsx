@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 import PMapi from "@/API/pmAPI";
 import PetriNetGraph from "./petrinetGraph";
 import FootprintTable from "./footprintResult";
+import { Result } from "@/types/types";
 
 export default function ApplyAlgorithm({
   selectedFileName,
@@ -19,7 +20,7 @@ export default function ApplyAlgorithm({
   fileName: string;
   fromHistory: boolean;
 }) {
-  const [result, setResult] = useState({
+  const [result, setResult] = useState<Result>({
     alphaMiner: null,
     heuristicMiner: null,
     inductiveMiner: null,
@@ -151,18 +152,24 @@ export default function ApplyAlgorithm({
 
       <div className="flex flex-col justify-center items-center gap-6 px-5 my-4">
         {result.alphaMiner && (
-          <PetriNetGraph petrinet={result.alphaMiner} algorithm="Alpha Miner" />
+          <PetriNetGraph
+            petrinet={result.alphaMiner}
+            algorithm="Alpha Miner"
+            setResult={setResult}
+          />
         )}
         {result.heuristicMiner && (
           <PetriNetGraph
             petrinet={result.heuristicMiner}
             algorithm="Heuristic Miner"
+            setResult={setResult}
           />
         )}
         {result.inductiveMiner && (
           <PetriNetGraph
             petrinet={result.inductiveMiner}
             algorithm="Inductive Miner"
+            setResult={setResult}
           />
         )}
         {result.dfg && <DfgResult result={result.dfg} />}

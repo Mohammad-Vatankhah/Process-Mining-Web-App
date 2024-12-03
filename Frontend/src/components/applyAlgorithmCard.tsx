@@ -60,8 +60,7 @@ export default function ApplyAlgorithmCard({
       applied: appliedAlgorithms.socialNetwork,
     },
   ];
-  console.log(selectedFileName);
-  
+
   return (
     <Card className="w-full md:col-start-2 md:col-end-4">
       <CardHeader className="text-2xl font-semibold mb-2">

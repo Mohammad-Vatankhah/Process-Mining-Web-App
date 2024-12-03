@@ -36,7 +36,7 @@ const config: Config = {
         },
         accent: {
           DEFAULT: "#00ADB5", // Teal accent color
-          foreground: "#222831", // Dark gray for accent text
+          foreground: "#EEEEEE", // Dark gray for accent text
         },
         destructive: {
           DEFAULT: "#B33030", // Muted red for destructive actions

@@ -74,3 +74,21 @@
   -webkit-backdrop-filter: blur(12.1px);
   border: 1px solid rgba(0, 173, 181, 0.56);
 }
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #EEEEEE;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #00ADB5;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
