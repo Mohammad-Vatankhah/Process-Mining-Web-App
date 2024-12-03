@@ -16,6 +16,7 @@ import {
   Dialog,
   DialogContent,
   DialogHeader,
+  DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
@@ -117,11 +118,12 @@ const PetriNetGraph: React.FC<{
             visible: true,
             x: event.originalEvent.clientX - containerRect.left,
             y: event.originalEvent.clientY - containerRect.top,
-            nodeId: node.id(),
+            nodeId: node.data("label"),
           });
         }
       });
     }
+    console.log(selectedNodes);
 
     const handleClick = () =>
       setContextMenu({ visible: false, x: 0, y: 0, nodeId: null });
@@ -161,10 +163,6 @@ const PetriNetGraph: React.FC<{
     );
   };
 
-  console.log(
-    elements.filter((el) => el.data.id && el.classes === "defaultNode")
-  );
-
   return (
     <Card className="w-full">
       <CardHeader className="font-bold text-xl">
@@ -176,9 +174,9 @@ const PetriNetGraph: React.FC<{
                 <FaInfoCircle size={15} className="mt-1 cursor-pointer" />
               </DialogTrigger>
               <DialogContent>
-                <DialogHeader>
+                <DialogTitle>
                   <h2 className="text-xl font-bold">Interactive Graph</h2>
-                </DialogHeader>
+                </DialogTitle>
                 <div className="mt-2 font-bold text-balance text-gray-600">
                   <p>This graph is interactive. You can:</p>
                   <ul className="list-disc font-normal list-inside mt-2">
@@ -198,12 +196,20 @@ const PetriNetGraph: React.FC<{
               <h3 className="text-sm font-bold mb-2">Select Nodes</h3>
               <div className="p-2 max-h-52 overflow-auto">
                 {elements
-                  .filter((el) => el.data.id && el.classes === "defaultNode")
+                  .filter(
+                    (el) =>
+                      el.data.id &&
+                      (el.classes === "defaultNode" ||
+                        el.classes === "startNode" ||
+                        el.classes === "finalNode")
+                  )
                   .map((el) => (
                     <div key={el.data.id} className="flex items-center gap-2">
                       <Checkbox
-                        checked={selectedNodes.includes(el.data.id)}
-                        onCheckedChange={() => toggleNodeSelection(el.data.id)}
+                        checked={selectedNodes.includes(el.data.label)}
+                        onCheckedChange={() =>
+                          toggleNodeSelection(el.data.label)
+                        }
                       />
                       <label>{el.data.label}</label>
                     </div>
@@ -309,12 +315,21 @@ const PetriNetGraph: React.FC<{
               }}
             >
               <ul className="list-none m-0">
-                <li
-                  className="hover:bg-gray-400 hover:text-white rounded-sm cursor-pointer p-2 transition-all duration-200"
-                  onClick={() => handleMenuAction(contextMenu.nodeId!)}
-                >
-                  Filter graph to show traces containing this node
-                </li>
+                {selectedNodes.includes(contextMenu.nodeId!) ? (
+                  <li
+                    className="hover:bg-destructive hover:text-white rounded-sm cursor-pointer p-2 transition-all duration-200"
+                    onClick={() => toggleNodeSelection(contextMenu.nodeId!)}
+                  >
+                    Remove Node from Filter
+                  </li>
+                ) : (
+                  <li
+                    className="hover:bg-[#00ADB5] hover:text-white rounded-sm cursor-pointer p-2 transition-all duration-200"
+                    onClick={() => handleMenuAction(contextMenu.nodeId!)}
+                  >
+                    Add Node to Filter
+                  </li>
+                )}
               </ul>
             </div>
           )}

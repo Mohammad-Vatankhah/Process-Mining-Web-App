@@ -80,15 +80,15 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #EEEEEE;
+  background: #eeeeee;
   border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #00ADB5;
+  background: #555;
   border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: #00adb5;
 }
