@@ -108,7 +108,9 @@ const PetriNetGraph: React.FC<{
         const nodeClasses = node.classes();
         if (
           nodeClasses.includes("circleNode") ||
-          nodeClasses.includes("hidNode")
+          nodeClasses.includes("hidNode") ||
+          nodeClasses.includes("startNode") ||
+          nodeClasses.includes("finalNode")
         ) {
           return;
         }
@@ -196,13 +198,7 @@ const PetriNetGraph: React.FC<{
               <h3 className="text-sm font-bold mb-2">Select Nodes</h3>
               <div className="p-2 max-h-52 overflow-auto">
                 {elements
-                  .filter(
-                    (el) =>
-                      el.data.id &&
-                      (el.classes === "defaultNode" ||
-                        el.classes === "startNode" ||
-                        el.classes === "finalNode")
-                  )
+                  .filter((el) => el.data.id && el.classes === "defaultNode")
                   .map((el) => (
                     <div key={el.data.id} className="flex items-center gap-2">
                       <Checkbox

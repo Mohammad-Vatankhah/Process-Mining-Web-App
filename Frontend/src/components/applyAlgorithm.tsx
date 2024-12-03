@@ -17,7 +17,7 @@ export default function ApplyAlgorithm({
   fromHistory,
 }: {
   selectedFileName: string | undefined;
-  fileName: string;
+  fileName: string | undefined;
   fromHistory: boolean;
 }) {
   const [result, setResult] = useState<Result>({
@@ -145,7 +145,7 @@ export default function ApplyAlgorithm({
             setSelectedAlgorithm={setSelectedAlgorithm}
             loading={loading}
             appliedAlgorithms={appliedAlgorithms}
-            selectedFileName={selectedFileName}
+            selectedFileName={fileName}
           />
         </div>
       )}
