@@ -55,31 +55,31 @@ export default function ApplyAlgorithm({
     try {
       switch (selectedAlgorithm) {
         case "alpha":
-          const alphaMinerRes = await PMapi.alphaMiner(fileName);
+          const alphaMinerRes = await PMapi.alphaMiner(fileName!);
           setResult((prev) => ({ ...prev, alphaMiner: alphaMinerRes.data }));
           setAppliedAlgorithms((prev) => ({ ...prev, alphaMiner: true }));
           break;
 
         case "heuristic":
-          const hueristicRes = await PMapi.heuristicMiner(fileName);
+          const hueristicRes = await PMapi.heuristicMiner(fileName!);
           setResult((prev) => ({ ...prev, heuristicMiner: hueristicRes.data }));
           setAppliedAlgorithms((prev) => ({ ...prev, heuristicMiner: true }));
           break;
 
         case "inductive":
-          const inductiveRes = await PMapi.inductiveMiner(fileName);
+          const inductiveRes = await PMapi.inductiveMiner(fileName!);
           setResult((prev) => ({ ...prev, inductiveMiner: inductiveRes.data }));
           setAppliedAlgorithms((prev) => ({ ...prev, inductiveMiner: true }));
           break;
 
         case "dfg":
-          const dfgRes = await PMapi.dfg(fileName);
+          const dfgRes = await PMapi.dfg(fileName!);
           setResult((prev) => ({ ...prev, dfg: dfgRes.data.dfg }));
           setAppliedAlgorithms((prev) => ({ ...prev, dfg: true }));
           break;
 
         case "socialNetwork":
-          const socialRes = await PMapi.socialNetwork(fileName);
+          const socialRes = await PMapi.socialNetwork(fileName!);
           setResult((prev) => ({
             ...prev,
             socialNetwork: socialRes.data.social_network,
@@ -88,7 +88,7 @@ export default function ApplyAlgorithm({
           break;
 
         case "footprint":
-          const footprintRes = await PMapi.footprint(fileName);
+          const footprintRes = await PMapi.footprint(fileName!);
           setResult((prev) => ({ ...prev, footprint: footprintRes.data }));
           setAppliedAlgorithms((prev) => ({ ...prev, footprint: true }));
           break;
@@ -156,6 +156,7 @@ export default function ApplyAlgorithm({
             petrinet={result.alphaMiner}
             algorithm="Alpha Miner"
             setResult={setResult}
+            filename={fileName!}
           />
         )}
         {result.heuristicMiner && (
@@ -163,6 +164,7 @@ export default function ApplyAlgorithm({
             petrinet={result.heuristicMiner}
             algorithm="Heuristic Miner"
             setResult={setResult}
+            filename={fileName!}
           />
         )}
         {result.inductiveMiner && (
@@ -170,6 +172,7 @@ export default function ApplyAlgorithm({
             petrinet={result.inductiveMiner}
             algorithm="Inductive Miner"
             setResult={setResult}
+            filename={fileName!}
           />
         )}
         {result.dfg && <DfgResult result={result.dfg} />}

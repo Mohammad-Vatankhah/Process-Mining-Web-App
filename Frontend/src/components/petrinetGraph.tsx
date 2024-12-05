@@ -12,15 +12,12 @@ import { Card, CardContent, CardHeader, CardFooter } from "./ui/card";
 import { Button } from "./ui/button";
 import { PetriNet, Result } from "@/types/types";
 import { FaInfoCircle } from "react-icons/fa";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "./ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Checkbox } from "./ui/checkbox";
+import toast from "react-hot-toast";
+import PMapi from "@/API/pmAPI";
+import { AxiosError } from "axios";
 
 cytoscape.use(dagre);
 
@@ -28,7 +25,8 @@ const PetriNetGraph: React.FC<{
   petrinet: PetriNet;
   algorithm: string;
   setResult: Dispatch<SetStateAction<Result>>;
-}> = ({ petrinet, algorithm }) => {
+  filename: string;
+}> = ({ petrinet, algorithm, setResult, filename }) => {
   const cyRef = useRef<cytoscape.Core | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [contextMenu, setContextMenu] = useState<{
@@ -43,6 +41,7 @@ const PetriNetGraph: React.FC<{
     nodeId: null,
   });
   const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
+  const [loading, setLoading] = useState("none");
 
   const elements = React.useMemo(() => {
     const regex =
@@ -125,7 +124,6 @@ const PetriNetGraph: React.FC<{
         }
       });
     }
-    console.log(selectedNodes);
 
     const handleClick = () =>
       setContextMenu({ visible: false, x: 0, y: 0, nodeId: null });
@@ -165,6 +163,46 @@ const PetriNetGraph: React.FC<{
     );
   };
 
+  const handleApplyFilter = async () => {
+    if (selectedNodes.length === 0) {
+      toast.error("Please select a node to filter");
+      return;
+    }
+    try {
+      setLoading(algorithm);
+      const res = await PMapi.filterActivities(
+        filename,
+        selectedNodes,
+        algorithm
+      );
+      setResult((prev) => ({ ...prev, alphaMiner: res.data }));
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        toast.error(err.response?.data?.msg);
+      } else {
+        toast.error("An unexpected error occurred!");
+      }
+    } finally {
+      setLoading("none");
+    }
+  };
+
+  const handleResetFilter = async () => {
+    try {
+      setLoading(algorithm);
+      const res = await PMapi.alphaMiner(filename);
+      setResult((prev) => ({ ...prev, alphaMiner: res.data }));
+    } catch (err) {
+      if (err instanceof AxiosError) {
+        toast.error(err.response?.data?.msg);
+      } else {
+        toast.error("An unexpected error occurred!");
+      }
+    } finally {
+      setLoading("none");
+    }
+  };
+
   return (
     <Card className="w-full">
       <CardHeader className="font-bold text-xl">
@@ -190,36 +228,44 @@ const PetriNetGraph: React.FC<{
               </DialogContent>
             </Dialog>
           </div>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="outline">Select Nodes to Filter</Button>
-            </PopoverTrigger>
-            <PopoverContent>
-              <h3 className="text-sm font-bold mb-2">Select Nodes</h3>
-              <div className="p-2 max-h-52 overflow-auto">
-                {elements
-                  .filter((el) => el.data.id && el.classes === "defaultNode")
-                  .map((el) => (
-                    <div key={el.data.id} className="flex items-center gap-2">
-                      <Checkbox
-                        checked={selectedNodes.includes(el.data.label)}
-                        onCheckedChange={() =>
-                          toggleNodeSelection(el.data.label)
-                        }
-                      />
-                      <label>{el.data.label}</label>
-                    </div>
-                  ))}
-              </div>
-              <Button className="mt-3">Apply Filter</Button>
-            </PopoverContent>
-          </Popover>
+          <div className="flex gap-2 items-center">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline">Select Nodes to Filter</Button>
+              </PopoverTrigger>
+              <PopoverContent>
+                <h3 className="text-sm font-bold mb-2">Select Nodes</h3>
+                <div className="p-2 max-h-52 overflow-auto">
+                  {elements
+                    .filter((el) => el.data.id && el.classes === "defaultNode")
+                    .map((el) => (
+                      <div key={el.data.id} className="flex items-center gap-2">
+                        <Checkbox
+                          checked={selectedNodes.includes(el.data.label)}
+                          onCheckedChange={() =>
+                            toggleNodeSelection(el.data.label)
+                          }
+                        />
+                        <label>{el.data.label}</label>
+                      </div>
+                    ))}
+                </div>
+                <Button className="mt-3" onClick={handleResetFilter}>
+                  Reset Filter
+                </Button>
+              </PopoverContent>
+            </Popover>
+            <Button onClick={handleApplyFilter}>Apply Filter</Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
+        {loading === algorithm && (
+          <div className="z-10 bg-gray-400 h-[500px] w-full">Loading...</div>
+        )}
         <div
           ref={containerRef}
-          style={{ height: "500px", width: "100%", position: "relative" }}
+          className={`relative h-[500px] w-full ${loading === algorithm && "hidden"}`}
           onContextMenu={(e) => e.preventDefault()}
         >
           <CytoscapeComponent

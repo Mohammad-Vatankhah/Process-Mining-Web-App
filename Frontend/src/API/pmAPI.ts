@@ -76,9 +76,14 @@ const PMapi = {
     });
   },
 
-  filterActivities: async (filename: string, filter_set: string[]) => {
+  filterActivities: async (
+    filename: string,
+    filter_set: string[],
+    algo: string
+  ) => {
     return await axiosInstance.post(`/filter/attributes/${filename}`, {
       filter_set,
+      algo,
     });
   },
 
