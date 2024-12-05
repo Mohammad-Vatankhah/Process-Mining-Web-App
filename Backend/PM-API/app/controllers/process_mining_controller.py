@@ -593,7 +593,16 @@ def filter_end_activities(filename):
                 'items': {'type': 'string'},
                 'example': ['Attribute1', 'Attribute2']
             }
-        }
+        },
+        {
+            'name': 'algo',
+            'in': 'body',
+            'required': True,
+            'schema': {
+                'type': 'string',
+                'example': 'alphaMiner'
+            }
+        },
     ],
     'responses': {
         200: {
@@ -610,5 +619,6 @@ def filter_attributes(filename):
         return jsonify({'msg': 'File not found'}), 404
 
     filter_set = set(request.json.get('filter_set', []))
-    response = attributes_filtering(file_path, filter_set)
+    algorithm = request.json.get('algo')
+    response = attributes_filtering(file_path, filter_set, algorithm)
     return response

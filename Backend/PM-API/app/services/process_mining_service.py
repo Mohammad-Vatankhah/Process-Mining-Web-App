@@ -66,7 +66,7 @@ def alpha_miner_discovery_service(filepath):
         net, initial_marking, final_marking = pm4py.discover_petri_net_alpha(log)
         return jsonify({'net': serialize_petrinet(net), 'im': str(initial_marking), 'fm': str(final_marking)})
     except Exception as e:
-        return jsonify({"error": str(e)})
+        return jsonify({"error": str(e)}), 500
 
 def heuristic_miner_discovery_service(filepath):
     log = pm4py.read_xes(filepath)
@@ -78,7 +78,7 @@ def heuristic_miner_discovery_service(filepath):
         return jsonify({'net': serialize_petrinet(net), 'im': str(initial_marking), 'fm': str(final_marking)})
 
     except Exception as e:
-        return jsonify({"error": str(e)})
+        return jsonify({"error": str(e)}), 500
 
 def inductive_miner_discovery_service(filepath):
     log = xes_importer.apply(filepath)
@@ -91,7 +91,7 @@ def inductive_miner_discovery_service(filepath):
         return 200
 
     except Exception as e:
-        return jsonify({"error": str(e)})
+        return jsonify({"error": str(e)}), 500
 
 def dfg_discovery_service(filepath):
     log = xes_importer.apply(filepath)  # Load the log file from the given filepath
@@ -106,8 +106,7 @@ def dfg_discovery_service(filepath):
 
         return jsonify({'dfg': dfg_serializable})
     except Exception as e:
-        return jsonify({"error": str(e)})
-
+        return jsonify({"error": str(e)}), 500
 
 def performance_analysis_service(filepath):
     log = xes_importer.apply(filepath)  # Load the log file from the given filepath
@@ -129,8 +128,7 @@ def performance_analysis_service(filepath):
 
         return jsonify({'average_duration': avg_duration})
     except Exception as e:
-        return jsonify({"error": str(e)})
-
+        return jsonify({"error": str(e)}), 500
 
 def social_network_service(filepath):
     log = xes_importer.apply(filepath)  # Load the log file from the given filepath
@@ -162,8 +160,7 @@ def social_network_service(filepath):
 
         return jsonify({'social_network': social_network_data})
     except Exception as e:
-        return jsonify({"error": str(e)})
-
+        return jsonify({"error": str(e)}), 500
 
 def footprint_discover(filepath):
     log = pm4py.read_xes(filepath)
@@ -173,8 +170,8 @@ def footprint_discover(filepath):
         # pm4py.view_footprints(footprints, format='svg')
         return jsonify({'footprint': str(response)})
     except Exception as e:
-        return jsonify({"error": str(e)})
-    
+        return jsonify({"error": str(e)}), 500
+
 def get_start_activity_attribute(file_path):
     log = pm4py.read_xes(file_path)
     try:
@@ -183,8 +180,8 @@ def get_start_activity_attribute(file_path):
                                       timestamp_key='time:timestamp')
         return jsonify({'Start Activity': response})
     except Exception as e:
-        return jsonify({"error": str(e)})
-    
+        return jsonify({"error": str(e)}), 500
+
 def activity_start_filtering(file_path,filter_set: set):
     log = pm4py.read_xes(file_path)
     try:
@@ -197,7 +194,7 @@ def activity_start_filtering(file_path,filter_set: set):
         dfg_serializable = {str(k): v for k, v in dfg.items()}
         return jsonify({'dfg': dfg_serializable})
     except Exception as e:
-        return jsonify({"error": str(e)})
+        return jsonify({"error": str(e)}), 500
 
 def get_end_activity_attribute(file_path):
     log = pm4py.read_xes(file_path)
@@ -207,7 +204,7 @@ def get_end_activity_attribute(file_path):
                                       timestamp_key='time:timestamp')
         return jsonify({'End Activity': response})
     except Exception as e:
-        return jsonify({"error": str(e)})
+        return jsonify({"error": str(e)}), 500
 
 def activity_end_filtering(file_path,filter_set: set):
     
@@ -222,8 +219,8 @@ def activity_end_filtering(file_path,filter_set: set):
         dfg_serializable = {str(k): v for k, v in dfg.items()}
         return jsonify({'dfg': dfg_serializable})
     except Exception as e:
-        return jsonify({"error": str(e)})
-    
+        return jsonify({"error": str(e)}), 500
+
 def get_all_activity_attribute(file_path):
     log = pm4py.read_xes(file_path)
     try:
@@ -232,21 +229,63 @@ def get_all_activity_attribute(file_path):
         
         return jsonify({'All attribute': str(responses)})
     except Exception as e:
-        return jsonify({"error": str(e)})
-    
-def attributes_filtering(file_path,filter_set: set):
-    log = pm4py.read_xes(file_path)
-    try:
-        filtered_log = pm4py.filter_event_attribute_values(log, 'concept:name',filter_set,
-                                                       case_id_key='case:concept:name')
-        dfg, start_activities, end_activities = pm4py.discover_dfg(filtered_log)
+        return jsonify({"error": str(e)}), 500
 
-        # Convert DFG to a serializable format
-        dfg_serializable = {str(k): v for k, v in dfg.items()}
-        return jsonify({'dfg': dfg_serializable})
-    except Exception as e:
-        return jsonify({"error": str(e)})
+from flask import jsonify
+import pm4py
+
+def discover_petri_net(algorithm, log):
+    """
+    Discovers a Petri net using the specified algorithm.
     
+    :param algorithm: The discovery algorithm to use ('alphaMiner' or 'heuristicMiner').
+    :param log: The event log to process.
+    :return: A tuple containing the Petri net, initial marking, and final marking.
+    """
+    if algorithm == 'Alpha Miner':
+        return pm4py.discover_petri_net_alpha(log)
+    elif algorithm == 'Heuristic Miner':
+        return pm4py.discover_petri_net_heuristics(log)
+    else:
+        raise ValueError('Invalid Algorithm')
+
+def attributes_filtering(file_path, filter_set: set, algorithm):
+    """
+    Filters an event log based on the specified attributes and discovers a Petri net.
+    
+    :param file_path: The path to the XES file.
+    :param filter_set: A set of attribute values to filter.
+    :param algorithm: The discovery algorithm to use ('alphaMiner' or 'heuristicMiner').
+    :return: A JSON response with the discovered Petri net or an error message.
+    """
+    try:
+        # Read the log file
+        log = pm4py.read_xes(file_path)
+
+        # Filter the event log based on attribute values
+        filtered_log = pm4py.filter_event_attribute_values(
+            log, 
+            attribute_key='concept:name', 
+            values=filter_set,
+            case_id_key='case:concept:name'
+        )
+
+        # Discover the Petri net
+        net, initial_marking, final_marking = discover_petri_net(algorithm, filtered_log)
+
+        # Return the serialized Petri net
+        return jsonify({
+            'net': serialize_petrinet(net),
+            'im': str(initial_marking),
+            'fm': str(final_marking)
+        })
+
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 def get_top_stats(file_path, n=5):
     log = pm4py.read_xes(file_path)
     try:
@@ -283,4 +322,4 @@ def get_top_stats(file_path, n=5):
             'count': count
         })
     except Exception as e:
-        return jsonify({"error": str(e)})
+        return jsonify({"error": str(e)}), 500
