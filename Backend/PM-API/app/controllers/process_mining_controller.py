@@ -12,7 +12,12 @@ from app.services.process_mining_service import (alpha_miner_discovery_service,
                                                  activity_end_filtering,
                                                  get_all_activity_attribute,
                                                  attributes_filtering,
-                                                 get_top_stats)
+                                                 get_top_stats,
+                                                 test_logs,
+                                                 export_as_bpmn,
+                                                 read_bpmn_file,
+                                                 dfg_reader,
+                                                 export_as_dfg)
 import os
 import uuid
 from werkzeug.utils import secure_filename
@@ -348,3 +353,38 @@ def show_top_stats():
    response = get_top_stats()
    
    return response
+
+@process_mining_bp.route('/Test')
+def conformance_check():
+   
+   response = test_logs()
+   
+   return response
+
+@process_mining_bp.route('/discover/export_bpmn')
+def bpmn_exporter():
+   
+   response = export_as_bpmn()
+   
+   return response
+
+@process_mining_bp.route('/discover/read_bpmn')
+def bpmn_file_reader():
+   
+   response = read_bpmn_file()
+   
+   return response
+
+@process_mining_bp.route('/discover/read_dfg')
+def dfg_file_reader():
+   
+   response = dfg_reader()
+   
+   return response
+
+@process_mining_bp.route('/discover/export_dfg')
+def dfg_exporter():
+
+    response = export_as_dfg()
+
+    return response
