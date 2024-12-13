@@ -92,5 +92,20 @@ const PMapi = {
       params: { n },
     });
   },
+
+  conformanceChecking: async (filename: string, log: File) => {
+    const formData = new FormData();
+    formData.append("log", log);
+
+    return await axiosInstance.post(
+      `/conformance_checking/${filename}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+  },
 };
 export default PMapi;

@@ -332,9 +332,9 @@ def conformance_checking(model_log_file_path, test_log_file_path):
         net, im, fm = pm4py.discover_petri_net_ilp(model, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
 
         alignments_diagnostics = pm4py.conformance_diagnostics_alignments(log, net, im, fm, activity_key='concept:name',
-                                                                         case_id_key='case:concept:name',
-                                                                         timestamp_key='time:timestamp',
-                                                                         return_diagnostics_dataframe=False)
+                                                                        case_id_key='case:concept:name',
+                                                                        timestamp_key='time:timestamp',
+                                                                        return_diagnostics_dataframe=False)
         merged_dict = {i: item for i, item in enumerate(alignments_diagnostics)}
         return jsonify(merged_dict)
     except Exception as e:

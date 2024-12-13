@@ -9,6 +9,7 @@ import {
 } from "./ui/select";
 import { Button } from "./ui/button";
 import { TopTracesModal } from "./topTracesModal";
+import ConformanceChecking from "./conformanceChecking";
 
 export default function ApplyAlgorithmCard({
   selectedAlgorithm,
@@ -90,6 +91,9 @@ export default function ApplyAlgorithmCard({
             </SelectContent>
           </Select>
           {selectedFileName && <TopTracesModal filename={selectedFileName} />}
+          {selectedFileName && (
+            <ConformanceChecking filename={selectedFileName} />
+          )}
         </div>
         <Button
           onClick={handleAlgorithmApply}

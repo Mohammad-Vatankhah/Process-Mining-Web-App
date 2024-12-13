@@ -644,7 +644,7 @@ def save_temp_file(file):
     'consumes': ['multipart/form-data'],
     'parameters': [
         {
-            'name': 'test_log',
+            'name': 'log',
             'in': 'formData',
             'type': 'file',
             'required': True,
@@ -664,10 +664,10 @@ def save_temp_file(file):
     }
 })
 def conformance_checking_endpoint(filename):
-    if 'test_log' not in request.files:
+    if 'log' not in request.files:
         return jsonify({'error': 'Test log file is required'}), 400
 
-    test_file = request.files['test_log']
+    test_file = request.files['log']
     test_path = save_temp_file(test_file)
 
     model_path = get_file_path(filename)
