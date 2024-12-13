@@ -1,24 +1,31 @@
 from flask import Blueprint, request, jsonify
 from flasgger import swag_from
 from app.services.process_mining_service import (alpha_miner_discovery_service,
-                                                 dfg_discovery_service,
-                                                 heuristic_miner_discovery_service,
-                                                 inductive_miner_discovery_service,
-                                                 performance_analysis_service,
-                                                 social_network_service,footprint_discover,
-                                                 get_start_activity_attribute,
-                                                 get_end_activity_attribute,
-                                                 activity_start_filtering,
-                                                 activity_end_filtering,
-                                                 get_all_activity_attribute,
-                                                 attributes_filtering,
-                                                 get_top_stats)
+                                                dfg_discovery_service,
+                                                heuristic_miner_discovery_service,
+                                                inductive_miner_discovery_service,
+                                                performance_analysis_service,
+                                                social_network_service,footprint_discover,
+                                                get_start_activity_attribute,
+                                                get_end_activity_attribute,
+                                                activity_start_filtering,
+                                                activity_end_filtering,
+                                                get_all_activity_attribute,
+                                                attributes_filtering,
+                                                get_top_stats,
+                                                conformance_checking,
+                                                read_bpmn_file,
+                                                export_as_bpmn,
+                                                dfg_reader,
+                                                export_as_dfg)
 import os
 import uuid
 from werkzeug.utils import secure_filename
 from app import db
 from app.models.user import User, File
 from flask_jwt_extended import get_jwt_identity, jwt_required
+import tempfile
+from werkzeug.utils import secure_filename
 
 process_mining_bp = Blueprint('process_mining', __name__)
 
@@ -621,4 +628,195 @@ def filter_attributes(filename):
     filter_set = set(request.json.get('filter_set', []))
     algorithm = request.json.get('algo')
     response = attributes_filtering(file_path, filter_set, algorithm)
+    return response
+
+def save_temp_file(file):
+    """Save uploaded file to a temporary location and return the path."""
+    temp_dir = tempfile.mkdtemp()
+    file_path = os.path.join(temp_dir, secure_filename(file.filename))
+    file.save(file_path)
+    return file_path
+
+@process_mining_bp.route('/conformance_checking/<filename>', methods=['POST'])
+@swag_from({
+    'tags': ['PM'],
+    'summary': 'Perform conformance checking',
+    'consumes': ['multipart/form-data'],
+    'parameters': [
+        {
+            'name': 'test_log',
+            'in': 'formData',
+            'type': 'file',
+            'required': True,
+            'description': 'Test log file (XES format)'
+        }
+    ],
+    'responses': {
+        200: {
+            'description': 'Conformance checking result'
+        },
+        400: {
+            'description': 'Bad Request'
+        },
+        500: {
+            'description': 'Internal Server Error'
+        }
+    }
+})
+def conformance_checking_endpoint(filename):
+    if 'test_log' not in request.files:
+        return jsonify({'error': 'Test log file is required'}), 400
+
+    test_file = request.files['test_log']
+    test_path = save_temp_file(test_file)
+
+    model_path = get_file_path(filename)
+    if not os.path.exists(model_path):
+        os.remove(test_path)
+        return jsonify({'error': 'Model log file not found'}), 404
+
+    response = conformance_checking(model_path, test_path)
+
+    os.remove(test_path)
+
+    return response
+
+@process_mining_bp.route('/read_bpmn', methods=['POST'])
+@swag_from({
+    'tags': ['PM'],
+    'summary': 'Read a BPMN file',
+    'consumes': ['multipart/form-data'],
+    'parameters': [
+        {
+            'name': 'file',
+            'in': 'formData',
+            'type': 'file',
+            'required': True,
+            'description': 'BPMN file to read'
+        }
+    ],
+    'responses': {
+        200: {
+            'description': 'BPMN file content'
+        },
+        400: {
+            'description': 'Bad Request'
+        }
+    }
+})
+def read_bpmn():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file provided'}), 400
+
+    file = request.files['file']
+    file_path = save_temp_file(file)
+
+    response = read_bpmn_file(file_path)
+    os.remove(file_path)
+
+    return response
+
+@process_mining_bp.route('/export_bpmn', methods=['POST'])
+@swag_from({
+    'tags': ['PM'],
+    'summary': 'Export as BPMN',
+    'consumes': ['multipart/form-data'],
+    'parameters': [
+        {
+            'name': 'file',
+            'in': 'formData',
+            'type': 'file',
+            'required': True,
+            'description': 'Log file to convert to BPMN'
+        }
+    ],
+    'responses': {
+        200: {
+            'description': 'Exported BPMN file'
+        },
+        400: {
+            'description': 'Bad Request'
+        }
+    }
+})
+def export_bpmn():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file provided'}), 400
+
+    file = request.files['file']
+    file_path = save_temp_file(file)
+
+    response = export_as_bpmn(file_path)
+    os.remove(file_path)
+
+    return response
+
+@process_mining_bp.route('/read_dfg', methods=['POST'])
+@swag_from({
+    'tags': ['PM'],
+    'summary': 'Read a Directly-Follows Graph (DFG)',
+    'consumes': ['multipart/form-data'],
+    'parameters': [
+        {
+            'name': 'file',
+            'in': 'formData',
+            'type': 'file',
+            'required': True,
+            'description': 'DFG file to read'
+        }
+    ],
+    'responses': {
+        200: {
+            'description': 'DFG content'
+        },
+        400: {
+            'description': 'Bad Request'
+        }
+    }
+})
+def read_dfg():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file provided'}), 400
+
+    file = request.files['file']
+    file_path = save_temp_file(file)
+
+    response = dfg_reader(file_path)
+    os.remove(file_path)
+
+    return response
+
+@process_mining_bp.route('/export_dfg', methods=['POST'])
+@swag_from({
+    'tags': ['PM'],
+    'summary': 'Export as DFG',
+    'consumes': ['multipart/form-data'],
+    'parameters': [
+        {
+            'name': 'file',
+            'in': 'formData',
+            'type': 'file',
+            'required': True,
+            'description': 'Log file to convert to DFG'
+        }
+    ],
+    'responses': {
+        200: {
+            'description': 'Exported DFG content'
+        },
+        400: {
+            'description': 'Bad Request'
+        }
+    }
+})
+def export_dfg():
+    if 'file' not in request.files:
+        return jsonify({'error': 'No file provided'}), 400
+
+    file = request.files['file']
+    file_path = save_temp_file(file)
+
+    response = export_as_dfg(file_path)
+    os.remove(file_path)
+
     return response

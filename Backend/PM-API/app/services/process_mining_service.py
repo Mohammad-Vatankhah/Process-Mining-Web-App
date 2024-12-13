@@ -325,13 +325,13 @@ def get_top_stats(file_path, n=5):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-def test_logs(model_log_file_path, test_log_file_path):
-    log2 = pm4py.read_xes(model_log_file_path)
-    log3 = pm4py.read_xes(test_log_file_path)
+def conformance_checking(model_log_file_path, test_log_file_path):
+    model = pm4py.read_xes(model_log_file_path)
+    log = pm4py.read_xes(test_log_file_path)
     try:
-        net, im, fm = pm4py.discover_petri_net_ilp(log2, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
+        net, im, fm = pm4py.discover_petri_net_ilp(model, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
 
-        alignments_diagnostics = pm4py.conformance_diagnostics_alignments(log3, net, im, fm, activity_key='concept:name',
+        alignments_diagnostics = pm4py.conformance_diagnostics_alignments(log, net, im, fm, activity_key='concept:name',
                                                                          case_id_key='case:concept:name',
                                                                          timestamp_key='time:timestamp',
                                                                          return_diagnostics_dataframe=False)
