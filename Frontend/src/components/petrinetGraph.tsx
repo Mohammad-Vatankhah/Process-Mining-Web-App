@@ -175,7 +175,11 @@ const PetriNetGraph: React.FC<{
         selectedNodes,
         algorithm
       );
-      setResult((prev) => ({ ...prev, alphaMiner: res.data }));
+      if (algorithm === "Alpha Miner") {
+        setResult((prev) => ({ ...prev, alphaMiner: res.data }));
+      } else if (algorithm === "Heuristic Miner") {
+        setResult((prev) => ({ ...prev, heuristicMiner: res.data }));
+      }
     } catch (err) {
       if (err instanceof AxiosError) {
         toast.error(err.response?.data?.msg);
@@ -190,8 +194,14 @@ const PetriNetGraph: React.FC<{
   const handleResetFilter = async () => {
     try {
       setLoading(algorithm);
-      const res = await PMapi.alphaMiner(filename);
-      setResult((prev) => ({ ...prev, alphaMiner: res.data }));
+      if (algorithm === "Alpha Miner") {
+        const res = await PMapi.alphaMiner(filename);
+        setResult((prev) => ({ ...prev, alphaMiner: res.data }));
+      } else if (algorithm === "Heuristic Miner") {
+        const res = await PMapi.heuristicMiner(filename);
+        setResult((prev) => ({ ...prev, heuristicMiner: res.data }));
+      }
+      setSelectedNodes([]);
     } catch (err) {
       if (err instanceof AxiosError) {
         toast.error(err.response?.data?.msg);
@@ -265,7 +275,9 @@ const PetriNetGraph: React.FC<{
         )}
         <div
           ref={containerRef}
-          className={`relative h-[500px] w-full ${loading === algorithm && "hidden"}`}
+          className={`relative h-[500px] w-full ${
+            loading === algorithm && "hidden"
+          }`}
           onContextMenu={(e) => e.preventDefault()}
         >
           <CytoscapeComponent

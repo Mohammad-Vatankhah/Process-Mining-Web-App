@@ -324,6 +324,7 @@ def get_top_stats(file_path, n=5):
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
 def test_logs(model_log_file_path, test_log_file_path):
     log2 = pm4py.read_xes(model_log_file_path)
     log3 = pm4py.read_xes(test_log_file_path)
