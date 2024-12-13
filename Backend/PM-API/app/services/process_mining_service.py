@@ -11,7 +11,8 @@ from pm4py.visualization.footprints import visualizer as fp_visualizer
 import networkx as nx
 import pandas as pd
 from flask import jsonify
-import pm4py
+import json
+from flask import send_file
 
 def encode_image_to_base64(gviz):
     """Encode the generated visualization to base64"""
@@ -323,3 +324,63 @@ def get_top_stats(file_path, n=5):
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+def test_logs(model_log_file_path, test_log_file_path):
+    log2 = pm4py.read_xes(model_log_file_path)
+    log3 = pm4py.read_xes(test_log_file_path)
+    try:
+        net, im, fm = pm4py.discover_petri_net_ilp(log2, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
+
+        alignments_diagnostics = pm4py.conformance_diagnostics_alignments(log3, net, im, fm, activity_key='concept:name',
+                                                                         case_id_key='case:concept:name',
+                                                                         timestamp_key='time:timestamp',
+                                                                         return_diagnostics_dataframe=False)
+        merged_dict = {i: item for i, item in enumerate(alignments_diagnostics)}
+        return jsonify(merged_dict)
+    except Exception as e:
+        return jsonify({"error": str(e)})
+    
+def read_bpmn_file(file_path):
+    bpmn_graph = pm4py.read_bpmn(file_path)
+    try:
+        pm4py.view_bpmn(bpmn_graph)
+        return jsonify("Suecces")
+    except Exception as e:
+        return jsonify({"error": str(e)})
+    
+def export_as_bpmn(file_path):
+    try:
+        event_log = pm4py.read_xes(file_path)
+        bpmn_graph = pm4py.discover_bpmn_inductive(event_log, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
+        output_path = r'Backend\Dataset\bpmn\discovered_model.bpmn'
+        pm4py.write_bpmn(bpmn_graph, output_path,auto_layout=True)
+        return send_file(output_path, as_attachment=True, mimetype='application/xml')
+        # return jsonify(str(bpmn_graph))
+    except Exception as e:
+        return jsonify({"error": str(e)})
+    
+
+def dfg_reader(file_path):
+    try:
+        dfg_model = pm4py.read_dfg(file_path)
+        dfg = dfg_model[0]
+        start_activities = dfg_model[1]
+        end_activities = dfg_model[2]
+        pm4py.view_dfg(dfg, start_activities, end_activities, format='svg')
+        dfg_serializable = {str(k): v for k, v in dfg.items()}
+        return jsonify({'dfg':dfg_serializable})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+    
+def export_as_dfg(file_path):
+    try:
+        event_log = pm4py.read_xes(file_path)
+        dfg, start_activities, end_activities = pm4py.discover_dfg(event_log)
+        # result = dfg.update(start_activities.update(end_activities))
+
+        dfg_serializable = {str(k): v for k, v in dfg.items()}
+        start_activities_serializable = {str(k): v for k, v in start_activities.items()}
+        end_activities_serializable = {str(k): v for k, v in end_activities.items()}
+        print("log")
+        return jsonify({'start_activities':start_activities_serializable ,'end_activities': end_activities_serializable, 'dfg':dfg_serializable })
+    except Exception as e:
+        return jsonify({"error": str(e)})
