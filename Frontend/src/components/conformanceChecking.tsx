@@ -34,6 +34,7 @@ export default function ConformanceChecking({
       return;
     }
     try {
+      setLoading(true);
       const res = await PMapi.conformanceChecking(filename, selectedFile);
       setConformanceResult(res.data);
       const ilpResult = await PMapi.ilpMiner(filename);
