@@ -62,6 +62,7 @@ const PetriNetGraph: React.FC<{
           regex.test(place.label);
         const isStartNode = initialNodes.includes(place.label);
         const isFinalNode = finalNodes.includes(place.label);
+        const isNumericalNode = /^\d+$/.test(place.label);
         return {
           data: {
             id: place.id,
@@ -71,7 +72,7 @@ const PetriNetGraph: React.FC<{
             ? "startNode"
             : isFinalNode
             ? "finalNode"
-            : circleNode
+            : circleNode || isNumericalNode
             ? "circleNode"
             : "defaultNode",
         };
@@ -179,6 +180,8 @@ const PetriNetGraph: React.FC<{
         setResult((prev) => ({ ...prev, alphaMiner: res.data }));
       } else if (algorithm === "Heuristic Miner") {
         setResult((prev) => ({ ...prev, heuristicMiner: res.data }));
+      } else if (algorithm === "ILP Miner") {
+        setResult((prev) => ({ ...prev, ilpMiner: res.data }));
       }
     } catch (err) {
       if (err instanceof AxiosError) {

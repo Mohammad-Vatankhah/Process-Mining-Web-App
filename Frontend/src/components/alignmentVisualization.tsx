@@ -21,7 +21,7 @@ const AlignmentGraph = ({
   const traceKeys = Object.keys(alignmentResults);
   const currentTrace = alignmentResults[traceKeys[currentTraceIndex]];
 
-  const nodes = React.useMemo(() => {
+  const elements = React.useMemo(() => {
     const regex =
       /\(\{(?:'[^']*'(?:,\s*)?)+\}(?:,\s*\{(?:'[^']*'(?:,\s*)?)*\})*\)/;
     const initialNodes: string[] = JSON.parse(
@@ -40,6 +40,7 @@ const AlignmentGraph = ({
           regex.test(place.label);
         const isStartNode = initialNodes.includes(place.label);
         const isFinalNode = finalNodes.includes(place.label);
+        const isNumericalNode = /^\d+$/.test(place.label);
         return {
           data: {
             id: place.id,
@@ -49,7 +50,7 @@ const AlignmentGraph = ({
             ? "startNode"
             : isFinalNode
             ? "finalNode"
-            : circleNode
+            : circleNode || isNumericalNode
             ? "circleNode"
             : "defaultNode",
         };
@@ -62,35 +63,16 @@ const AlignmentGraph = ({
       })),
     ];
 
-    return [...nodes];
-  }, [modelGraph]);
-
-  const edges = React.useMemo(() => {
     const edges = modelGraph.net.arcs.map((arc) => ({
       data: {
         id: arc.id,
         source: arc.source,
         target: arc.target,
-        classes: "defaultEdge",
       },
     }));
 
-    // Apply alignment styles if alignment data exists
-    if (currentTrace) {
-      currentTrace.alignment.forEach(([model, log]: [string, string]) => {
-        const edge = edges.find(
-          (e) =>
-            e.data.source === model.replace(">>", "") &&
-            e.data.target === log.replace(">>", "")
-        );
-        if (edge) {
-          edge.classes = model === log ? "fitEdge" : "mismatchEdge";
-        }
-      });
-    }
-
-    return [...edges];
-  }, [modelGraph, currentTrace, nodes]);
+    return [...nodes, ...edges];
+  }, [modelGraph]);
 
   const handleNext = () => {
     if (currentTraceIndex < traceKeys.length - 1) {
@@ -108,15 +90,7 @@ const AlignmentGraph = ({
     if (cyRef.current) {
       cyRef.current.layout({ name: "dagre", rankDir: "LR" }).run();
     }
-  }, [nodes, edges]);
-
-  console.log(
-    Object.entries(alignmentResults).map((entry) => {
-      console.log(entry[1].alignment[0][0] === entry[1].alignment[0][1]);
-    })
-  );
-
-  console.log(alignmentResults);
+  }, [elements]);
 
   return (
     <div>
@@ -139,7 +113,7 @@ const AlignmentGraph = ({
         </button>
       </div>
       <CytoscapeComponent
-        elements={[...nodes, ...edges]}
+        elements={elements}
         stylesheet={[
           {
             selector: ".circleNode",

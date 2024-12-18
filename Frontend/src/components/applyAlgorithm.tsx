@@ -24,6 +24,7 @@ export default function ApplyAlgorithm({
     alphaMiner: null,
     heuristicMiner: null,
     inductiveMiner: null,
+    ilpMiner: null,
     dfg: null,
     socialNetwork: null,
     footprint: null,
@@ -33,6 +34,7 @@ export default function ApplyAlgorithm({
     alphaMiner: false,
     heuristicMiner: false,
     inductiveMiner: false,
+    ilpMiner: false,
     dfg: false,
     socialNetwork: false,
     footprint: false,
@@ -70,6 +72,12 @@ export default function ApplyAlgorithm({
           const inductiveRes = await PMapi.inductiveMiner(fileName!);
           setResult((prev) => ({ ...prev, inductiveMiner: inductiveRes.data }));
           setAppliedAlgorithms((prev) => ({ ...prev, inductiveMiner: true }));
+          break;
+
+        case "ilp":
+          const ilpRes = await PMapi.ilpMiner(fileName!);
+          setResult((prev) => ({ ...prev, ilpMiner: ilpRes.data }));
+          setAppliedAlgorithms((prev) => ({ ...prev, ilpMiner: true }));
           break;
 
         case "dfg":
@@ -111,6 +119,7 @@ export default function ApplyAlgorithm({
       alphaMiner: null,
       heuristicMiner: null,
       inductiveMiner: null,
+      ilpMiner: null,
       dfg: null,
       socialNetwork: null,
       footprint: null,
@@ -120,6 +129,7 @@ export default function ApplyAlgorithm({
       alphaMiner: false,
       heuristicMiner: false,
       inductiveMiner: false,
+      ilpMiner: false,
       dfg: false,
       socialNetwork: false,
       footprint: false,
@@ -171,6 +181,14 @@ export default function ApplyAlgorithm({
           <PetriNetGraph
             petrinet={result.inductiveMiner}
             algorithm="Inductive Miner"
+            setResult={setResult}
+            filename={fileName!}
+          />
+        )}
+        {result.ilpMiner && (
+          <PetriNetGraph
+            petrinet={result.ilpMiner}
+            algorithm="ILP Miner"
             setResult={setResult}
             filename={fileName!}
           />

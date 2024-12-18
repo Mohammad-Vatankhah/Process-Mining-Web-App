@@ -36,6 +36,7 @@ export interface Result {
   alphaMiner: PetriNet | null;
   heuristicMiner: PetriNet | null;
   inductiveMiner: PetriNet | null;
+  ilpMiner: PetriNet | null;
   dfg: Record<string, number> | null;
   socialNetwork: Record<string, string[]> | null;
   footprint: Footprint | null;

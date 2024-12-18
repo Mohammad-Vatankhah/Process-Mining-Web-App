@@ -32,6 +32,10 @@ const PMapi = {
     return await axiosInstance.get(`/discover/alpha_miner/${filename}`);
   },
 
+  ilpMiner: async (filename: string) => {
+    return await axiosInstance.get(`/discover/ilp/${filename}`);
+  },
+
   heuristicMiner: async (filename: string) => {
     return await axiosInstance.get(`/discover/heuristic_miner/${filename}`);
   },

@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flasgger import swag_from
 from app.services.process_mining_service import (alpha_miner_discovery_service,
+                                                ilp_miner_discovery_service,
                                                 dfg_discovery_service,
                                                 heuristic_miner_discovery_service,
                                                 inductive_miner_discovery_service,
@@ -155,6 +156,37 @@ def alpha_miner_discovery(filename):
 
     response = alpha_miner_discovery_service(file_path)
     return response
+
+@process_mining_bp.route('/discover/ilp/<filename>', methods=['GET'])
+@swag_from({
+    'tags': ['PM'],
+    'summary': 'Discover process using ilp',
+    'parameters': [
+        {
+            'name': 'filename',
+            'in': 'path',
+            'type': 'string',
+            'required': True,
+            'description': 'The file name of the uploaded file'
+        }
+    ],
+    'responses': {
+        200: {
+            'description': 'ilp discovery result',
+        },
+        404: {
+            'description': 'File not found'
+        }
+    }
+})
+def ilp_miner_discovery(filename):
+    file_path = get_file_path(filename)
+    if file_path is None:
+        return jsonify({'msg': 'File not found'}), 404
+
+    response = ilp_miner_discovery_service(file_path)
+    return response
+
 
 
 @process_mining_bp.route('/discover/heuristic_miner/<filename>', methods=['GET'])

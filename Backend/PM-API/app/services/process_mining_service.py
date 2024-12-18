@@ -81,6 +81,28 @@ def heuristic_miner_discovery_service(filepath):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+def ilp_miner_discovery_service(filepath):
+    log = xes_importer.apply(filepath)
+
+    try:
+        # Apply Alpha Miner algorithm
+        net, initial_marking, final_marking = pm4py.discover_petri_net_ilp(log)
+        return jsonify({'net': serialize_petrinet(net), 'im': str(initial_marking), 'fm': str(final_marking)})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+def heuristic_miner_discovery_service(filepath):
+    log = pm4py.read_xes(filepath)
+
+    try:
+        # Apply Heuristic Miner
+        net, initial_marking, final_marking = pm4py.discover_petri_net_heuristics(log)
+
+        return jsonify({'net': serialize_petrinet(net), 'im': str(initial_marking), 'fm': str(final_marking)})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 def inductive_miner_discovery_service(filepath):
     log = xes_importer.apply(filepath)
 
@@ -247,6 +269,8 @@ def discover_petri_net(algorithm, log):
         return pm4py.discover_petri_net_alpha(log)
     elif algorithm == 'Heuristic Miner':
         return pm4py.discover_petri_net_heuristics(log)
+    elif algorithm == "ILP Miner":
+        return pm4py.discover_petri_net_ilp(log)
     else:
         raise ValueError('Invalid Algorithm')
 
@@ -329,7 +353,7 @@ def conformance_checking(model_log_file_path, test_log_file_path):
     model = pm4py.read_xes(model_log_file_path)
     log = pm4py.read_xes(test_log_file_path)
     try:
-        net, im, fm = pm4py.discover_petri_net_ilp(model, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
+        net, im, fm = pm4py.discover_petri_net_alpha(model, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
 
         alignments_diagnostics = pm4py.conformance_diagnostics_alignments(log, net, im, fm, activity_key='concept:name',
                                                                         case_id_key='case:concept:name',

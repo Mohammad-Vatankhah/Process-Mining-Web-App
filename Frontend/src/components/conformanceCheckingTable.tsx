@@ -8,7 +8,26 @@ import {
   TableRow,
 } from "./ui/table";
 
-export default function ConformanceCheckingTable({ alignments }) {
+type AlignmentData = {
+  alignment: [string, string | null][]; // An array of tuples with string and optional null values
+  bwc: number; // Best Worst Case cost
+  cost: number; // Alignment cost
+  fitness: number; // Fitness value
+  lp_solved: number; // Number of LP problems solved
+  queued_states: number; // Number of states queued
+  traversed_arcs: number; // Number of arcs traversed
+  visited_states: number; // Number of states visited
+};
+
+type Alignments = {
+  [key: string]: AlignmentData; // A dictionary where keys are strings and values are AlignmentData
+};
+
+export default function ConformanceCheckingTable({
+  alignments,
+}: {
+  alignments: Alignments;
+}) {
   const classifyAlignment = (event: string, transition: string) => {
     if (event !== ">>" && transition !== ">>" && event === transition) {
       return "Sync move"; // event and transition labels correspond
@@ -35,15 +54,11 @@ export default function ConformanceCheckingTable({ alignments }) {
     fitness: value.fitness,
     cost: value.cost,
     bwc: value.bwc,
-    visitedStates: value.visited_states,
-    traversedArcs: value.traversed_arcs,
-    queuedStates: value.queued_states,
-    lpSolved: value.lp_solved,
     alignment: value.alignment.map((pair) => {
       const [event, transition] = pair;
       return {
         pair: `${event} → ${transition}`,
-        classification: classifyAlignment(event, transition),
+        classification: classifyAlignment(event, transition!),
       };
     }),
   }));
@@ -55,12 +70,8 @@ export default function ConformanceCheckingTable({ alignments }) {
           <TableRow>
             <TableHead>Trace ID</TableHead>
             <TableHead>Fitness</TableHead>
-            <TableHead>Visited States</TableHead>
-            <TableHead>Traversed Arcs</TableHead>
-            <TableHead>Queued States</TableHead>
-            <TableHead>LP Solved</TableHead>
             <TableHead>Alignment</TableHead>
-            <TableHead>Classification</TableHead>
+            <TableHead>Description</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -68,18 +79,36 @@ export default function ConformanceCheckingTable({ alignments }) {
             <TableRow key={row.id}>
               <TableCell>{row.id}</TableCell>
               <TableCell>{row.fitness}</TableCell>
-              <TableCell>{row.visitedStates}</TableCell>
-              <TableCell>{row.traversedArcs}</TableCell>
-              <TableCell>{row.queuedStates}</TableCell>
-              <TableCell>{row.lpSolved}</TableCell>
               <TableCell>
                 {row.alignment.map((pair, index) => (
-                  <div key={index}>{pair.pair}</div>
+                  <div
+                    key={index}
+                    className={
+                      pair.classification === "Sync move" ||
+                      pair.classification ===
+                        "Move on model involving hidden transitions"
+                        ? "text-green-500"
+                        : "text-red-500"
+                    }
+                  >
+                    {pair.pair}
+                  </div>
                 ))}
               </TableCell>
               <TableCell>
                 {row.alignment.map((pair, index) => (
-                  <div key={index}>{pair.classification}</div>
+                  <div
+                    key={index}
+                    className={
+                      pair.classification === "Sync move" ||
+                      pair.classification ===
+                        "Move on model involving hidden transitions"
+                        ? "text-green-500"
+                        : "text-red-500"
+                    }
+                  >
+                    {pair.classification}
+                  </div>
                 ))}
               </TableCell>
             </TableRow>

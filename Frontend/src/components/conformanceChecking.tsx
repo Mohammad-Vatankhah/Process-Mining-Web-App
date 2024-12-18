@@ -36,8 +36,8 @@ export default function ConformanceChecking({
     try {
       const res = await PMapi.conformanceChecking(filename, selectedFile);
       setConformanceResult(res.data);
-      const hueristicRes = await PMapi.heuristicMiner(filename);
-      setModelGraph(hueristicRes.data);
+      const ilpResult = await PMapi.ilpMiner(filename);
+      setModelGraph(ilpResult.data);
     } catch (error) {
       toast.error("An unxpected error occurred!");
     } finally {
