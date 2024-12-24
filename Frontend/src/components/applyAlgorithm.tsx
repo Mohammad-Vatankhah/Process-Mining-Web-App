@@ -10,6 +10,7 @@ import PMapi from "@/API/pmAPI";
 import PetriNetGraph from "./petrinetGraph";
 import FootprintTable from "./footprintResult";
 import { Result } from "@/types/types";
+import BpmnGraph from "./bpmnGraph";
 
 export default function ApplyAlgorithm({
   selectedFileName,
@@ -25,6 +26,7 @@ export default function ApplyAlgorithm({
     heuristicMiner: null,
     inductiveMiner: null,
     ilpMiner: null,
+    bpmn: null,
     dfg: null,
     socialNetwork: null,
     footprint: null,
@@ -35,6 +37,7 @@ export default function ApplyAlgorithm({
     heuristicMiner: false,
     inductiveMiner: false,
     ilpMiner: false,
+    bpmn: false,
     dfg: false,
     socialNetwork: false,
     footprint: false,
@@ -101,6 +104,12 @@ export default function ApplyAlgorithm({
           setAppliedAlgorithms((prev) => ({ ...prev, footprint: true }));
           break;
 
+        case "bpmn":
+          const bpmnRes = await PMapi.bpmn(fileName!);
+          setResult((prev) => ({ ...prev, bpmn: bpmnRes.data }));
+          setAppliedAlgorithms((prev) => ({ ...prev, bpmn: true }));
+          break;
+
         default:
           toast.error("Unknown algorithm selected.");
           break;
@@ -120,6 +129,7 @@ export default function ApplyAlgorithm({
       heuristicMiner: null,
       inductiveMiner: null,
       ilpMiner: null,
+      bpmn: null,
       dfg: null,
       socialNetwork: null,
       footprint: null,
@@ -130,6 +140,7 @@ export default function ApplyAlgorithm({
       heuristicMiner: false,
       inductiveMiner: false,
       ilpMiner: false,
+      bpmn: false,
       dfg: false,
       socialNetwork: false,
       footprint: false,
@@ -193,6 +204,7 @@ export default function ApplyAlgorithm({
             filename={fileName!}
           />
         )}
+        {result.bpmn && <BpmnGraph graphData={result.bpmn} />}
         {result.dfg && <DfgResult result={result.dfg} />}
         {result.footprint && <FootprintTable result={result.footprint} />}
         {result.socialNetwork && (

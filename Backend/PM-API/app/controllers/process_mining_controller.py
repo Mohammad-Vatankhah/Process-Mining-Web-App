@@ -15,10 +15,8 @@ from app.services.process_mining_service import (alpha_miner_discovery_service,
                                                 attributes_filtering,
                                                 get_top_stats,
                                                 conformance_checking,
-                                                read_bpmn_file,
-                                                export_as_bpmn,
-                                                dfg_reader,
-                                                export_as_dfg)
+                                                discover_bpmn
+                                                )
 import os
 import uuid
 from werkzeug.utils import secure_filename
@@ -713,142 +711,11 @@ def conformance_checking_endpoint(filename):
 
     return response
 
-@process_mining_bp.route('/read_bpmn', methods=['POST'])
-@swag_from({
-    'tags': ['PM'],
-    'summary': 'Read a BPMN file',
-    'consumes': ['multipart/form-data'],
-    'parameters': [
-        {
-            'name': 'file',
-            'in': 'formData',
-            'type': 'file',
-            'required': True,
-            'description': 'BPMN file to read'
-        }
-    ],
-    'responses': {
-        200: {
-            'description': 'BPMN file content'
-        },
-        400: {
-            'description': 'Bad Request'
-        }
-    }
-})
-def read_bpmn():
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file provided'}), 400
+@process_mining_bp.route('/discover/bpmn/<filename>', methods=['GET'])
+def get_bpmn(filename):
+    file_path = get_file_path(filename)
+    if file_path is None:
+        return jsonify({'msg': 'File not found'}), 404
 
-    file = request.files['file']
-    file_path = save_temp_file(file)
-
-    response = read_bpmn_file(file_path)
-    os.remove(file_path)
-
-    return response
-
-@process_mining_bp.route('/export_bpmn', methods=['POST'])
-@swag_from({
-    'tags': ['PM'],
-    'summary': 'Export as BPMN',
-    'consumes': ['multipart/form-data'],
-    'parameters': [
-        {
-            'name': 'file',
-            'in': 'formData',
-            'type': 'file',
-            'required': True,
-            'description': 'Log file to convert to BPMN'
-        }
-    ],
-    'responses': {
-        200: {
-            'description': 'Exported BPMN file'
-        },
-        400: {
-            'description': 'Bad Request'
-        }
-    }
-})
-def export_bpmn():
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file provided'}), 400
-
-    file = request.files['file']
-    file_path = save_temp_file(file)
-
-    response = export_as_bpmn(file_path)
-    os.remove(file_path)
-
-    return response
-
-@process_mining_bp.route('/read_dfg', methods=['POST'])
-@swag_from({
-    'tags': ['PM'],
-    'summary': 'Read a Directly-Follows Graph (DFG)',
-    'consumes': ['multipart/form-data'],
-    'parameters': [
-        {
-            'name': 'file',
-            'in': 'formData',
-            'type': 'file',
-            'required': True,
-            'description': 'DFG file to read'
-        }
-    ],
-    'responses': {
-        200: {
-            'description': 'DFG content'
-        },
-        400: {
-            'description': 'Bad Request'
-        }
-    }
-})
-def read_dfg():
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file provided'}), 400
-
-    file = request.files['file']
-    file_path = save_temp_file(file)
-
-    response = dfg_reader(file_path)
-    os.remove(file_path)
-
-    return response
-
-@process_mining_bp.route('/export_dfg', methods=['POST'])
-@swag_from({
-    'tags': ['PM'],
-    'summary': 'Export as DFG',
-    'consumes': ['multipart/form-data'],
-    'parameters': [
-        {
-            'name': 'file',
-            'in': 'formData',
-            'type': 'file',
-            'required': True,
-            'description': 'Log file to convert to DFG'
-        }
-    ],
-    'responses': {
-        200: {
-            'description': 'Exported DFG content'
-        },
-        400: {
-            'description': 'Bad Request'
-        }
-    }
-})
-def export_dfg():
-    if 'file' not in request.files:
-        return jsonify({'error': 'No file provided'}), 400
-
-    file = request.files['file']
-    file_path = save_temp_file(file)
-
-    response = export_as_dfg(file_path)
-    os.remove(file_path)
-
+    response = discover_bpmn(file_path)
     return response

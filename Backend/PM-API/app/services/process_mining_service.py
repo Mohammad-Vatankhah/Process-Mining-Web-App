@@ -363,49 +363,31 @@ def conformance_checking(model_log_file_path, test_log_file_path):
         return jsonify(merged_dict)
     except Exception as e:
         return jsonify({"error": str(e)})
-    
-def read_bpmn_file(file_path):
-    bpmn_graph = pm4py.read_bpmn(file_path)
-    try:
-        pm4py.view_bpmn(bpmn_graph)
-        return jsonify("Suecces")
-    except Exception as e:
-        return jsonify({"error": str(e)})
-    
-def export_as_bpmn(file_path):
-    try:
-        event_log = pm4py.read_xes(file_path)
-        bpmn_graph = pm4py.discover_bpmn_inductive(event_log, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
-        output_path = r'Backend\Dataset\bpmn\discovered_model.bpmn'
-        pm4py.write_bpmn(bpmn_graph, output_path,auto_layout=True)
-        return send_file(output_path, as_attachment=True, mimetype='application/xml')
-        # return jsonify(str(bpmn_graph))
-    except Exception as e:
-        return jsonify({"error": str(e)})
-    
 
-def dfg_reader(file_path):
+def discover_bpmn(file_path):
     try:
-        dfg_model = pm4py.read_dfg(file_path)
-        dfg = dfg_model[0]
-        start_activities = dfg_model[1]
-        end_activities = dfg_model[2]
-        pm4py.view_dfg(dfg, start_activities, end_activities, format='svg')
-        dfg_serializable = {str(k): v for k, v in dfg.items()}
-        return jsonify({'dfg':dfg_serializable})
-    except Exception as e:
-        return jsonify({"error": str(e)})
-    
-def export_as_dfg(file_path):
-    try:
-        event_log = pm4py.read_xes(file_path)
-        dfg, start_activities, end_activities = pm4py.discover_dfg(event_log)
-        # result = dfg.update(start_activities.update(end_activities))
+        log = pm4py.read_xes(file_path)
+        bpmn = pm4py.discover_bpmn_inductive(log)
 
-        dfg_serializable = {str(k): v for k, v in dfg.items()}
-        start_activities_serializable = {str(k): v for k, v in start_activities.items()}
-        end_activities_serializable = {str(k): v for k, v in end_activities.items()}
-        print("log")
-        return jsonify({'start_activities':start_activities_serializable ,'end_activities': end_activities_serializable, 'dfg':dfg_serializable })
+        nodes = []
+        links = []
+
+        for element in bpmn.get_graph().nodes:
+            id = str(element)
+            if id.split('@')[1] == '':
+                type1 = 'gateway'
+                if str(type(element)) == "<class 'pm4py.objects.bpmn.obj.BPMN.ExclusiveGateway'>":
+                    text = 'X'
+                else:
+                    text = '+'
+            else:
+                type1 = 'node'
+                text = (id.split('@'))[1]
+            nodes.append({"id": id, "type": type1, "data": text})
+
+        for edge in bpmn.get_graph().edges:
+            source, target, data = edge
+            links.append({"source": str(source), "target": str(target)})
+        return jsonify({'nodes': nodes, 'edges': links})
     except Exception as e:
         return jsonify({"error": str(e)})

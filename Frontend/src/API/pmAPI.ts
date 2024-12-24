@@ -111,5 +111,9 @@ const PMapi = {
       }
     );
   },
+
+  bpmn: async (filename: string) => {
+    return await axiosInstance.get(`/discover/bpmn/${filename}`);
+  },
 };
 export default PMapi;

@@ -57,7 +57,7 @@ export default function ConformanceChecking({
       <DialogTrigger asChild>
         <Button variant="outline">Conformance Checking</Button>
       </DialogTrigger>
-      <DialogContent className="max-w-screen h-screen overflow-y-auto overflow-x-hidden">
+      <DialogContent className="flex flex-col max-w-screen h-screen overflow-y-auto overflow-x-hidden">
         <DialogHeader>
           <DialogTitle>Conformance Checking</DialogTitle>
         </DialogHeader>

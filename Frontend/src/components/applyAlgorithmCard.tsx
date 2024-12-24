@@ -28,6 +28,7 @@ export default function ApplyAlgorithmCard({
     heuristicMiner: boolean;
     inductiveMiner: boolean;
     ilpMiner: boolean;
+    bpmn: boolean;
     dfg: boolean;
     socialNetwork: boolean;
     footprint: boolean;
@@ -46,6 +47,7 @@ export default function ApplyAlgorithmCard({
       name: "ILP Miner",
       applied: appliedAlgorithms.ilpMiner,
     },
+    { id: "bpmn", name: "BPMN", applied: appliedAlgorithms.bpmn },
     // {
     //   id: "inductive",
     //   name: "Inductive Miner",

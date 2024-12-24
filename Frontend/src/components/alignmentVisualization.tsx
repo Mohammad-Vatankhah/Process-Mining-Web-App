@@ -2,10 +2,18 @@ import React, { useEffect, useRef, useState } from "react";
 import CytoscapeComponent from "react-cytoscapejs";
 import cytoscape from "cytoscape";
 import dagre from "cytoscape-dagre";
-import { PetriNet } from "@/types/types";
+import { AlignmentData, PetriNet } from "@/types/types";
 import ConformanceCheckingTable from "./conformanceCheckingTable";
 import { classifyAlignment } from "@/utils/conformanceUtils";
 import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Select } from "@radix-ui/react-select";
+import {
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 
 cytoscape.use(dagre);
 
@@ -14,14 +22,51 @@ const AlignmentGraph = ({
   alignmentResults,
 }: {
   modelGraph: PetriNet;
-  alignmentResults: Record<string, any>;
+  alignmentResults: Record<string, AlignmentData>;
 }) => {
   const [currentTraceIndex, setCurrentTraceIndex] = useState(0);
+  const [selectedOption, setSelectedOption] = useState("all");
+  const [filteredTraces, setFilteredTraces] = useState(
+    Object.keys(alignmentResults)
+  );
 
+  const options = [
+    {
+      id: "all",
+      name: "All Traces",
+    },
+    {
+      id: "fit",
+      name: "Fit Traces",
+    },
+    {
+      id: "unfit",
+      name: "Unfit Traces",
+    },
+  ];
   const cyRef = useRef<cytoscape.Core | null>(null);
 
-  const traceKeys = Object.keys(alignmentResults);
+  const traceKeys = filteredTraces;
   const currentTrace = alignmentResults[traceKeys[currentTraceIndex]];
+
+  useEffect(() => {
+    const filtered = Object.keys(alignmentResults).filter((key) => {
+      const trace = alignmentResults[key];
+      const fitness = trace.fitness;
+
+      if (selectedOption === "all") {
+        return true;
+      } else if (selectedOption === "fit") {
+        return fitness === 1;
+      } else if (selectedOption === "unfit") {
+        return fitness < 1;
+      }
+      return false;
+    });
+
+    setFilteredTraces(filtered);
+    setCurrentTraceIndex(0);
+  }, [selectedOption, alignmentResults]);
 
   const elements = React.useMemo(() => {
     const regex =
@@ -34,9 +79,19 @@ const AlignmentGraph = ({
     ).map((label: string) => label.split(":")[0]);
 
     const fitNodes: string[] = [];
-    currentTrace.alignment.map((trace: string[]) => {
+    currentTrace.alignment.map((trace) => {
       if (classifyAlignment(trace[0], trace[1]) === "Sync move") {
         fitNodes.push(trace[0]);
+      }
+    });
+
+    const unfitNodes: string[] = [];
+    currentTrace.alignment.map((trace: string[]) => {
+      if (
+        classifyAlignment(trace[0], trace[1]) === "Move on log" ||
+        "Move on model"
+      ) {
+        unfitNodes.push(trace[1]);
       }
     });
 
@@ -51,6 +106,7 @@ const AlignmentGraph = ({
         const isStartNode = initialNodes.includes(place.label);
         const isFinalNode = finalNodes.includes(place.label);
         const isFitNode = fitNodes.includes(place.label);
+        const isUnfitNode = unfitNodes.includes(place.label);
         const isNumericalNode = /^\d+$/.test(place.label);
         return {
           data: {
@@ -65,17 +121,22 @@ const AlignmentGraph = ({
             ? "circleNode"
             : isFitNode
             ? "fitNode"
+            : isUnfitNode
+            ? "unfitNode"
             : "defaultNode",
         };
       }),
       ...modelGraph.net.transitions.map((transition) => {
         const isFitNode = fitNodes.includes(transition.label);
+        const isUnfitNode = unfitNodes.includes(transition.label);
         return {
           data: { id: transition.id, label: transition.label },
           classes: transition.label.startsWith("hid_")
             ? "hidNode"
             : isFitNode
             ? "fitNode"
+            : isUnfitNode
+            ? "unfitNode"
             : "defaultNode",
         };
       }),
@@ -114,14 +175,45 @@ const AlignmentGraph = ({
     <div>
       <hr />
       <h2 className="text-2xl font-bold mt-2">Conformance Checking Result</h2>
+      <div className="flex items-center gap-2 w-fit mt-3">
+        <p>Show</p>
+        <Select value={selectedOption || ""} onValueChange={setSelectedOption}>
+          <SelectTrigger value="">
+            <SelectValue placeholder="Select an algorithm" />
+          </SelectTrigger>
+          <SelectContent>
+            {options.map((option) => (
+              <SelectItem key={option.id} value={option.id}>
+                {option.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
       <div className="flex justify-between mt-5 mb-2">
         <Button onClick={handlePrevious} disabled={currentTraceIndex === 0}>
           Previous Trace
         </Button>
         <span>
-          {traceKeys.length > 0
-            ? `Trace ${currentTraceIndex + 1} / ${traceKeys.length}`
-            : "No alignment data available"}
+          {traceKeys.length > 0 ? (
+            <div className="flex items-center gap-2">
+              Trace{" "}
+              <Input
+                type="number"
+                className="w-20"
+                value={currentTraceIndex + 1}
+                onChange={(e) =>
+                  e.target.value &&
+                  parseInt(e.target.value) <= traceKeys.length &&
+                  setCurrentTraceIndex(parseInt(e.target.value) - 1)
+                }
+                max={traceKeys.length}
+              />
+              /{traceKeys.length}
+            </div>
+          ) : (
+            "No alignment data available"
+          )}
         </span>
         <Button
           onClick={handleNext}
@@ -187,7 +279,7 @@ const AlignmentGraph = ({
             style: {
               width: 80,
               height: 80,
-              "background-color": "red",
+              "background-color": "#fdae61",
               border: "1px solid rgba(0, 0, 0)",
               "text-valign": "center",
               "text-halign": "center",
@@ -202,6 +294,20 @@ const AlignmentGraph = ({
               width: "label",
               height: 40,
               "background-color": "green",
+              "text-valign": "center",
+              "text-halign": "center",
+              color: "white",
+              shape: "round-rectangle",
+              padding: "10px",
+            },
+          },
+          {
+            selector: ".unfitNode",
+            style: {
+              label: "data(label)",
+              width: "label",
+              height: 40,
+              "background-color": "red",
               "text-valign": "center",
               "text-halign": "center",
               color: "white",

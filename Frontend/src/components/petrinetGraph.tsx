@@ -338,7 +338,7 @@ const PetriNetGraph: React.FC<{
                 style: {
                   width: 80,
                   height: 80,
-                  "background-color": "red",
+                  "background-color": "#fdae61",
                   border: "1px solid rgba(0, 0, 0)",
                   "text-valign": "center",
                   "text-halign": "center",

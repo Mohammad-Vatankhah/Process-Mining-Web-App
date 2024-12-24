@@ -8,17 +8,7 @@ import {
   TableRow,
 } from "./ui/table";
 import { classifyAlignment } from "@/utils/conformanceUtils";
-
-type AlignmentData = {
-  alignment: [string, string | null][]; // An array of tuples with string and optional null values
-  bwc: number; // Best Worst Case cost
-  cost: number; // Alignment cost
-  fitness: number; // Fitness value
-  lp_solved: number; // Number of LP problems solved
-  queued_states: number; // Number of states queued
-  traversed_arcs: number; // Number of arcs traversed
-  visited_states: number; // Number of states visited
-};
+import { AlignmentData } from "@/types/types";
 
 export default function ConformanceCheckingTable({
   currentTrace,
