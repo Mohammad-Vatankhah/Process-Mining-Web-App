@@ -59,8 +59,6 @@ Backend/.DS_Store
 Backend/Thumbs.db
 Backend/desktop.ini
 
-Backend/PM-API/Lib
-
 # --------------- Frontend ---------------
 
 # dependencies

@@ -14,7 +14,7 @@ mail = Mail()
 def create_app():
     app = Flask(__name__)
     CORS(app)
-
+    print(os.getenv("FLASK_SQLALCHEMY_DATABASE_URI"))
     # Configurations for the database connection
     app.config['SECRET_KEY'] = os.getenv("FLASL_SECRET_KEY")
     app.config['JWT_SECRET_KEY'] = os.getenv("FLASK_JWT_SECRET_KEY")
