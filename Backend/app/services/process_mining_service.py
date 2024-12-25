@@ -14,6 +14,7 @@ from flask import jsonify
 import json
 from flask import send_file
 
+
 def encode_image_to_base64(gviz):
     """Encode the generated visualization to base64"""
     with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as temp_img:
@@ -26,6 +27,7 @@ def encode_image_to_base64(gviz):
 
     os.remove(temp_img.name)  # Remove the temp file after reading it
     return img_base64
+
 
 def serialize_petrinet(net):
     # Create a structure for the Petri net
@@ -59,27 +61,32 @@ def serialize_petrinet(net):
 
     return petrinet_data
 
+
 def alpha_miner_discovery_service(filepath):
     log = xes_importer.apply(filepath)
 
     try:
         # Apply Alpha Miner algorithm
-        net, initial_marking, final_marking = pm4py.discover_petri_net_alpha(log)
+        net, initial_marking, final_marking = pm4py.discover_petri_net_alpha(
+            log)
         return jsonify({'net': serialize_petrinet(net), 'im': str(initial_marking), 'fm': str(final_marking)})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 def heuristic_miner_discovery_service(filepath):
     log = pm4py.read_xes(filepath)
 
     try:
         # Apply Heuristic Miner
-        net, initial_marking, final_marking = pm4py.discover_petri_net_heuristics(log)
+        net, initial_marking, final_marking = pm4py.discover_petri_net_heuristics(
+            log)
 
         return jsonify({'net': serialize_petrinet(net), 'im': str(initial_marking), 'fm': str(final_marking)})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 def ilp_miner_discovery_service(filepath):
     log = xes_importer.apply(filepath)
@@ -91,17 +98,20 @@ def ilp_miner_discovery_service(filepath):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 def heuristic_miner_discovery_service(filepath):
     log = pm4py.read_xes(filepath)
 
     try:
         # Apply Heuristic Miner
-        net, initial_marking, final_marking = pm4py.discover_petri_net_heuristics(log)
+        net, initial_marking, final_marking = pm4py.discover_petri_net_heuristics(
+            log)
 
         return jsonify({'net': serialize_petrinet(net), 'im': str(initial_marking), 'fm': str(final_marking)})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 def inductive_miner_discovery_service(filepath):
     log = xes_importer.apply(filepath)
@@ -116,8 +126,10 @@ def inductive_miner_discovery_service(filepath):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 def dfg_discovery_service(filepath):
-    log = xes_importer.apply(filepath)  # Load the log file from the given filepath
+    # Load the log file from the given filepath
+    log = xes_importer.apply(filepath)
 
     try:
         # Discover Directly-Follows Graph (DFG)
@@ -131,8 +143,10 @@ def dfg_discovery_service(filepath):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 def performance_analysis_service(filepath):
-    log = xes_importer.apply(filepath)  # Load the log file from the given filepath
+    # Load the log file from the given filepath
+    log = xes_importer.apply(filepath)
 
     try:
         data = []
@@ -153,8 +167,10 @@ def performance_analysis_service(filepath):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 def social_network_service(filepath):
-    log = xes_importer.apply(filepath)  # Load the log file from the given filepath
+    # Load the log file from the given filepath
+    log = xes_importer.apply(filepath)
 
     try:
         # Create a DataFrame from the event log
@@ -185,6 +201,7 @@ def social_network_service(filepath):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 def footprint_discover(filepath):
     log = pm4py.read_xes(filepath)
     try:
@@ -195,48 +212,56 @@ def footprint_discover(filepath):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 def get_start_activity_attribute(file_path):
     log = pm4py.read_xes(file_path)
     try:
         response = pm4py.get_start_activities(log, case_id_key='case:concept:name',
-                                      activity_key='concept:name',
-                                      timestamp_key='time:timestamp')
+                                              activity_key='concept:name',
+                                              timestamp_key='time:timestamp')
         return jsonify({'Start Activity': response})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-def activity_start_filtering(file_path,filter_set: set):
+
+def activity_start_filtering(file_path, filter_set: set, algorithm):
     log = pm4py.read_xes(file_path)
     try:
         filtered_log = pm4py.filter_start_activities(log, filter_set,
-                                                       activity_key='concept:name',
-                                                       case_id_key='case:concept:name', timestamp_key='time:timestamp')
-        dfg, start_activities, end_activities = pm4py.discover_dfg(filtered_log)
-
+                                                     activity_key='concept:name',
+                                                     case_id_key='case:concept:name', timestamp_key='time:timestamp')
+        net, initial_marking, final_marking = discover_petri_net(
+            algorithm, filtered_log)
         # Convert DFG to a serializable format
-        dfg_serializable = {str(k): v for k, v in dfg.items()}
-        return jsonify({'dfg': dfg_serializable})
+        return jsonify({
+            'net': serialize_petrinet(net),
+            'im': str(initial_marking),
+            'fm': str(final_marking)
+        })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 def get_end_activity_attribute(file_path):
     log = pm4py.read_xes(file_path)
     try:
         response = pm4py.get_end_activities(log, case_id_key='case:concept:name',
-                                      activity_key='concept:name',
-                                      timestamp_key='time:timestamp')
+                                            activity_key='concept:name',
+                                            timestamp_key='time:timestamp')
         return jsonify({'End Activity': response})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-def activity_end_filtering(file_path,filter_set: set):
-    
+
+def activity_end_filtering(file_path, filter_set: set):
+
     log = pm4py.read_xes(file_path)
     try:
         filtered_log = pm4py.filter_end_activities(log, filter_set,
-                                                       activity_key='concept:name',
-                                                       case_id_key='case:concept:name', timestamp_key='time:timestamp')
-        dfg, start_activities, end_activities = pm4py.discover_dfg(filtered_log)
+                                                   activity_key='concept:name',
+                                                   case_id_key='case:concept:name', timestamp_key='time:timestamp')
+        dfg, start_activities, end_activities = pm4py.discover_dfg(
+            filtered_log)
 
         # Convert DFG to a serializable format
         dfg_serializable = {str(k): v for k, v in dfg.items()}
@@ -244,23 +269,22 @@ def activity_end_filtering(file_path,filter_set: set):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 def get_all_activity_attribute(file_path):
     log = pm4py.read_xes(file_path)
     try:
         responses = pm4py.get_event_attribute_values(log, case_id_key='case:concept:name', attribute='concept:name',
-                                            count_once_per_case=False)
-        
+                                                     count_once_per_case=False)
+
         return jsonify({'All attribute': str(responses)})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-from flask import jsonify
-import pm4py
 
 def discover_petri_net(algorithm, log):
     """
     Discovers a Petri net using the specified algorithm.
-    
+
     :param algorithm: The discovery algorithm to use ('alphaMiner' or 'heuristicMiner').
     :param log: The event log to process.
     :return: A tuple containing the Petri net, initial marking, and final marking.
@@ -274,10 +298,11 @@ def discover_petri_net(algorithm, log):
     else:
         raise ValueError('Invalid Algorithm')
 
+
 def attributes_filtering(file_path, filter_set: set, algorithm):
     """
     Filters an event log based on the specified attributes and discovers a Petri net.
-    
+
     :param file_path: The path to the XES file.
     :param filter_set: A set of attribute values to filter.
     :param algorithm: The discovery algorithm to use ('alphaMiner' or 'heuristicMiner').
@@ -289,14 +314,15 @@ def attributes_filtering(file_path, filter_set: set, algorithm):
 
         # Filter the event log based on attribute values
         filtered_log = pm4py.filter_event_attribute_values(
-            log, 
-            attribute_key='concept:name', 
+            log,
+            attribute_key='concept:name',
             values=filter_set,
             case_id_key='case:concept:name'
         )
 
         # Discover the Petri net
-        net, initial_marking, final_marking = discover_petri_net(algorithm, filtered_log)
+        net, initial_marking, final_marking = discover_petri_net(
+            algorithm, filtered_log)
 
         # Return the serialized Petri net
         return jsonify({
@@ -324,7 +350,8 @@ def get_top_stats(file_path, n=5):
             dataframe_list.append(value)
 
         # Sort dataframes by the number of instances in descending order
-        sorted_df_list = sorted(dataframe_list, key=lambda x: len(x.index), reverse=True)
+        sorted_df_list = sorted(
+            dataframe_list, key=lambda x: len(x.index), reverse=True)
 
         # Calculate top traces and their percentages
         top_traces = []
@@ -335,7 +362,8 @@ def get_top_stats(file_path, n=5):
         for i in range(min(n, len(sorted_df_list))):
             top_traces.append(sorted_df_list[i].iloc[0]['@@variant_column'])
             count.append(len(sorted_df_list[i].index))
-            percentages.append(round(len(sorted_df_list[i].index) / total_instances * 100, 2))
+            percentages.append(
+                round(len(sorted_df_list[i].index) / total_instances * 100, 2))
 
         # Calculate the number of unique traces
         unique_traces_count = len(all_stats_list)
@@ -348,21 +376,25 @@ def get_top_stats(file_path, n=5):
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-    
+
+
 def conformance_checking(model_log_file_path, test_log_file_path):
     model = pm4py.read_xes(model_log_file_path)
     log = pm4py.read_xes(test_log_file_path)
     try:
-        net, im, fm = pm4py.discover_petri_net_alpha(model, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
+        net, im, fm = pm4py.discover_petri_net_alpha(
+            model, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
 
         alignments_diagnostics = pm4py.conformance_diagnostics_alignments(log, net, im, fm, activity_key='concept:name',
-                                                                        case_id_key='case:concept:name',
-                                                                        timestamp_key='time:timestamp',
-                                                                        return_diagnostics_dataframe=False)
-        merged_dict = {i: item for i, item in enumerate(alignments_diagnostics)}
+                                                                          case_id_key='case:concept:name',
+                                                                          timestamp_key='time:timestamp',
+                                                                          return_diagnostics_dataframe=False)
+        merged_dict = {i: item for i,
+                       item in enumerate(alignments_diagnostics)}
         return jsonify(merged_dict)
     except Exception as e:
         return jsonify({"error": str(e)})
+
 
 def discover_bpmn(file_path):
     try:

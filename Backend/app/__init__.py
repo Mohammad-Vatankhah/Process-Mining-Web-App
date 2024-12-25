@@ -1,7 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
-from flasgger import Swagger
 from flask_cors import CORS
 from flask_mail import Mail
 import os
@@ -14,7 +13,6 @@ mail = Mail()
 def create_app():
     app = Flask(__name__)
     CORS(app)
-    print(os.getenv("FLASK_SQLALCHEMY_DATABASE_URI"))
     # Configurations for the database connection
     app.config['SECRET_KEY'] = os.getenv("FLASL_SECRET_KEY")
     app.config['JWT_SECRET_KEY'] = os.getenv("FLASK_JWT_SECRET_KEY")
@@ -32,7 +30,6 @@ def create_app():
     db.init_app(app)
     jwt.init_app(app)
     mail.init_app(app)
-    swagger = Swagger(app)
 
     # Import and register blueprints after initializing db
     from app.controllers.user_controller import user_bp

@@ -6,6 +6,13 @@ import dagre from "cytoscape-dagre";
 import { BPMN } from "../types/types";
 import { Card, CardContent, CardFooter, CardHeader } from "./ui/card";
 import { Button } from "./ui/button";
+import {
+  defaultNodeStyle,
+  finalNodeStyle,
+  gatewayNodeStyle,
+  simpleEdgeStyle,
+  startNodeStyle,
+} from "@/utils/styles";
 
 cytoscape.use(dagre);
 
@@ -49,70 +56,29 @@ export default function BpmnGraph({ graphData }: { graphData: BPMN }) {
       style: [
         {
           selector: ".node",
-          style: {
-            label: "data(label)",
-            width: "label",
-            height: 40,
-            "background-color": "#ccc",
-            "text-valign": "center",
-            "text-halign": "center",
-            shape: "round-rectangle",
-            padding: "10px",
-          },
+          style: defaultNodeStyle,
         },
         {
           selector: ".startNode",
-          style: {
-            width: 80,
-            height: 80,
-            "background-color": "blue",
-            border: "1px solid rgba(0, 0, 0)",
-            "text-valign": "center",
-            "text-halign": "center",
-            label: "data(label)",
-            color: "white",
-          },
+          style: startNodeStyle,
         },
         {
           selector: ".finalNode",
-          style: {
-            width: 80,
-            height: 80,
-            "background-color": "#fdae61",
-            border: "1px solid rgba(0, 0, 0)",
-            "text-valign": "center",
-            "text-halign": "center",
-            label: "data(label)",
-            color: "white",
-          },
+          style: finalNodeStyle,
         },
         {
           selector: ".gateway'",
-          style: {
-            shape: "diamond",
-            "background-color": "#ccc",
-            label: "data(label)",
-            width: "label",
-            height: 40,
-            "text-valign": "center",
-            "text-halign": "center",
-            padding: "15px",
-          },
+          style: gatewayNodeStyle,
         },
         {
           selector: "edge",
-          style: {
-            "target-arrow-shape": "triangle",
-            "curve-style": "bezier",
-            width: 2,
-          },
+          style: simpleEdgeStyle,
         },
       ],
       layout: { name: "dagre", rankDir: "LR" },
     });
 
     return () => {
-      // Destroy the Cytoscape instance on unmount
       if (cyRef.current) cyRef.current.destroy();
     };
   }, []);
@@ -121,7 +87,7 @@ export default function BpmnGraph({ graphData }: { graphData: BPMN }) {
     <Card className="w-full">
       <CardHeader className="font-bold text-xl">BPMN Result</CardHeader>
       <CardContent>
-        <div id="cy" ref={cyRef} className="w-full h-[350px] bg-white" />{" "}
+        <div id="cy" ref={cyRef} className="w-full h-[350px] bg-white" />
       </CardContent>
       <CardFooter className="flex gap-3">
         <Button onClick={handleExport}>Export as PNG</Button>

@@ -14,6 +14,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import {
+  circleNodeStyle,
+  defaultNodeStyle,
+  finalNodeStyle,
+  fitNodeStyle,
+  simpleEdgeStyle,
+  startNodeStyle,
+  unfitNodeStyle,
+} from "@/utils/styles";
 
 cytoscape.use(dagre);
 
@@ -131,9 +140,7 @@ const AlignmentGraph = ({
         const isUnfitNode = unfitNodes.includes(transition.label);
         return {
           data: { id: transition.id, label: transition.label },
-          classes: transition.label.startsWith("hid_")
-            ? "hidNode"
-            : isFitNode
+          classes: isFitNode
             ? "fitNode"
             : isUnfitNode
             ? "unfitNode"
@@ -229,106 +236,31 @@ const AlignmentGraph = ({
         stylesheet={[
           {
             selector: ".circleNode",
-            style: {
-              width: 80,
-              height: 80,
-              "background-color": "#ccc",
-              border: "1px solid rgba(0, 0, 0)",
-              "text-valign": "center",
-              "text-halign": "center",
-            },
-          },
-          {
-            selector: ".hidNode",
-            style: {
-              width: "100px",
-              height: "50px",
-              "background-color": "black",
-              shape: "rectangle",
-              color: "transparent",
-            },
+            style: circleNodeStyle,
           },
           {
             selector: ".defaultNode",
-            style: {
-              label: "data(label)",
-              width: "label",
-              height: 40,
-              "background-color": "#ccc",
-              "text-valign": "center",
-              "text-halign": "center",
-              shape: "round-rectangle",
-              padding: "10px",
-            },
+            style: defaultNodeStyle,
           },
           {
             selector: ".startNode",
-            style: {
-              width: 80,
-              height: 80,
-              "background-color": "blue",
-              border: "1px solid rgba(0, 0, 0)",
-              "text-valign": "center",
-              "text-halign": "center",
-              label: "data(label)",
-              color: "white",
-            },
+            style: startNodeStyle,
           },
           {
             selector: ".finalNode",
-            style: {
-              width: 80,
-              height: 80,
-              "background-color": "#fdae61",
-              border: "1px solid rgba(0, 0, 0)",
-              "text-valign": "center",
-              "text-halign": "center",
-              label: "data(label)",
-              color: "white",
-            },
+            style: finalNodeStyle,
           },
           {
             selector: ".fitNode",
-            style: {
-              label: "data(label)",
-              width: "label",
-              height: 40,
-              "background-color": "green",
-              "text-valign": "center",
-              "text-halign": "center",
-              color: "white",
-              shape: "round-rectangle",
-              padding: "10px",
-            },
+            style: fitNodeStyle,
           },
           {
             selector: ".unfitNode",
-            style: {
-              label: "data(label)",
-              width: "label",
-              height: 40,
-              "background-color": "red",
-              "text-valign": "center",
-              "text-halign": "center",
-              color: "white",
-              shape: "round-rectangle",
-              padding: "10px",
-            },
-          },
-          {
-            selector: ".mismatchEdge",
-            style: {
-              "line-color": "red",
-              width: 3,
-            },
+            style: unfitNodeStyle,
           },
           {
             selector: "edge",
-            style: {
-              "target-arrow-shape": "triangle",
-              "curve-style": "bezier",
-              width: 2,
-            },
+            style: simpleEdgeStyle,
           },
         ]}
         style={{ width: "100%", height: "250px", backgroundColor: "white" }}

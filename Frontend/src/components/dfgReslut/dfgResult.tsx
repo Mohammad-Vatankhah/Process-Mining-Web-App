@@ -6,37 +6,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import { DataTable } from "./data-table";
 import { columns } from "./columns";
 import { Button } from "../ui/button";
-
-const nodesStyle = {
-  "background-color": "#0074D9",
-  label: "data(label)",
-  "text-valign": "center",
-  "text-halign": "center",
-  shape: "round-rectangle",
-  width: "label",
-  padding: "10px",
-  "font-size": "14px",
-  "font-weight": "bold",
-  color: "#fff",
-  "text-outline-width": 2,
-  "text-outline-color": "#0074D9",
-};
-
-const edgesStyle = {
-  label: "data(label)",
-  "line-color": "#878787",
-  "target-arrow-color": "#878787",
-  "target-arrow-shape": "triangle",
-  "curve-style": "bezier",
-  "font-size": "12px",
-  color: "#000",
-  "text-background-color": "#ffffff",
-  "text-background-opacity": 0.7,
-  "text-background-padding": "3px",
-  "text-border-opacity": 1,
-  "text-border-width": 1,
-  "text-border-color": "#000",
-};
+import { defaultNodeStyle, dfgEdgesStyle } from "@/utils/styles";
 
 cytoscape.use(klay);
 
@@ -98,6 +68,13 @@ export default function DfgResult({
     }
   }, [result]);
 
+  const handleResetPosition = () => {
+    if (cyRef.current) {
+      cyRef.current.fit();
+      cyRef.current.center();
+    }
+  };
+
   return (
     <Card className="w-full">
       <CardHeader className="font-bold text-xl">
@@ -121,12 +98,12 @@ export default function DfgResult({
             stylesheet={[
               {
                 selector: "node",
-                style: nodesStyle,
+                style: defaultNodeStyle,
               },
               {
                 selector: "edge",
                 style: {
-                  ...edgesStyle,
+                  ...dfgEdgesStyle,
                   width: `mapData(weight, ${minWeight}, ${maxWeight}, 1, 10)`,
                 },
               },
@@ -134,8 +111,9 @@ export default function DfgResult({
           />
         </div>
       </CardContent>
-      <CardFooter>
+      <CardFooter className="flex gap-3">
         <Button onClick={handleExport}>Export as PNG</Button>
+        <Button onClick={handleResetPosition}>Reset Position</Button>
       </CardFooter>
     </Card>
   );

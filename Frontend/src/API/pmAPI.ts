@@ -68,15 +68,25 @@ const PMapi = {
     return await axiosInstance.get(`/activities/end/${filename}`);
   },
 
-  filterStartActivities: async (filename: string, filter_set: string[]) => {
+  filterStartActivities: async (
+    filename: string,
+    filter_set: string[],
+    algo: string
+  ) => {
     return await axiosInstance.post(`/filter/activities/start/${filename}`, {
       filter_set,
+      algo,
     });
   },
 
-  filterEndActivities: async (filename: string, filter_set: string[]) => {
+  filterEndActivities: async (
+    filename: string,
+    filter_set: string[],
+    algo: string
+  ) => {
     return await axiosInstance.post(`/filter/activities/end/${filename}`, {
       filter_set,
+      algo,
     });
   },
 

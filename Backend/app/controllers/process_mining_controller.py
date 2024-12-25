@@ -1,22 +1,22 @@
 from flask import Blueprint, request, jsonify
 from flasgger import swag_from
 from app.services.process_mining_service import (alpha_miner_discovery_service,
-                                                ilp_miner_discovery_service,
-                                                dfg_discovery_service,
-                                                heuristic_miner_discovery_service,
-                                                inductive_miner_discovery_service,
-                                                performance_analysis_service,
-                                                social_network_service,footprint_discover,
-                                                get_start_activity_attribute,
-                                                get_end_activity_attribute,
-                                                activity_start_filtering,
-                                                activity_end_filtering,
-                                                get_all_activity_attribute,
-                                                attributes_filtering,
-                                                get_top_stats,
-                                                conformance_checking,
-                                                discover_bpmn
-                                                )
+                                                 ilp_miner_discovery_service,
+                                                 dfg_discovery_service,
+                                                 heuristic_miner_discovery_service,
+                                                 inductive_miner_discovery_service,
+                                                 performance_analysis_service,
+                                                 social_network_service, footprint_discover,
+                                                 get_start_activity_attribute,
+                                                 get_end_activity_attribute,
+                                                 activity_start_filtering,
+                                                 activity_end_filtering,
+                                                 get_all_activity_attribute,
+                                                 attributes_filtering,
+                                                 get_top_stats,
+                                                 conformance_checking,
+                                                 discover_bpmn
+                                                 )
 import os
 import uuid
 from werkzeug.utils import secure_filename
@@ -95,8 +95,10 @@ def upload_file():
 
     # Save the file with a unique UUID to ensure uniqueness across the system
     original_filename = secure_filename(file.filename)
-    unique_saved_filename = f"{uuid.uuid4()}{os.path.splitext(file.filename)[1]}"
-    file_path = os.path.join(UPLOAD_FOLDER, secure_filename(unique_saved_filename))
+    unique_saved_filename = f"{
+        uuid.uuid4()}{os.path.splitext(file.filename)[1]}"
+    file_path = os.path.join(
+        UPLOAD_FOLDER, secure_filename(unique_saved_filename))
     file.save(file_path)
 
     # If a user is logged in, save the file record to the database
@@ -106,7 +108,8 @@ def upload_file():
         count = 1
 
         while File.query.filter_by(user_id=user.id, original_filename=saved_filename).first():
-            saved_filename = f"{os.path.splitext(original_filename)[0]}_{count}{os.path.splitext(original_filename)[1]}"
+            saved_filename = f"{os.path.splitext(original_filename)[0]}_{count}{
+                os.path.splitext(original_filename)[1]}"
             count += 1
 
         # Create a new File record in the database
@@ -155,6 +158,7 @@ def alpha_miner_discovery(filename):
     response = alpha_miner_discovery_service(file_path)
     return response
 
+
 @process_mining_bp.route('/discover/ilp/<filename>', methods=['GET'])
 @swag_from({
     'tags': ['PM'],
@@ -184,7 +188,6 @@ def ilp_miner_discovery(filename):
 
     response = ilp_miner_discovery_service(file_path)
     return response
-
 
 
 @process_mining_bp.route('/discover/heuristic_miner/<filename>', methods=['GET'])
@@ -371,6 +374,7 @@ def footprint(filename):
     response = footprint_discover(file_path)
     return response
 
+
 @process_mining_bp.route('/discover/stats/<filename>', methods=['GET'])
 @swag_from({
     'tags': ['PM'],
@@ -462,6 +466,7 @@ def get_all_activity(filename):
 
     response = get_all_activity_attribute(file_path)
     return response
+
 
 @process_mining_bp.route('/activities/start/<filename>', methods=['GET'])
 @swag_from({
@@ -563,7 +568,8 @@ def filter_start_activities(filename):
         return jsonify({'msg': 'File not found'}), 404
 
     filter_set = set(request.json.get('filter_set', []))
-    response = activity_start_filtering(file_path, filter_set)
+    algorithm = request.json.get('algo')
+    response = activity_start_filtering(file_path, filter_set, algorithm)
     return response
 
 
@@ -660,12 +666,14 @@ def filter_attributes(filename):
     response = attributes_filtering(file_path, filter_set, algorithm)
     return response
 
+
 def save_temp_file(file):
     """Save uploaded file to a temporary location and return the path."""
     temp_dir = tempfile.mkdtemp()
     file_path = os.path.join(temp_dir, secure_filename(file.filename))
     file.save(file_path)
     return file_path
+
 
 @process_mining_bp.route('/conformance_checking/<filename>', methods=['POST'])
 @swag_from({
@@ -710,6 +718,7 @@ def conformance_checking_endpoint(filename):
     os.remove(test_path)
 
     return response
+
 
 @process_mining_bp.route('/discover/bpmn/<filename>', methods=['GET'])
 def get_bpmn(filename):

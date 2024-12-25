@@ -18,6 +18,14 @@ import { Checkbox } from "./ui/checkbox";
 import toast from "react-hot-toast";
 import PMapi from "@/API/pmAPI";
 import { AxiosError } from "axios";
+import {
+  circleNodeStyle,
+  defaultNodeStyle,
+  finalNodeStyle,
+  hidNodeStyle,
+  simpleEdgeStyle,
+  startNodeStyle,
+} from "@/utils/styles";
 
 cytoscape.use(dagre);
 
@@ -42,7 +50,6 @@ const PetriNetGraph: React.FC<{
   });
   const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
   const [loading, setLoading] = useState("none");
-
   const elements = React.useMemo(() => {
     const regex =
       /\(\{(?:'[^']*'(?:,\s*)?)+\}(?:,\s*\{(?:'[^']*'(?:,\s*)?)*\})*\)/;
@@ -203,6 +210,9 @@ const PetriNetGraph: React.FC<{
       } else if (algorithm === "Heuristic Miner") {
         const res = await PMapi.heuristicMiner(filename);
         setResult((prev) => ({ ...prev, heuristicMiner: res.data }));
+      } else if (algorithm === "ILP Miner") {
+        const res = await PMapi.ilpMiner(filename);
+        setResult((prev) => ({ ...prev, ilpMiner: res.data }));
       }
       setSelectedNodes([]);
     } catch (err) {
@@ -288,71 +298,27 @@ const PetriNetGraph: React.FC<{
             stylesheet={[
               {
                 selector: ".circleNode",
-                style: {
-                  width: 80,
-                  height: 80,
-                  "background-color": "#ccc",
-                  border: "1px solid rgba(0, 0, 0)",
-                  "text-valign": "center",
-                  "text-halign": "center",
-                },
+                style: circleNodeStyle,
               },
               {
                 selector: ".hidNode",
-                style: {
-                  width: "100px",
-                  height: "50px",
-                  "background-color": "black",
-                  shape: "rectangle",
-                  color: "transparent",
-                },
+                style: hidNodeStyle,
               },
               {
                 selector: ".defaultNode",
-                style: {
-                  label: "data(label)",
-                  width: "label",
-                  height: 40,
-                  "background-color": "#ccc",
-                  "text-valign": "center",
-                  "text-halign": "center",
-                  shape: "round-rectangle",
-                  padding: "10px",
-                },
+                style: defaultNodeStyle,
               },
               {
                 selector: ".startNode",
-                style: {
-                  width: 80,
-                  height: 80,
-                  "background-color": "blue",
-                  border: "1px solid rgba(0, 0, 0)",
-                  "text-valign": "center",
-                  "text-halign": "center",
-                  label: "data(label)",
-                  color: "white",
-                },
+                style: startNodeStyle,
               },
               {
                 selector: ".finalNode",
-                style: {
-                  width: 80,
-                  height: 80,
-                  "background-color": "#fdae61",
-                  border: "1px solid rgba(0, 0, 0)",
-                  "text-valign": "center",
-                  "text-halign": "center",
-                  label: "data(label)",
-                  color: "white",
-                },
+                style: finalNodeStyle,
               },
               {
                 selector: "edge",
-                style: {
-                  "target-arrow-shape": "triangle",
-                  "curve-style": "bezier",
-                  width: 2,
-                },
+                style: simpleEdgeStyle,
               },
             ]}
             style={{ width: "100%", height: "500px", backgroundColor: "white" }}

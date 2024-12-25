@@ -1,64 +1,73 @@
-import { useMemo } from "react";
-import {
-  ReactFlow,
-  Background,
-  Edge,
-  Node,
-  useEdgesState,
-  useNodesState,
-  MarkerType,
-  Controls,
-  MiniMap,
-} from "@xyflow/react";
-import "@xyflow/react/dist/style.css";
-import { Card, CardContent, CardHeader } from "./ui/card";
-import FloatingEdge from "./floatingEdge";
+import React, { useEffect, useRef } from "react";
+import cytoscape from "cytoscape";
+import dagre from "cytoscape-dagre";
+import { Card, CardContent, CardFooter, CardHeader } from "./ui/card";
+import { Button } from "./ui/button";
+import { defaultNodeStyle, simpleEdgeStyle } from "@/utils/styles";
 
-export default function SocialNetworkGraph({
+cytoscape.use(dagre);
+
+export default function SocialNetworkGraphWithCytoscape({
   result,
 }: {
   result: Record<string, string[]>;
 }) {
-  const initialNodes: Node[] = useMemo(() => {
-    const center = { x: 0, y: 0 };
-    const radius = 450;
-    const nodeCount = Object.keys(result).length;
+  const cyRef = useRef<cytoscape.Core | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
-    return Object.keys(result).map((key, index) => {
-      const angle = (2 * Math.PI * index) / nodeCount;
-      const x = center.x + radius * Math.cos(angle);
-      const y = center.y + radius * Math.sin(angle);
+  useEffect(() => {
+    if (!containerRef.current) return;
 
-      return {
-        id: key,
-        data: { label: key },
-        position: { x, y },
-      };
+    const nodes = Object.keys(result).map((key) => ({
+      data: { id: key, label: key },
+    }));
+
+    const edges = Object.entries(result).flatMap(([fromNode, toNodes]) =>
+      toNodes.map((toNode) => ({
+        data: { source: fromNode, target: toNode },
+      }))
+    );
+
+    const cy = cytoscape({
+      container: containerRef.current,
+      elements: [...nodes, ...edges],
+      style: [
+        {
+          selector: "node",
+          style: defaultNodeStyle,
+        },
+        {
+          selector: "edge",
+          style: simpleEdgeStyle,
+        },
+      ],
+      layout: {
+        name: "dagre",
+        rankDir: "LR",
+      },
     });
+
+    cyRef.current = cy;
+
+    return () => cy.destroy();
   }, [result]);
 
-  const initialEdges: Edge[] = useMemo(() => {
-    const edgesList: Edge[] = [];
-    Object.entries(result).forEach(([fromNode, toNodes]) => {
-      toNodes.forEach((toNode) => {
-        edgesList.push({
-          id: `${fromNode}-${toNode}`,
-          source: fromNode,
-          target: toNode,
-          type: "floating",
-          markerEnd: {
-            type: MarkerType.Arrow,
-          },
-        });
-      });
-    });
-    return edgesList;
-  }, [result]);
+  const handleExport = () => {
+    if (cyRef.current) {
+      const pngData = cyRef.current.png({ full: true, bg: "white" });
+      const link = document.createElement("a");
+      link.href = pngData;
+      link.download = "Social_Network_graph.png";
+      link.click();
+    }
+  };
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-
-  const edgeTypes = useMemo(() => ({ floating: FloatingEdge }), []);
+  const handleResetPosition = () => {
+    if (cyRef.current) {
+      cyRef.current.fit();
+      cyRef.current.center();
+    }
+  };
 
   return (
     <Card className="w-full px-3 pb-3">
@@ -66,19 +75,12 @@ export default function SocialNetworkGraph({
         Social Network Algorithm Result
       </CardHeader>
       <CardContent className="w-full h-[400px] bg-white rounded">
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          edgeTypes={edgeTypes}
-          fitView
-          onEdgesChange={onEdgesChange}
-          onNodesChange={onNodesChange}
-        >
-          <Background />
-          <MiniMap />
-          <Controls />
-        </ReactFlow>
+        <div ref={containerRef} style={{ width: "100%", height: "100%" }} />
       </CardContent>
+      <CardFooter className="flex gap-3">
+        <Button onClick={handleExport}>Export as PNG</Button>
+        <Button onClick={handleResetPosition}>Reset Position</Button>
+      </CardFooter>
     </Card>
   );
 }
