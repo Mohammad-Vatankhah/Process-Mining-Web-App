@@ -293,6 +293,8 @@ def discover_petri_net(algorithm, log):
         return pm4py.discover_petri_net_alpha(log)
     elif algorithm == 'Heuristic Miner':
         return pm4py.discover_petri_net_heuristics(log)
+    elif algorithm == 'Inductive Miner':
+        return pm4py.discover_petri_net_inductive(log)
     elif algorithm == "ILP Miner":
         return pm4py.discover_petri_net_ilp(log)
     else:

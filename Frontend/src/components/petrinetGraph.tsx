@@ -196,6 +196,8 @@ const PetriNetGraph: React.FC<{
         setResult((prev) => ({ ...prev, alphaMiner: res.data }));
       } else if (algorithm === "Heuristic Miner") {
         setResult((prev) => ({ ...prev, heuristicMiner: res.data }));
+      } else if (algorithm === "Inductive Miner") {
+        setResult((prev) => ({ ...prev, inductiveMiner: res.data }));
       } else if (algorithm === "ILP Miner") {
         setResult((prev) => ({ ...prev, ilpMiner: res.data }));
       }
@@ -219,6 +221,9 @@ const PetriNetGraph: React.FC<{
       } else if (algorithm === "Heuristic Miner") {
         const res = await PMapi.heuristicMiner(filename);
         setResult((prev) => ({ ...prev, heuristicMiner: res.data }));
+      } else if (algorithm === "Inductive Miner") {
+        const res = await PMapi.inductiveMiner(filename);
+        setResult((prev) => ({ ...prev, inductiveMiner: res.data }));
       } else if (algorithm === "ILP Miner") {
         const res = await PMapi.ilpMiner(filename);
         setResult((prev) => ({ ...prev, ilpMiner: res.data }));
