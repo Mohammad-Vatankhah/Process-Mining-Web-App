@@ -41,7 +41,7 @@ export const circleNodeStyle = {
 };
 
 export const hidNodeStyle = {
-  width: "100px",
+  width: "50px",
   height: "50px",
   "background-color": "black",
   shape: "rectangle",

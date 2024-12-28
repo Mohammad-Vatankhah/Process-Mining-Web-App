@@ -43,16 +43,16 @@ export default function ApplyAlgorithmCard({
       applied: appliedAlgorithms.heuristicMiner,
     },
     {
+      id: "inductive",
+      name: "Inductive Miner",
+      applied: appliedAlgorithms.inductiveMiner,
+    },
+    {
       id: "ilp",
       name: "ILP Miner",
       applied: appliedAlgorithms.ilpMiner,
     },
     { id: "bpmn", name: "BPMN", applied: appliedAlgorithms.bpmn },
-    // {
-    //   id: "inductive",
-    //   name: "Inductive Miner",
-    //   applied: appliedAlgorithms.inductiveMiner,
-    // },
     {
       id: "dfg",
       name: "Directly Follows Graph (DFG)",

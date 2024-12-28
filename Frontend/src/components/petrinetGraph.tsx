@@ -66,7 +66,9 @@ const PetriNetGraph: React.FC<{
           place.label.startsWith("intplace_") ||
           place.label.startsWith("splace_") ||
           place.label.startsWith("pre_") ||
-          regex.test(place.label);
+          place.label.startsWith("({'") ||
+          place.label.startsWith("p_");
+        regex.test(place.label);
         const isStartNode = initialNodes.includes(place.label);
         const isFinalNode = finalNodes.includes(place.label);
         const isNumericalNode = /^\d+$/.test(place.label);
@@ -84,12 +86,19 @@ const PetriNetGraph: React.FC<{
             : "defaultNode",
         };
       }),
-      ...petrinet.net.transitions.map((transition) => ({
-        data: { id: transition.id, label: transition.label },
-        classes: transition.label.startsWith("hid_")
-          ? "hidNode"
-          : "defaultNode",
-      })),
+      ...petrinet.net.transitions.map((transition) => {
+        console.log(transition);
+
+        return {
+          data: { id: transition.id, label: transition.label },
+          classes:
+            transition.label.startsWith("skip_") ||
+            transition.label.startsWith("hid_") ||
+            transition.label.startsWith("tauJoin_")
+              ? "hidNode"
+              : "defaultNode",
+        };
+      }),
     ];
 
     const edges = petrinet.net.arcs.map((arc) => ({

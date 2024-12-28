@@ -5,6 +5,7 @@ import os
 import pm4py
 from pm4py.objects.log.importer.xes import importer as xes_importer
 from pm4py.algo.discovery.alpha import algorithm as alpha_miner
+from pm4py.algo.discovery.inductive import algorithm as inductive
 from pm4py.algo.discovery.footprints import algorithm as footprints_miner
 from pm4py.visualization.petri_net import visualizer as pn_visualizer
 from pm4py.visualization.footprints import visualizer as fp_visualizer
@@ -48,7 +49,7 @@ def serialize_petrinet(net):
     for transition in net.transitions:
         petrinet_data['transitions'].append({
             'id': str(transition),  # Use the transition's unique identifier
-            'label': transition.name if transition.name else 'Transition'
+            'label': transition.label if transition.label else transition.name
         })
 
     # Serialize edges
@@ -118,10 +119,9 @@ def inductive_miner_discovery_service(filepath):
 
     try:
         # Apply Inductive Miner
-        net, initial_marking, final_marking = alpha_miner.apply(log)
-        print(net)
-        # return jsonify({'net': serialize_petrinet(net), 'im': str(initial_marking), 'fm': str(final_marking)})
-        return 200
+        net, initial_marking, final_marking = pm4py.discover_petri_net_inductive(
+            log)
+        return jsonify({'net': serialize_petrinet(net), 'im': str(initial_marking), 'fm': str(final_marking)})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
