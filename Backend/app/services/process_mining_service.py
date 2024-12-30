@@ -168,40 +168,6 @@ def performance_analysis_service(filepath):
         return jsonify({"error": str(e)}), 500
 
 
-def social_network_service(filepath):
-    # Load the log file from the given filepath
-    log = xes_importer.apply(filepath)
-
-    try:
-        # Create a DataFrame from the event log
-        data = []
-        for trace in log:
-            for event in trace:
-                data.append({
-                    'case_id': trace.attributes['concept:name'],
-                    'event_name': event['concept:name'],
-                })
-
-        df = pd.DataFrame(data)
-
-        # Create a graph of activities
-        G = nx.Graph()
-
-        # Add edges based on co-occurrence
-        for _, group in df.groupby('case_id'):
-            activities = group['event_name'].tolist()
-            for i in range(len(activities)):
-                for j in range(i + 1, len(activities)):
-                    G.add_edge(activities[i], activities[j])
-
-        # Serialize the graph to return it
-        social_network_data = nx.to_dict_of_lists(G)
-
-        return jsonify({'social_network': social_network_data})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
 def footprint_discover(filepath):
     log = pm4py.read_xes(filepath)
     try:

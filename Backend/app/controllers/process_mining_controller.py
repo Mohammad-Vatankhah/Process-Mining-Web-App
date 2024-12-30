@@ -313,38 +313,6 @@ def performance_analysis(filename):
     response = performance_analysis_service(file_path)
     return response
 
-
-@process_mining_bp.route('/social_network/<filename>', methods=['GET'])
-@swag_from({
-    'tags': ['PM'],
-    'summary': 'Generate social network mining',
-    'parameters': [
-        {
-            'name': 'filename',
-            'in': 'path',
-            'type': 'string',
-            'required': True,
-            'description': 'The file name of the uploaded file'
-        }
-    ],
-    'responses': {
-        200: {
-            'description': 'Social network mining result',
-        },
-        404: {
-            'description': 'File not found'
-        }
-    }
-})
-def social_network(filename):
-    file_path = get_file_path(filename)
-    if file_path is None:
-        return jsonify({'msg': 'File not found'}), 404
-
-    response = social_network_service(file_path)
-    return response
-
-
 @process_mining_bp.route('/discover/footprint/<filename>')
 @swag_from({
     'tags': ['PM'],

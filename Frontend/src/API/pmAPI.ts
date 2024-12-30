@@ -48,10 +48,6 @@ const PMapi = {
     return await axiosInstance.get(`/discover/dfg/${filename}`);
   },
 
-  socialNetwork: async (filename: string) => {
-    return await axiosInstance.get(`/social_network/${filename}`);
-  },
-
   footprint: async (filename: string) => {
     return await axiosInstance.get(`/discover/footprint/${filename}`);
   },
