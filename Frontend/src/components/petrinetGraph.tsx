@@ -298,7 +298,9 @@ const PetriNetGraph: React.FC<{
       </CardHeader>
       <CardContent>
         {loading === algorithm && (
-          <div className="z-10 bg-gray-400 h-[500px] w-full">Loading...</div>
+          <div className="z-10 bg-gray-400 h-[500px] w-full flex justify-center items-center text-white">
+            <p>Loading...</p>
+          </div>
         )}
         <div
           ref={containerRef}

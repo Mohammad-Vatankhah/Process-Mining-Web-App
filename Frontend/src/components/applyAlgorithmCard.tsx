@@ -30,7 +30,6 @@ export default function ApplyAlgorithmCard({
     ilpMiner: boolean;
     bpmn: boolean;
     dfg: boolean;
-    socialNetwork: boolean;
     footprint: boolean;
   };
   selectedFileName: string | undefined;
@@ -62,11 +61,6 @@ export default function ApplyAlgorithmCard({
       id: "footprint",
       name: "Footprint",
       applied: appliedAlgorithms.footprint,
-    },
-    {
-      id: "socialNetwork",
-      name: "Social Network",
-      applied: appliedAlgorithms.socialNetwork,
     },
   ];
 

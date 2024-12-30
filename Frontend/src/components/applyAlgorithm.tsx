@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import SuccessUploadCard from "./successUploadCard";
 import ApplyAlgorithmCard from "./applyAlgorithmCard";
 import DfgResult from "./dfgReslut/dfgResult";
-import SocialNetworkGraph from "./socialNetworkGraph";
 import toast from "react-hot-toast";
 import PMapi from "@/API/pmAPI";
 import PetriNetGraph from "./petrinetGraph";
@@ -28,7 +27,6 @@ export default function ApplyAlgorithm({
     ilpMiner: null,
     bpmn: null,
     dfg: null,
-    socialNetwork: null,
     footprint: null,
   });
 
@@ -39,7 +37,6 @@ export default function ApplyAlgorithm({
     ilpMiner: false,
     bpmn: false,
     dfg: false,
-    socialNetwork: false,
     footprint: false,
   });
 
@@ -89,15 +86,6 @@ export default function ApplyAlgorithm({
           setAppliedAlgorithms((prev) => ({ ...prev, dfg: true }));
           break;
 
-        case "socialNetwork":
-          const socialRes = await PMapi.socialNetwork(fileName!);
-          setResult((prev) => ({
-            ...prev,
-            socialNetwork: socialRes.data.social_network,
-          }));
-          setAppliedAlgorithms((prev) => ({ ...prev, socialNetwork: true }));
-          break;
-
         case "footprint":
           const footprintRes = await PMapi.footprint(fileName!);
           setResult((prev) => ({ ...prev, footprint: footprintRes.data }));
@@ -131,7 +119,6 @@ export default function ApplyAlgorithm({
       ilpMiner: null,
       bpmn: null,
       dfg: null,
-      socialNetwork: null,
       footprint: null,
     });
 
@@ -142,7 +129,6 @@ export default function ApplyAlgorithm({
       ilpMiner: false,
       bpmn: false,
       dfg: false,
-      socialNetwork: false,
       footprint: false,
     });
   };
@@ -207,9 +193,6 @@ export default function ApplyAlgorithm({
         {result.bpmn && <BpmnGraph graphData={result.bpmn} />}
         {result.dfg && <DfgResult result={result.dfg} />}
         {result.footprint && <FootprintTable result={result.footprint} />}
-        {result.socialNetwork && (
-          <SocialNetworkGraph result={result.socialNetwork} />
-        )}
       </div>
     </>
   );

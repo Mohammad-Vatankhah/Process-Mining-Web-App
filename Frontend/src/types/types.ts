@@ -55,7 +55,6 @@ export interface Result {
   ilpMiner: PetriNet | null;
   bpmn: BPMN | null;
   dfg: Record<string, number> | null;
-  socialNetwork: Record<string, string[]> | null;
   footprint: Footprint | null;
 }
 
