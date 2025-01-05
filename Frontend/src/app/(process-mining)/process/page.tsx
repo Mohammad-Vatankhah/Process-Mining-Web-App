@@ -50,6 +50,7 @@ const EventLogUploadPage = () => {
           handleFileUpload={handleFileUpload}
           selectedFile={selectedFile}
           uploading={uploading}
+          setFilename={setFileName}
         />
       )}
 

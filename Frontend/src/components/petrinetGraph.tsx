@@ -26,6 +26,13 @@ import {
   simpleEdgeStyle,
   startNodeStyle,
 } from "@/utils/styles";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 
 cytoscape.use(dagre);
 
@@ -50,6 +57,10 @@ const PetriNetGraph: React.FC<{
   });
   const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
   const [loading, setLoading] = useState("none");
+  const [selectedFilter, setSelectedFilter] = useState("Attributes");
+
+  const filters = ["Start Activities", "End Activities", "Attributes"];
+
   const elements = React.useMemo(() => {
     const regex =
       /\(\{(?:'[^']*'(?:,\s*)?)+\}(?:,\s*\{(?:'[^']*'(?:,\s*)?)*\})*\)/;
@@ -190,8 +201,13 @@ const PetriNetGraph: React.FC<{
       const res = await PMapi.filterActivities(
         filename,
         selectedNodes,
-        algorithm
+        algorithm,
+        selectedFilter
       );
+      if (res.data.net.arcs.length === 0) {
+        toast.error("No traces found for selected filter and nodes");
+        return;
+      }
       if (algorithm === "Alpha Miner") {
         setResult((prev) => ({ ...prev, alphaMiner: res.data }));
       } else if (algorithm === "Heuristic Miner") {
@@ -292,6 +308,21 @@ const PetriNetGraph: React.FC<{
                 </Button>
               </PopoverContent>
             </Popover>
+            <Select
+              value={selectedFilter || ""}
+              onValueChange={setSelectedFilter}
+            >
+              <SelectTrigger value="">
+                <SelectValue placeholder="Select a filter" />
+              </SelectTrigger>
+              <SelectContent>
+                {filters.map((filter) => (
+                  <SelectItem key={filter} value={filter}>
+                    {filter}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <Button onClick={handleApplyFilter}>Apply Filter</Button>
           </div>
         </div>

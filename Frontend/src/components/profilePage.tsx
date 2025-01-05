@@ -13,6 +13,8 @@ import Pagination from "./pagination";
 import ProfileProcessCard from "./profileProcessCard";
 import ProfileProcessSceleton from "./profileProcessSceleton";
 import { Input } from "./ui/input";
+import { Button } from "./ui/button";
+import { useRouter } from "next/navigation";
 
 export type FileData = {
   original_filename: string;
@@ -25,6 +27,9 @@ export default function ProfilePage() {
   const [selectedFile, setSelectedFile] = useState("");
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+
+  const router = useRouter();
+
   const filesPerPage = 9;
 
   const { data, isLoading } = useQuery({
@@ -89,6 +94,18 @@ export default function ProfilePage() {
             className="max-w-[420px]"
           />
           {user && <AccountSettingDialog user={user} />}
+        </div>
+      )}
+
+      {data?.data.files.length === 0 && !selectedFile && (
+        <div className="flex flex-col justify-center items-center gap-3 mt-6">
+          <h2 className="text-2xl">
+            Upload your first eventlog or use sample eventlog
+          </h2>
+          <div className="flex gap-2">
+            <Button onClick={() => router.push("/process")}>Upload eventlog</Button>
+            <Button onClick={() => setSelectedFile("loan_process.xes")}>Use Sample</Button>
+          </div>
         </div>
       )}
 

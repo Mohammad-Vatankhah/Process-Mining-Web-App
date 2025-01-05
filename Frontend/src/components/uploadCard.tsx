@@ -1,4 +1,4 @@
-import React from "react";
+import React, { SetStateAction } from "react";
 import { Card } from "./ui/card";
 import { Upload } from "lucide-react";
 import { Input } from "./ui/input";
@@ -9,11 +9,13 @@ export default function UploadCard({
   selectedFile,
   handleFileUpload,
   uploading,
+  setFilename,
 }: {
   handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   selectedFile: File | null;
   handleFileUpload: () => void;
   uploading: boolean;
+  setFilename: React.Dispatch<SetStateAction<string>>;
 }) {
   return (
     <div className="container mx-auto py-16 px-4">
@@ -27,7 +29,7 @@ export default function UploadCard({
             </div>
             <Input
               type="file"
-              accept=".csv,.xes"
+              accept=".xes"
               onChange={handleFileChange}
               className="hidden"
             />
@@ -49,6 +51,8 @@ export default function UploadCard({
         >
           {uploading ? "Uploading..." : "Upload File"}
         </Button>
+        <p className="mt-2">Or use Sample file</p>
+        <Button className="mt-1" onClick={() => setFilename("loan_process.xes")}>Use sample</Button>
       </Card>
     </div>
   );

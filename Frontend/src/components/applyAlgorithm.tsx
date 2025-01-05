@@ -142,10 +142,12 @@ export default function ApplyAlgorithm({
       {fileName && (
         <div
           className={`grid grid-cols-1 justify-center items-start ${
-            fromHistory ? "md:flex" : "md:grid-cols-3"
+            fromHistory || !selectedFileName ? "md:flex" : "md:grid-cols-3"
           } gap-2 px-2 mt-3 md:px-6`}
         >
-          {!fromHistory && <SuccessUploadCard fileName={selectedFileName} />}
+          {!fromHistory && selectedFileName && (
+            <SuccessUploadCard fileName={selectedFileName} />
+          )}
           <ApplyAlgorithmCard
             handleAlgorithmApply={handleAlgorithmApply}
             selectedAlgorithm={selectedAlgorithm}

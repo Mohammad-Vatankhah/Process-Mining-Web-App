@@ -64,37 +64,36 @@ const PMapi = {
     return await axiosInstance.get(`/activities/end/${filename}`);
   },
 
-  filterStartActivities: async (
-    filename: string,
-    filter_set: string[],
-    algo: string
-  ) => {
-    return await axiosInstance.post(`/filter/activities/start/${filename}`, {
-      filter_set,
-      algo,
-    });
-  },
-
-  filterEndActivities: async (
-    filename: string,
-    filter_set: string[],
-    algo: string
-  ) => {
-    return await axiosInstance.post(`/filter/activities/end/${filename}`, {
-      filter_set,
-      algo,
-    });
-  },
-
   filterActivities: async (
     filename: string,
     filter_set: string[],
-    algo: string
+    algo: string,
+    filter: string
   ) => {
-    return await axiosInstance.post(`/filter/attributes/${filename}`, {
-      filter_set,
-      algo,
-    });
+    switch (filter) {
+      case "Start Activities":
+        return await axiosInstance.post(
+          `/filter/activities/start/${filename}`,
+          {
+            filter_set,
+            algo,
+          }
+        );
+
+      case "End Activities":
+        return await axiosInstance.post(`/filter/activities/end/${filename}`, {
+          filter_set,
+          algo,
+        });
+
+      case "Attributes":
+        return await axiosInstance.post(`/filter/attributes/${filename}`, {
+          filter_set,
+          algo,
+        });
+      default:
+        throw { msg: "Undefined filter" };
+    }
   },
 
   topProcesses: async (filename: string, n: number) => {
