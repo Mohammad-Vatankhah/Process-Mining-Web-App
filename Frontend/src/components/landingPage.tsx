@@ -18,18 +18,18 @@ export default function LandingPage() {
           <ParticlesBackground />
         </div>
         <h1 className="text-4xl lg:text-6xl font-bold text-center">
-          Optimize Your Business with Process Mining
+          Simplify Process Mining with Our Web-Based Tool
         </h1>
         <p className="text-lg lg:text-xl text-center mt-4">
-          Uncover inefficiencies, enhance workflows, and improve decision-making
-          with our powerful process mining tools.
+          Analyze event logs, visualize workflows, and optimize your business
+          processes with ease.
         </p>
         <Link href="/process" className="z-10">
           <Button
             variant="secondary"
             className="mt-8 px-8 py-6 text-lg font-semibold"
           >
-            Get Started
+            Explore Now
           </Button>
         </Link>
       </section>
@@ -37,23 +37,23 @@ export default function LandingPage() {
       <section className="py-16 bg-card">
         <div className="container mx-auto px-4">
           <h2 className="text-foreground text-3xl lg:text-4xl font-bold text-center">
-            Key Features
+            Key Capabilities
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10">
             <FeatureCard
-              title="Process Discovery"
-              description="Automatically discover business processes from event logs and visualize workflows."
-              icon="🔍"
+              title="Event Log Analysis"
+              description="Upload event logs in XES or CSV format to analyze business processes."
+              icon="📂"
+            />
+            <FeatureCard
+              title="Process Model Discovery"
+              description="Generate models using algorithms like Alpha Miner and Inductive Miner."
+              icon="📊"
             />
             <FeatureCard
               title="Conformance Checking"
-              description="Ensure your processes align with expectations and uncover deviations."
+              description="Compare discovered models with predefined ones to identify deviations."
               icon="✔️"
-            />
-            <FeatureCard
-              title="Performance Analysis"
-              description="Analyze process performance, find bottlenecks, and optimize your operations."
-              icon="⏱️"
             />
           </div>
         </div>
@@ -67,18 +67,18 @@ export default function LandingPage() {
           <div className="text-muted-foreground grid grid-cols-1 md:grid-cols-3 gap-8 mt-10">
             <StepCard
               step="1"
-              title="Upload Event Logs"
-              description="Easily upload event data and let our system analyze it."
+              title="Upload Your Data"
+              description="Use our intuitive interface to upload event logs."
             />
             <StepCard
               step="2"
-              title="Process Discovery"
-              description="Automatically uncover hidden workflows within your business."
+              title="Discover Processes"
+              description="Automatically uncover workflows using advanced algorithms."
             />
             <StepCard
               step="3"
-              title="Analyze & Optimize"
-              description="Use the insights to improve and streamline your business operations."
+              title="Analyze Results"
+              description="Visualize and refine your processes to improve efficiency."
             />
           </div>
         </div>
@@ -87,20 +87,20 @@ export default function LandingPage() {
       <section className="py-16 bg-primary">
         <div className="container mx-auto px-4 text-primary-foreground">
           <h2 className="text-3xl lg:text-4xl font-bold text-center">
-            What Our Users Say
+            User Testimonials
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-10">
             <Testimonial
-              name="John Doe"
-              review="This tool has transformed the way we analyze and optimize our business processes!"
+              name="Sara Ahmed"
+              review="Using this tool, we discovered inefficiencies we never knew existed!"
             />
             <Testimonial
-              name="Jane Smith"
-              review="The performance analysis feature is a game-changer for identifying bottlenecks."
+              name="David Lee"
+              review="The conformance checking feature helped us align processes with regulations."
             />
             <Testimonial
-              name="Alex Johnson"
-              review="Highly recommend this app for any business looking to improve efficiency."
+              name="Emily Chen"
+              review="A must-have for businesses aiming to optimize operations."
             />
           </div>
         </div>
@@ -108,18 +108,7 @@ export default function LandingPage() {
 
       <footer className="bg-secondary py-8 text-secondary-foreground">
         <div className="container mx-auto px-4 text-center">
-          <p>&copy; 2024 Process Mining App. All Rights Reserved.</p>
-          <div className="mt-4">
-            <a href="/terms" className="hover:underline mx-2">
-              Terms of Service
-            </a>
-            <a href="/privacy" className="hover:underline mx-2">
-              Privacy Policy
-            </a>
-            <a href="/contact" className="hover:underline mx-2">
-              Contact Us
-            </a>
-          </div>
+          <p>&copy; 2025 Process Mining App. All Rights Reserved.</p>
         </div>
       </footer>
     </div>

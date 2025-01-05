@@ -55,7 +55,7 @@ export default function ProfilePage() {
   useEffect(() => {
     const fetchUser = async (accessToken: string) => {
       try {
-        const res = await api.getUser(jwtDecode(accessToken).sub);
+        const res = await api.getUser(parseInt(jwtDecode(accessToken).sub!));
         setUser(res.data);
       } catch (error) {
         console.log(error);
@@ -103,8 +103,12 @@ export default function ProfilePage() {
             Upload your first eventlog or use sample eventlog
           </h2>
           <div className="flex gap-2">
-            <Button onClick={() => router.push("/process")}>Upload eventlog</Button>
-            <Button onClick={() => setSelectedFile("loan_process.xes")}>Use Sample</Button>
+            <Button onClick={() => router.push("/process")}>
+              Upload eventlog
+            </Button>
+            <Button onClick={() => setSelectedFile("loan_process.xes")}>
+              Use Sample
+            </Button>
           </div>
         </div>
       )}

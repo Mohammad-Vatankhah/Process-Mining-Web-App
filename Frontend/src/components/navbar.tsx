@@ -16,8 +16,6 @@ export default function Navbar() {
   const navLinks = [
     { title: "Home", url: "/" },
     { title: "Process", url: "/process" },
-    { title: "About", url: "/about" },
-    { title: "Contact", url: "/contact" },
   ];
 
   const toggleModal = () => {

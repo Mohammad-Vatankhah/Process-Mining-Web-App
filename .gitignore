@@ -18,7 +18,8 @@ Backend/.venv/
 Backend/instance/
 Backend/*.db
 Backend/*.sqlite3
-Backend/uploads
+Backend/uploads/*
+!Backend/uploads/loan_process.xes
 
 # Logs and cache
 Backend/*.log
