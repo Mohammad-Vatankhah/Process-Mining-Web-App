@@ -4,12 +4,13 @@ from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from flask_mail import Mail
 import os
+from dotenv import load_dotenv
 
 db = SQLAlchemy()
 jwt = JWTManager()
 mail = Mail()
 
-
+load_dotenv() 
 def create_app():
     app = Flask(__name__)
     CORS(app)

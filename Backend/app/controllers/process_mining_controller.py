@@ -15,7 +15,8 @@ from app.services.process_mining_service import (alpha_miner_discovery_service,
                                                  attributes_filtering,
                                                  get_top_stats,
                                                  conformance_checking,
-                                                 discover_bpmn
+                                                 discover_bpmn,
+                                                 getLogSummery
                                                  )
 import os
 import uuid
@@ -695,4 +696,9 @@ def get_bpmn(filename):
         return jsonify({'msg': 'File not found'}), 404
 
     response = discover_bpmn(file_path)
+    return response
+
+@process_mining_bp.route('/summery')
+def get_summery():
+    response =  getLogSummery()
     return response

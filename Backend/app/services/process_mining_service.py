@@ -14,6 +14,7 @@ import pandas as pd
 from flask import jsonify
 import json
 from flask import send_file
+from collections import OrderedDict
 
 
 def encode_image_to_base64(gviz):
@@ -391,3 +392,44 @@ def discover_bpmn(file_path):
         return jsonify({'nodes': nodes, 'edges': links})
     except Exception as e:
         return jsonify({"error": str(e)})
+    
+
+def getLogSummery(file_path):
+    try:
+        event_log = pm4py.read_xes(file_path)
+
+        result = pm4py.split_by_process_variant(event_log)
+        lst = []
+        lst.extend(result)
+        dataframe_list = []
+        # print(type(lst))
+        for key, value in lst:
+            dataframe_list.append(value)
+
+        result_dict ={}
+        for i in range(len(dataframe_list)):
+            
+            each_case = dataframe_list[i]['case:concept:name'].unique()
+            for j in each_case:
+                dict_value = []
+                dict_value.append({"variant path": dataframe_list[i].iloc[0]['@@variant_column']})
+                dict_value.append({"variant count": len(dataframe_list[i].iloc[0]['@@variant_column'])})
+                duration = pm4py.get_case_duration(event_log,j,activity_key='concept:name',case_id_key='case:concept:name',timestamp_key='time:timestamp',business_hours=False)
+
+                days = int(duration // 86400)  
+                remaining_seconds = duration % 86400  
+                hours = int(remaining_seconds // 3600)  
+                minutes = int((remaining_seconds % 3600) // 60)  
+
+                dict_value.append({"Duration": f"{days} day(s), {hours} hour(s), {minutes} minute(s)"})
+
+                result_dict[str(j)] = dict_value
+
+        activities = pm4py.get_event_attribute_values(event_log,'concept:name',case_id_key='case:concept:name')
+
+        d1 = OrderedDict(sorted(result_dict.items()))
+        return jsonify({"Case summery": d1, "Variant Frequency":activities})
+    except Exception as e:
+        return jsonify({"error": str(e)})
+
+    
