@@ -104,6 +104,7 @@ export default function ApplyAlgorithm({
       }
       toast.success("Applied successfully!");
     } catch (error) {
+      console.error(error);
       toast.error("Failed to apply algorithm.");
     } finally {
       setLoading(false);

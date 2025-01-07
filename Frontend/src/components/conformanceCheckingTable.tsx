@@ -39,7 +39,7 @@ export default function ConformanceCheckingTable({
         <TableBody>
           <TableRow>
             <TableCell>{traceID}</TableCell>
-            <TableCell>{Number(currentTrace.fitness).toFixed(3)}</TableCell>
+            <TableCell>{Number(currentTrace.fitness * 100).toFixed(2)}%</TableCell>
             <TableCell>
               {alignment.map((pair, index) => (
                 <div

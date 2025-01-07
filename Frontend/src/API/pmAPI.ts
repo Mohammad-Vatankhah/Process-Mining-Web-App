@@ -120,5 +120,9 @@ const PMapi = {
   bpmn: async (filename: string) => {
     return await axiosInstance.get(`/discover/bpmn/${filename}`);
   },
+
+  getSummary: async (filename: string) => {
+    return await axiosInstance.get(`/summary/${filename}`);
+  },
 };
 export default PMapi;

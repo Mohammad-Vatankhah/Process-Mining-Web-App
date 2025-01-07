@@ -62,7 +62,7 @@ export interface Footprint {
   footprint: string;
 }
 
-export type AlignmentData = {
+export interface AlignmentData {
   alignment: [string, string][]; // An array of tuples with string and optional null values
   bwc: number; // Best Worst Case cost
   cost: number; // Alignment cost
@@ -71,4 +71,11 @@ export type AlignmentData = {
   queued_states: number; // Number of states queued
   traversed_arcs: number; // Number of arcs traversed
   visited_states: number; // Number of states visited
-};
+}
+
+export interface Trace {
+  duration: { days: number; hours: number; minutes: number; seconds: number };
+  id: string;
+  variant_count: number;
+  variant_path: string[];
+}

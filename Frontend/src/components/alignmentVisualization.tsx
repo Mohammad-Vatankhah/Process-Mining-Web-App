@@ -263,7 +263,7 @@ const AlignmentGraph = ({
             style: simpleEdgeStyle,
           },
         ]}
-        style={{ width: "100%", height: "250px", backgroundColor: "white" }}
+        style={{ width: "100%", height: "500px", backgroundColor: "white" }}
         cy={(cy) => (cyRef.current = cy)}
       />
       <ConformanceCheckingTable
