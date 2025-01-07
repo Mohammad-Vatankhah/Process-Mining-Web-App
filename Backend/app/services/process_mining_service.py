@@ -351,7 +351,7 @@ def conformance_checking(model_log_file_path, test_log_file_path):
     model = pm4py.read_xes(model_log_file_path)
     log = pm4py.read_xes(test_log_file_path)
     try:
-        net, im, fm = pm4py.discover_petri_net_alpha(
+        net, im, fm = pm4py.discover_petri_net_ilp(
             model, activity_key='concept:name', case_id_key='case:concept:name', timestamp_key='time:timestamp')
 
         alignments_diagnostics = pm4py.conformance_diagnostics_alignments(log, net, im, fm, activity_key='concept:name',
@@ -360,6 +360,17 @@ def conformance_checking(model_log_file_path, test_log_file_path):
                                                                           return_diagnostics_dataframe=False)
         merged_dict = {i: item for i,
                        item in enumerate(alignments_diagnostics)}
+        
+
+        for key, item in merged_dict.items():
+            temp = merged_dict[key].get('alignment')
+            if temp[0][1] == None:
+                temp[0] = ('>>',">>")
+            if temp[-1][1] == None:
+                temp[-1] = ('>>',">>")
+            merged_dict[key]['alignment'] = temp
+
+            
         return jsonify(merged_dict)
     except Exception as e:
         return jsonify({"error": str(e)})
