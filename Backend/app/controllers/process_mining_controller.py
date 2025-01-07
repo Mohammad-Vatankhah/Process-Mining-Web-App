@@ -16,7 +16,7 @@ from app.services.process_mining_service import (alpha_miner_discovery_service,
                                                  get_top_stats,
                                                  conformance_checking,
                                                  discover_bpmn,
-                                                 getLogSummery
+                                                 getLogSummary
                                                  )
 import os
 import uuid
@@ -313,6 +313,7 @@ def performance_analysis(filename):
 
     response = performance_analysis_service(file_path)
     return response
+
 
 @process_mining_bp.route('/discover/footprint/<filename>')
 @swag_from({
@@ -698,7 +699,11 @@ def get_bpmn(filename):
     response = discover_bpmn(file_path)
     return response
 
-@process_mining_bp.route('/summery')
-def get_summery():
-    response =  getLogSummery()
+
+@process_mining_bp.route('/summary/<filename>')
+def get_summary(filename):
+    file_path = get_file_path(filename)
+    if file_path is None:
+        return jsonify({'msg': 'File not found'}), 404
+    response = getLogSummary(file_path)
     return response

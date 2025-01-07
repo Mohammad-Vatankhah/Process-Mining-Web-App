@@ -10,7 +10,7 @@ import cytoscape from "cytoscape";
 import dagre from "cytoscape-dagre";
 import { Card, CardContent, CardHeader, CardFooter } from "./ui/card";
 import { Button } from "./ui/button";
-import { PetriNet, Result } from "@/types/types";
+import { AlgorithmResult, PetriNet } from "@/types/types";
 import { FaInfoCircle } from "react-icons/fa";
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from "./ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
@@ -39,7 +39,7 @@ cytoscape.use(dagre);
 const PetriNetGraph: React.FC<{
   petrinet: PetriNet;
   algorithm: string;
-  setResult: Dispatch<SetStateAction<Result>>;
+  setResult: Dispatch<SetStateAction<AlgorithmResult>>;
   filename: string;
 }> = ({ petrinet, algorithm, setResult, filename }) => {
   const cyRef = useRef<cytoscape.Core | null>(null);
@@ -56,7 +56,7 @@ const PetriNetGraph: React.FC<{
     nodeId: null,
   });
   const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
-  const [loading, setLoading] = useState("none");
+  const [loading, setLoading] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState("Attributes");
 
   const filters = ["Start Activities", "End Activities", "Attributes"];
@@ -197,7 +197,7 @@ const PetriNetGraph: React.FC<{
       return;
     }
     try {
-      setLoading(algorithm);
+      setLoading(true);
       const res = await PMapi.filterActivities(
         filename,
         selectedNodes,
@@ -209,13 +209,13 @@ const PetriNetGraph: React.FC<{
         return;
       }
       if (algorithm === "Alpha Miner") {
-        setResult((prev) => ({ ...prev, alphaMiner: res.data }));
+        setResult({ type: "alphaMiner", data: res.data });
       } else if (algorithm === "Heuristic Miner") {
-        setResult((prev) => ({ ...prev, heuristicMiner: res.data }));
+        setResult({ type: "heuristicMiner", data: res.data });
       } else if (algorithm === "Inductive Miner") {
-        setResult((prev) => ({ ...prev, inductiveMiner: res.data }));
+        setResult({ type: "inductiveMiner", data: res.data });
       } else if (algorithm === "ILP Miner") {
-        setResult((prev) => ({ ...prev, ilpMiner: res.data }));
+        setResult({ type: "ilpMiner", data: res.data });
       }
     } catch (err) {
       if (err instanceof AxiosError) {
@@ -224,25 +224,26 @@ const PetriNetGraph: React.FC<{
         toast.error("An unexpected error occurred!");
       }
     } finally {
-      setLoading("none");
+      setLoading(false);
     }
   };
 
   const handleResetFilter = async () => {
     try {
-      setLoading(algorithm);
+      setLoading(true);
+
       if (algorithm === "Alpha Miner") {
         const res = await PMapi.alphaMiner(filename);
-        setResult((prev) => ({ ...prev, alphaMiner: res.data }));
+        setResult({ type: "alphaMiner", data: res.data });
       } else if (algorithm === "Heuristic Miner") {
         const res = await PMapi.heuristicMiner(filename);
-        setResult((prev) => ({ ...prev, heuristicMiner: res.data }));
+        setResult({ type: "heuristicMiner", data: res.data });
       } else if (algorithm === "Inductive Miner") {
         const res = await PMapi.inductiveMiner(filename);
-        setResult((prev) => ({ ...prev, inductiveMiner: res.data }));
+        setResult({ type: "inductiveMiner", data: res.data });
       } else if (algorithm === "ILP Miner") {
         const res = await PMapi.ilpMiner(filename);
-        setResult((prev) => ({ ...prev, ilpMiner: res.data }));
+        setResult({ type: "ilpMiner", data: res.data });
       }
       setSelectedNodes([]);
     } catch (err) {
@@ -252,7 +253,7 @@ const PetriNetGraph: React.FC<{
         toast.error("An unexpected error occurred!");
       }
     } finally {
-      setLoading("none");
+      setLoading(false);
     }
   };
 
@@ -328,16 +329,14 @@ const PetriNetGraph: React.FC<{
         </div>
       </CardHeader>
       <CardContent>
-        {loading === algorithm && (
+        {loading && (
           <div className="z-10 bg-gray-400 h-[500px] w-full flex justify-center items-center text-white">
             <p>Loading...</p>
           </div>
         )}
         <div
           ref={containerRef}
-          className={`relative h-[500px] w-full ${
-            loading === algorithm && "hidden"
-          }`}
+          className={`relative h-[500px] w-full ${loading && "hidden"}`}
           onContextMenu={(e) => e.preventDefault()}
         >
           <CytoscapeComponent

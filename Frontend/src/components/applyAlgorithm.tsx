@@ -1,15 +1,15 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import SuccessUploadCard from "./successUploadCard";
-import ApplyAlgorithmCard from "./applyAlgorithmCard";
-import DfgResult from "./dfgReslut/dfgResult";
-import toast from "react-hot-toast";
 import PMapi from "@/API/pmAPI";
-import PetriNetGraph from "./petrinetGraph";
-import FootprintTable from "./footprintResult";
-import { Result } from "@/types/types";
+import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
+import ApplyAlgorithmCard from "./applyAlgorithmCard";
 import BpmnGraph from "./bpmnGraph";
+import DfgResult from "./dfgReslut/dfgResult";
+import FootprintTable from "./footprintResult";
+import PetriNetGraph from "./petrinetGraph";
+import SuccessUploadCard from "./successUploadCard";
+import { AlgorithmResult } from "@/types/types";
 
 export default function ApplyAlgorithm({
   selectedFileName,
@@ -20,30 +20,10 @@ export default function ApplyAlgorithm({
   fileName: string | undefined;
   fromHistory: boolean;
 }) {
-  const [result, setResult] = useState<Result>({
-    alphaMiner: null,
-    heuristicMiner: null,
-    inductiveMiner: null,
-    ilpMiner: null,
-    bpmn: null,
-    dfg: null,
-    footprint: null,
-  });
-
-  const [appliedAlgorithms, setAppliedAlgorithms] = useState({
-    alphaMiner: false,
-    heuristicMiner: false,
-    inductiveMiner: false,
-    ilpMiner: false,
-    bpmn: false,
-    dfg: false,
-    footprint: false,
-  });
-
+  const [result, setResult] = useState<AlgorithmResult | null>(null);
   const [selectedAlgorithm, setSelectedAlgorithm] = useState<string | null>(
     null
   );
-
   const [loading, setLoading] = useState(false);
 
   const handleAlgorithmApply = async () => {
@@ -55,87 +35,56 @@ export default function ApplyAlgorithm({
     setLoading(true);
 
     try {
+      let newResult: AlgorithmResult | null = null;
       switch (selectedAlgorithm) {
         case "alpha":
           const alphaMinerRes = await PMapi.alphaMiner(fileName!);
-          setResult((prev) => ({ ...prev, alphaMiner: alphaMinerRes.data }));
-          setAppliedAlgorithms((prev) => ({ ...prev, alphaMiner: true }));
+          newResult = { type: "alphaMiner", data: alphaMinerRes.data };
           break;
-
         case "heuristic":
-          const hueristicRes = await PMapi.heuristicMiner(fileName!);
-          setResult((prev) => ({ ...prev, heuristicMiner: hueristicRes.data }));
-          setAppliedAlgorithms((prev) => ({ ...prev, heuristicMiner: true }));
+          const heuristicRes = await PMapi.heuristicMiner(fileName!);
+          newResult = { type: "heuristicMiner", data: heuristicRes.data };
           break;
-
         case "inductive":
           const inductiveRes = await PMapi.inductiveMiner(fileName!);
-          setResult((prev) => ({ ...prev, inductiveMiner: inductiveRes.data }));
-          setAppliedAlgorithms((prev) => ({ ...prev, inductiveMiner: true }));
+          newResult = { type: "inductiveMiner", data: inductiveRes.data };
           break;
-
         case "ilp":
           const ilpRes = await PMapi.ilpMiner(fileName!);
-          setResult((prev) => ({ ...prev, ilpMiner: ilpRes.data }));
-          setAppliedAlgorithms((prev) => ({ ...prev, ilpMiner: true }));
+          newResult = { type: "ilpMiner", data: ilpRes.data };
           break;
-
         case "dfg":
           const dfgRes = await PMapi.dfg(fileName!);
-          setResult((prev) => ({ ...prev, dfg: dfgRes.data.dfg }));
-          setAppliedAlgorithms((prev) => ({ ...prev, dfg: true }));
+          newResult = { type: "dfg", data: dfgRes.data.dfg };
           break;
-
         case "footprint":
           const footprintRes = await PMapi.footprint(fileName!);
-          setResult((prev) => ({ ...prev, footprint: footprintRes.data }));
-          setAppliedAlgorithms((prev) => ({ ...prev, footprint: true }));
+          newResult = { type: "footprint", data: footprintRes.data };
           break;
-
         case "bpmn":
           const bpmnRes = await PMapi.bpmn(fileName!);
-          setResult((prev) => ({ ...prev, bpmn: bpmnRes.data }));
-          setAppliedAlgorithms((prev) => ({ ...prev, bpmn: true }));
+          newResult = { type: "bpmn", data: bpmnRes.data };
           break;
-
         default:
           toast.error("Unknown algorithm selected.");
           break;
       }
-      toast.success("Applied successfully!");
+
+      if (newResult) {
+        setResult(newResult);
+        toast.success("Algorithm applied successfully!");
+      }
     } catch (error) {
       console.error(error);
-      toast.error("Failed to apply algorithm.");
+      toast.error("Failed to apply the algorithm.");
     } finally {
       setLoading(false);
-      setSelectedAlgorithm("");
+      setSelectedAlgorithm(null);
     }
   };
 
-  const resetResult = () => {
-    setResult({
-      alphaMiner: null,
-      heuristicMiner: null,
-      inductiveMiner: null,
-      ilpMiner: null,
-      bpmn: null,
-      dfg: null,
-      footprint: null,
-    });
-
-    setAppliedAlgorithms({
-      alphaMiner: false,
-      heuristicMiner: false,
-      inductiveMiner: false,
-      ilpMiner: false,
-      bpmn: false,
-      dfg: false,
-      footprint: false,
-    });
-  };
-
   useEffect(() => {
-    resetResult();
+    setResult(null); // Clear the result when the fileName changes
   }, [fileName]);
 
   return (
@@ -154,48 +103,49 @@ export default function ApplyAlgorithm({
             selectedAlgorithm={selectedAlgorithm}
             setSelectedAlgorithm={setSelectedAlgorithm}
             loading={loading}
-            appliedAlgorithms={appliedAlgorithms}
             selectedFileName={fileName}
           />
         </div>
       )}
 
       <div className="flex flex-col justify-center items-center gap-6 px-5 my-4">
-        {result.alphaMiner && (
+        {result?.type === "alphaMiner" && (
           <PetriNetGraph
-            petrinet={result.alphaMiner}
+            petrinet={result.data}
             algorithm="Alpha Miner"
             setResult={setResult}
             filename={fileName!}
           />
         )}
-        {result.heuristicMiner && (
+        {result?.type === "heuristicMiner" && (
           <PetriNetGraph
-            petrinet={result.heuristicMiner}
+            petrinet={result.data}
             algorithm="Heuristic Miner"
             setResult={setResult}
             filename={fileName!}
           />
         )}
-        {result.inductiveMiner && (
+        {result?.type === "inductiveMiner" && (
           <PetriNetGraph
-            petrinet={result.inductiveMiner}
+            petrinet={result.data}
             algorithm="Inductive Miner"
             setResult={setResult}
             filename={fileName!}
           />
         )}
-        {result.ilpMiner && (
+        {result?.type === "ilpMiner" && (
           <PetriNetGraph
-            petrinet={result.ilpMiner}
+            petrinet={result.data}
             algorithm="ILP Miner"
             setResult={setResult}
             filename={fileName!}
           />
         )}
-        {result.bpmn && <BpmnGraph graphData={result.bpmn} />}
-        {result.dfg && <DfgResult result={result.dfg} />}
-        {result.footprint && <FootprintTable result={result.footprint} />}
+        {result?.type === "bpmn" && <BpmnGraph graphData={result.data} />}
+        {result?.type === "dfg" && <DfgResult result={result.data} />}
+        {result?.type === "footprint" && (
+          <FootprintTable result={result.data} />
+        )}
       </div>
     </>
   );

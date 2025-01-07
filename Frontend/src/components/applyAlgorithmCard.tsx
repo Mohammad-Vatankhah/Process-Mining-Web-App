@@ -17,51 +17,36 @@ export default function ApplyAlgorithmCard({
   loading,
   setSelectedAlgorithm,
   handleAlgorithmApply,
-  appliedAlgorithms,
   selectedFileName,
 }: {
   selectedAlgorithm: string | null;
   loading: boolean;
   setSelectedAlgorithm: (value: string) => void;
   handleAlgorithmApply: () => void;
-  appliedAlgorithms: {
-    alphaMiner: boolean;
-    heuristicMiner: boolean;
-    inductiveMiner: boolean;
-    ilpMiner: boolean;
-    bpmn: boolean;
-    dfg: boolean;
-    footprint: boolean;
-  };
   selectedFileName: string | undefined;
 }) {
   const algorithms = [
-    { id: "alpha", name: "Alpha Miner", applied: appliedAlgorithms.alphaMiner },
+    { id: "alpha", name: "Alpha Miner" },
     {
       id: "heuristic",
       name: "Heuristic Miner",
-      applied: appliedAlgorithms.heuristicMiner,
     },
     {
       id: "inductive",
       name: "Inductive Miner",
-      applied: appliedAlgorithms.inductiveMiner,
     },
     {
       id: "ilp",
       name: "ILP Miner",
-      applied: appliedAlgorithms.ilpMiner,
     },
-    { id: "bpmn", name: "BPMN", applied: appliedAlgorithms.bpmn },
+    { id: "bpmn", name: "BPMN" },
     {
       id: "dfg",
       name: "Directly Follows Graph (DFG)",
-      applied: appliedAlgorithms.dfg,
     },
     {
       id: "footprint",
       name: "Footprint",
-      applied: appliedAlgorithms.footprint,
     },
   ];
 
@@ -81,14 +66,8 @@ export default function ApplyAlgorithmCard({
             </SelectTrigger>
             <SelectContent>
               {algorithms.map((algorithm) => (
-                <SelectItem
-                  key={algorithm.id}
-                  value={algorithm.id}
-                  disabled={algorithm.applied}
-                >
+                <SelectItem key={algorithm.id} value={algorithm.id}>
                   {algorithm.name}
-                  {algorithm.applied && " (Applied)"}
-                  {/* Display applied label */}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -104,13 +83,7 @@ export default function ApplyAlgorithmCard({
         <Button
           onClick={handleAlgorithmApply}
           className="mt-6 w-full"
-          disabled={
-            !selectedAlgorithm ||
-            loading ||
-            appliedAlgorithms[
-              selectedAlgorithm as keyof typeof appliedAlgorithms
-            ]
-          }
+          disabled={loading}
         >
           {loading ? "Applying..." : "Apply Algorithm"}
         </Button>

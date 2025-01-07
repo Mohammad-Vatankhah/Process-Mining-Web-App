@@ -5,12 +5,15 @@ from flask_cors import CORS
 from flask_mail import Mail
 import os
 from dotenv import load_dotenv
+from flasgger import Swagger
 
 db = SQLAlchemy()
 jwt = JWTManager()
 mail = Mail()
 
-load_dotenv() 
+load_dotenv()
+
+
 def create_app():
     app = Flask(__name__)
     CORS(app)
@@ -18,7 +21,8 @@ def create_app():
     app.config['SECRET_KEY'] = os.getenv("FLASL_SECRET_KEY")
     app.config['JWT_SECRET_KEY'] = os.getenv("FLASK_JWT_SECRET_KEY")
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = False
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("FLASK_SQLALCHEMY_DATABASE_URI")
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
+        "FLASK_SQLALCHEMY_DATABASE_URI")
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['MAIL_SERVER'] = 'smtp.gmail.com'
     app.config['MAIL_PORT'] = 587
@@ -31,6 +35,12 @@ def create_app():
     db.init_app(app)
     jwt.init_app(app)
     mail.init_app(app)
+
+    app.config['SWAGGER'] = {
+        'title': 'Process Mining API',
+        'uiversion': 3
+    }
+    Swagger(app)
 
     # Import and register blueprints after initializing db
     from app.controllers.user_controller import user_bp

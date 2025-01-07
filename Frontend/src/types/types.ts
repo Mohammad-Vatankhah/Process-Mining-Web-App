@@ -48,15 +48,15 @@ export type BPMN = {
   nodes: BPMNNode[];
 };
 
-export interface Result {
-  alphaMiner: PetriNet | null;
-  heuristicMiner: PetriNet | null;
-  inductiveMiner: PetriNet | null;
-  ilpMiner: PetriNet | null;
-  bpmn: BPMN | null;
-  dfg: Record<string, number> | null;
-  footprint: Footprint | null;
-}
+export type AlgorithmResult =
+  | { type: "alphaMiner"; data: PetriNet }
+  | { type: "heuristicMiner"; data: PetriNet }
+  | { type: "inductiveMiner"; data: PetriNet }
+  | { type: "ilpMiner"; data: PetriNet }
+  | { type: "bpmn"; data: BPMN }
+  | { type: "dfg"; data: Record<string, number> }
+  | { type: "footprint"; data: Footprint }
+  | null;
 
 export interface Footprint {
   footprint: string;

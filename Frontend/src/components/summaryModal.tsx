@@ -43,7 +43,6 @@ export default function SummaryModal({ filename }: { filename: string }) {
   const selectedTraceData = case_summary.find(
     (trace: Trace) => trace.id === selectedTrace
   );
-  console.log(case_summary);
 
   return (
     <Dialog>
@@ -110,7 +109,7 @@ export default function SummaryModal({ filename }: { filename: string }) {
             <hr />
 
             {/* Two-Column Layout */}
-            <div className="grid grid-cols-3 gap-4 h-[calc(100vh-20rem)] my-4">
+            <div className="grid grid-cols-3 gap-4 h-[290px] my-4">
               {/* Trace List (Scrollable) */}
               <div>
                 <h2 className="text-xl font-bold">Traces</h2>
@@ -138,7 +137,7 @@ export default function SummaryModal({ filename }: { filename: string }) {
               {/* Trace Details */}
               <div className="pl-4 col-span-2">
                 {selectedTraceData ? (
-                  <div className="p-4 border rounded h-full flex flex-col justify-between">
+                  <div className="p-4 border rounded flex flex-col gap-3">
                     <h2 className="text-xl font-extrabold mb-2">
                       {selectedTraceData.id}
                     </h2>

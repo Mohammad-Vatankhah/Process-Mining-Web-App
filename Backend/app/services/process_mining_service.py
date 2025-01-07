@@ -392,44 +392,96 @@ def discover_bpmn(file_path):
         return jsonify({'nodes': nodes, 'edges': links})
     except Exception as e:
         return jsonify({"error": str(e)})
-    
 
-def getLogSummery(file_path):
+
+def getLogSummary(file_path):
     try:
         event_log = pm4py.read_xes(file_path)
 
+        # Split event log by process variant
         result = pm4py.split_by_process_variant(event_log)
-        lst = []
-        lst.extend(result)
-        dataframe_list = []
-        # print(type(lst))
-        for key, value in lst:
-            dataframe_list.append(value)
+        dataframe_list = [value for _, value in result]
 
-        result_dict ={}
-        for i in range(len(dataframe_list)):
-            
-            each_case = dataframe_list[i]['case:concept:name'].unique()
-            for j in each_case:
-                dict_value = []
-                dict_value.append({"variant path": dataframe_list[i].iloc[0]['@@variant_column']})
-                dict_value.append({"variant count": len(dataframe_list[i].iloc[0]['@@variant_column'])})
-                duration = pm4py.get_case_duration(event_log,j,activity_key='concept:name',case_id_key='case:concept:name',timestamp_key='time:timestamp',business_hours=False)
+        # Prepare case summary as an array
+        case_summary = []
+        for dataframe in dataframe_list:
+            each_case = dataframe['case:concept:name'].unique()
+            for case_id in each_case:
+                # Extract variant path
+                variant_path = dataframe.iloc[0]['@@variant_column']
 
-                days = int(duration // 86400)  
-                remaining_seconds = duration % 86400  
-                hours = int(remaining_seconds // 3600)  
-                minutes = int((remaining_seconds % 3600) // 60)  
+                # Calculate variant count
+                variant_count = len(variant_path)
 
-                dict_value.append({"Duration": f"{days} day(s), {hours} hour(s), {minutes} minute(s)"})
+                # Get case duration
+                duration = pm4py.get_case_duration(
+                    event_log, case_id,
+                    activity_key='concept:name',
+                    case_id_key='case:concept:name',
+                    timestamp_key='time:timestamp',
+                    business_hours=False
+                )
+                days = int(duration // 86400)
+                remaining_seconds = duration % 86400
+                hours = int(remaining_seconds // 3600)
+                minutes = int((remaining_seconds % 3600) // 60)
+                seconds = int(remaining_seconds % 60)
 
-                result_dict[str(j)] = dict_value
+                # Add case summary to array
+                case_summary.append({
+                    "id": str(case_id),
+                    "variant_path": variant_path,
+                    "variant_count": variant_count,
+                    "duration": {
+                        "days": days,
+                        "hours": hours,
+                        "minutes": minutes,
+                        "seconds": seconds
+                    }
+                })
 
-        activities = pm4py.get_event_attribute_values(event_log,'concept:name',case_id_key='case:concept:name')
+        # Get variant frequencies
+        activities = pm4py.get_event_attribute_values(
+            event_log, 'concept:name', case_id_key='case:concept:name'
+        )
 
-        d1 = OrderedDict(sorted(result_dict.items()))
-        return jsonify({"Case summery": d1, "Variant Frequency":activities})
+        # Calculate total and average durations
+        total_duration = 0
+        total_cases = 0
+        for case_id in event_log['case:concept:name'].unique():
+            total_duration += pm4py.get_case_duration(
+                event_log, case_id,
+                activity_key='concept:name',
+                case_id_key='case:concept:name',
+                timestamp_key='time:timestamp'
+            )
+            total_cases += 1
+
+        average_duration = total_duration / total_cases if total_cases > 0 else 0
+
+        def format_duration(duration):
+            days = int(duration // 86400)
+            remaining_seconds = duration % 86400
+            hours = int(remaining_seconds // 3600)
+            minutes = int((remaining_seconds % 3600) // 60)
+            seconds = int(remaining_seconds % 60)
+            return f"{days} days, {hours} hours, {minutes} minutes, {seconds} seconds"
+
+        total_duration_human = format_duration(total_duration)
+        average_duration_human = format_duration(average_duration)
+
+        # Get start and end activities
+        start_activities = pm4py.get_start_activities(event_log)
+        end_activities = pm4py.get_end_activities(event_log)
+
+        return jsonify({
+            "case_summary": case_summary,
+            "variant_frequency": activities,
+            "total_duration_human": total_duration_human,
+            "average_duration_human": average_duration_human,
+            "total_cases": total_cases,
+            "start_activities": start_activities,
+            "end_activities": end_activities
+        })
     except Exception as e:
         return jsonify({"error": str(e)})
-
-    
