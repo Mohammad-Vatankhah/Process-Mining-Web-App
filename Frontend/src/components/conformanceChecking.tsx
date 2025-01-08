@@ -24,18 +24,26 @@ export default function ConformanceChecking({
   const [loading, setLoading] = useState(false);
   const [conformanceResult, setConformanceResult] = useState({});
   const [modelGraph, setModelGraph] = useState();
+  const [sampleLoading, setSampleLoading] = useState(false);
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSelectedFile(e.target.files?.[0] || null);
   };
 
-  const handleUpload = async () => {
-    if (!selectedFile) {
+  const handleUpload = async (sampleFilename: string | undefined) => {
+    if (!selectedFile && !sampleFilename) {
       toast.error("Please upload a file first");
       return;
     }
     try {
-      setLoading(true);
-      const res = await PMapi.conformanceChecking(filename, selectedFile);
+      if (sampleFilename) setSampleLoading(true);
+      else setLoading(true);
+
+      const res = await PMapi.conformanceChecking(
+        filename,
+        selectedFile!,
+        sampleFilename
+      );
       setConformanceResult(res.data);
       const ilpResult = await PMapi.ilpMiner(filename);
       setModelGraph(ilpResult.data);
@@ -43,6 +51,7 @@ export default function ConformanceChecking({
       toast.error("An unxpected error occurred!");
     } finally {
       setLoading(false);
+      setSampleLoading(false);
     }
   };
 
@@ -62,7 +71,7 @@ export default function ConformanceChecking({
           <DialogTitle>Conformance Checking</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col items-center justify-center">
-          <label className="w-full cursor-pointer flex items-center justify-center p-6 bg-gray-100 border border-dashed border-primary rounded-lg hover:bg-gray-200 transition-colors">
+          <label className="w-1/2 cursor-pointer flex items-center justify-center p-6 bg-gray-100 border border-dashed border-primary rounded-lg hover:bg-gray-200 transition-colors">
             <div className="text-center flex flex-col justify-center items-center">
               <Upload className="h-10 w-10 text-gray-500" />
               <p className="mt-2 text-gray-700">Click to select your file</p>
@@ -78,9 +87,23 @@ export default function ConformanceChecking({
         {selectedFile && (
           <p className="">{`Selected File: ${selectedFile.name}`}</p>
         )}
-        <Button onClick={handleUpload} disabled={loading}>
-          {loading ? "Uploading..." : "Upload"}
-        </Button>
+        <div className="flex flex-col w-1/2 self-center gap-3">
+          <Button
+            onClick={() => handleUpload(undefined)}
+            disabled={loading || sampleLoading}
+          >
+            {loading ? "Uploading..." : "Upload"}
+          </Button>
+          <div className="w-full flex flex-col">
+            <p>Or use Sample file</p>
+            <Button
+              onClick={() => handleUpload("loan_process_with_unfit_traces.xes")}
+              disabled={loading || sampleLoading}
+            >
+              {sampleLoading ? "Working on it..." : "Use sample"}
+            </Button>
+          </div>
+        </div>
         {conformanceResult && modelGraph && (
           <AlignmentVisualization
             alignmentResults={conformanceResult}

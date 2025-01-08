@@ -23,6 +23,7 @@ import {
   startNodeStyle,
   unfitNodeStyle,
 } from "@/utils/styles";
+import toast from "react-hot-toast";
 
 cytoscape.use(dagre);
 
@@ -73,6 +74,10 @@ const AlignmentGraph = ({
       return false;
     });
 
+    if (filtered.length === 0) {
+      toast.error("No traces found");
+      return;
+    }
     setFilteredTraces(filtered);
     setCurrentTraceIndex(0);
   }, [selectedOption, alignmentResults]);
@@ -172,6 +177,13 @@ const AlignmentGraph = ({
     }
   };
 
+  const handleResetPosition = () => {
+    if (cyRef.current) {
+      cyRef.current.fit();
+      cyRef.current.center();
+    }
+  };
+
   useEffect(() => {
     if (cyRef.current) {
       cyRef.current.layout({ name: "dagre", rankDir: "LR" }).run();
@@ -212,8 +224,10 @@ const AlignmentGraph = ({
                 onChange={(e) =>
                   e.target.value &&
                   parseInt(e.target.value) <= traceKeys.length &&
+                  parseInt(e.target.value) > 0 &&
                   setCurrentTraceIndex(parseInt(e.target.value) - 1)
                 }
+                min={1}
                 max={traceKeys.length}
               />
               /{traceKeys.length}
@@ -266,6 +280,9 @@ const AlignmentGraph = ({
         style={{ width: "100%", height: "500px", backgroundColor: "white" }}
         cy={(cy) => (cyRef.current = cy)}
       />
+      <Button className="my-2" onClick={handleResetPosition}>
+        Reset Position
+      </Button>
       <ConformanceCheckingTable
         currentTrace={currentTrace}
         traceID={currentTraceIndex + 1}

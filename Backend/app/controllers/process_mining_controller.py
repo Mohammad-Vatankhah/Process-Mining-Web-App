@@ -33,9 +33,9 @@ UPLOAD_FOLDER = 'uploads/'
 
 
 def get_file_path(filename):
-    file_path = os.path.join(UPLOAD_FOLDER, secure_filename(filename))
-    if not os.path.exists(file_path):
+    if not filename:
         return None
+    file_path = os.path.join(UPLOAD_FOLDER, secure_filename(filename))
     return file_path
 
 
@@ -657,6 +657,13 @@ def save_temp_file(file):
             'type': 'file',
             'required': True,
             'description': 'Test log file (XES format)'
+        },
+        {
+            'name': 'sample',
+            'in': 'formData',
+            'type': 'string',
+            'required': False,
+            'description': 'Optional sample file name'
         }
     ],
     'responses': {
@@ -666,26 +673,40 @@ def save_temp_file(file):
         400: {
             'description': 'Bad Request'
         },
+        404: {
+            'description': 'File not found'
+        },
         500: {
             'description': 'Internal Server Error'
         }
     }
 })
 def conformance_checking_endpoint(filename):
-    if 'log' not in request.files:
-        return jsonify({'error': 'Test log file is required'}), 400
+    sample = request.form.get('sample')
+    test_path = None
+    if sample:
+        test_path = get_file_path(sample)
+        print(test_path)
+        if not os.path.exists(test_path):
+            return jsonify({'error': f'Sample file "{sample}" not found'}), 404
+    elif 'log' in request.files:
+        test_file = request.files['log']
+        test_path = save_temp_file(test_file)
+    else:
+        return jsonify({'error': 'Either a sample file or a test log file is required'}), 400
 
-    test_file = request.files['log']
-    test_path = save_temp_file(test_file)
+    print(test_path)
 
     model_path = get_file_path(filename)
     if not os.path.exists(model_path):
-        os.remove(test_path)
+        if os.path.exists(test_path):
+            os.remove(test_path)
         return jsonify({'error': 'Model log file not found'}), 404
 
     response = conformance_checking(model_path, test_path)
 
-    os.remove(test_path)
+    if 'log' in request.files and os.path.exists(test_path):
+        os.remove(test_path)
 
     return response
 

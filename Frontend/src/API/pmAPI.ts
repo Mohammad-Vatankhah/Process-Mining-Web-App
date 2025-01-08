@@ -102,10 +102,16 @@ const PMapi = {
     });
   },
 
-  conformanceChecking: async (filename: string, log: File) => {
+  conformanceChecking: async (
+    filename: string,
+    log: File,
+    sample: string | undefined
+  ) => {
     const formData = new FormData();
     formData.append("log", log);
-
+    if (sample) {
+      formData.append("sample", sample);
+    }
     return await axiosInstance.post(
       `/conformance_checking/${filename}`,
       formData,
