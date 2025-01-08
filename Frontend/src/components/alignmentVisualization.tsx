@@ -60,6 +60,10 @@ const AlignmentGraph = ({
   const currentTrace = alignmentResults[traceKeys[currentTraceIndex]];
 
   useEffect(() => {
+    setSelectedOption("all");
+  }, [alignmentResults]);
+
+  useEffect(() => {
     const filtered = Object.keys(alignmentResults).filter((key) => {
       const trace = alignmentResults[key];
       const fitness = trace.fitness;
@@ -76,6 +80,7 @@ const AlignmentGraph = ({
 
     if (filtered.length === 0) {
       toast.error("No traces found");
+      setSelectedOption("all")
       return;
     }
     setFilteredTraces(filtered);

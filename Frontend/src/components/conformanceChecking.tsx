@@ -85,7 +85,7 @@ export default function ConformanceChecking({
           </label>
         </div>
         {selectedFile && (
-          <p className="">{`Selected File: ${selectedFile.name}`}</p>
+          <p className="w-1/2">{`Selected File: ${selectedFile.name}`}</p>
         )}
         <div className="flex flex-col w-1/2 self-center gap-3">
           <Button

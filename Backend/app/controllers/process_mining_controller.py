@@ -684,28 +684,28 @@ def save_temp_file(file):
 def conformance_checking_endpoint(filename):
     sample = request.form.get('sample')
     test_path = None
+    temp_file_created = False
+
     if sample:
         test_path = get_file_path(sample)
-        print(test_path)
         if not os.path.exists(test_path):
             return jsonify({'error': f'Sample file "{sample}" not found'}), 404
     elif 'log' in request.files:
         test_file = request.files['log']
         test_path = save_temp_file(test_file)
+        temp_file_created = True
     else:
         return jsonify({'error': 'Either a sample file or a test log file is required'}), 400
 
-    print(test_path)
-
     model_path = get_file_path(filename)
     if not os.path.exists(model_path):
-        if os.path.exists(test_path):
+        if temp_file_created and os.path.exists(test_path):
             os.remove(test_path)
         return jsonify({'error': 'Model log file not found'}), 404
 
     response = conformance_checking(model_path, test_path)
 
-    if 'log' in request.files and os.path.exists(test_path):
+    if temp_file_created and os.path.exists(test_path):
         os.remove(test_path)
 
     return response
