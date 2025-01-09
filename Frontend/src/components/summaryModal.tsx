@@ -62,7 +62,7 @@ export default function SummaryModal({ filename }: { filename: string }) {
             </div>
 
             {/* Key Metrics Section */}
-            <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 h-fit">
               <div className="p-4 border rounded">
                 <h2 className="text-lg font-bold mb-2">Key Metrics</h2>
                 <p>

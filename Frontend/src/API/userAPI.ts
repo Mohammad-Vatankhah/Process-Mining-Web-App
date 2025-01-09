@@ -1,8 +1,8 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 import { jwtDecode } from "jwt-decode";
-const API_BASE_URL = "http://localhost:8000/user";
 
+const API_BASE_URL = `${process.env.NEXT_PUBLIC_API_BASE_URL}/user`;
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
   timeout: 60000,
