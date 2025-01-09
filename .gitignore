@@ -66,7 +66,6 @@ Backend/desktop.ini
 
 # Environment variables
 Frontend/.env
-Frontend/*.env
 
 # dependencies
 Frontend/node_modules
