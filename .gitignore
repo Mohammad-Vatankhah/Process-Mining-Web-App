@@ -20,7 +20,7 @@ Backend/*.db
 Backend/*.sqlite3
 Backend/uploads/*
 !Backend/uploads/loan_process.xes
-!Backend/uploadsloan_process_with_unfit_traces.xes
+!Backend/uploads/loan_process_with_unfit_traces.xes
 
 
 # Logs and cache
